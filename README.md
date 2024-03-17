@@ -1,35 +1,41 @@
-| Supported Targets | ESP32 | ESP32-C2 | ESP32-C3 | ESP32-C6 | ESP32-H2 | ESP32-P4 | ESP32-S2 | ESP32-S3 |
-| ----------------- | ----- | -------- | -------- | -------- | -------- | -------- | -------- | -------- |
-
-# _Sample project_
-
-(See the README.md file in the upper level 'examples' directory for more information about examples.)
-
-This is the simplest buildable example. The example is used by command `idf.py create-project`
-that copies the project to user specified path and set it's name. For more information follow the [docs page](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/build-system.html#start-a-new-project)
-
-
-
-## How to use example
-We encourage the users to use the example as a template for the new projects.
-A recommended way is to follow the instructions on a [docs page](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/build-system.html#start-a-new-project).
-
-## Example folder contents
-
-The project **sample_project** contains one source file in C language [main.c](main/main.c). The file is located in folder [main](main).
-
-ESP-IDF projects are built using CMake. The project build configuration is contained in `CMakeLists.txt`
-files that provide set of directives and instructions describing the project's source files and targets
-(executable, library, or both). 
-
-Below is short explanation of remaining files in the project folder.
-
+# 开发日志
+- [x] GC9A01亮屏 
+- - 添加GC9A01组件库
+- - 修改对应屏幕引脚
+- [x] 运行LVGL
+- - 添加esp_lvgl_port组件（会自动下载LVGL9）**后期官方更新可能会遇到自动下载LVGL9的问题，需要自己创建component文件夹然后在里面放入esp_lvgl_port、LVGL8**
+- - 在SDK Configuration里面需要修改LVGL参数，16：RGB565、swap the 2 bytes等参数
+- - 需要修改LVGL旋转参数，并且修改后要设置旋转方向
+```cpp
+const lvgl_port_display_cfg_t disp_cfg = {
+        .io_handle = lcd_io,
+        .panel_handle = lcd_panel,
+        .buffer_size = EXAMPLE_LCD_H_RES * EXAMPLE_LCD_DRAW_BUFF_HEIGHT * sizeof(uint16_t),
+        .double_buffer = EXAMPLE_LCD_DRAW_BUFF_DOUBLE,
+        .hres = EXAMPLE_LCD_H_RES,
+        .vres = EXAMPLE_LCD_V_RES,
+        .monochrome = false,
+        /* Rotation values must be same as used in esp_lcd for initial settings of the screen */
+        .rotation = {
+            .swap_xy = false,//change here
+            .mirror_x = true,//change here
+            .mirror_y = false,//change here
+        },
+        .flags = {
+            .buff_dma = true,
+        }
+    };
+    lvgl_disp = lvgl_port_add_disp(&disp_cfg);
+    lv_disp_set_rotation(lvgl_disp, LV_DISP_ROT_NONE);
 ```
-├── CMakeLists.txt
-├── main
-│   ├── CMakeLists.txt
-│   └── main.c
-└── README.md                  This is the file you are currently reading
-```
-Additionally, the sample project contains Makefile and component.mk files, used for the legacy Make based build system. 
-They are not used or needed when building with CMake and idf.py.
+
+- [x] Squareline导出ui文件运行
+- - 在Sq设置中修改lvgl/lvgl.h头文件位置为lvgl.h
+- [x] LVGL实现物理输入
+- [x] 运行FOC
+- [x] 电机数据做为LVGL输入
+- [x] 运行Knob电机控制，电机力反馈控制LVGL
+- [] usb hid
+- [] 蓝牙 hid
+- [] wifiwebsever 页面实现自定义旋钮按键功能
+- 。。。。
