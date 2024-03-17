@@ -1,0 +1,33 @@
+-- ccache will be used for faster recompilation
+-- git rev-parse returned 'fatal: not a git repository (or any of the parent directories): .git'
+-- Could not use 'git describe' to determine PROJECT_VER.
+-- Building ESP-IDF components for target esp32s3
+Processing 10 dependencies:
+[1/10] espressif/arduino-foc (2.3.0~3)
+[2/10] espressif/button (3.2.0)
+[3/10] espressif/cmake_utilities (0.5.3)
+[4/10] espressif/esp_lcd_gc9a01 (2.0.0)
+[5/10] espressif/esp_lvgl_port (1.4.0)
+[6/10] espressif/esp_simplefoc (0.1.1)
+[7/10] espressif/iqmath (1.11.0)
+[8/10] espressif/pid_ctrl (0.2.0)
+[9/10] idf (5.2.0)
+[10/10] lvgl/lvgl (8.3.11)
+-- Project sdkconfig file D:/espidfproject/superdial/sdkconfig
+-- Compiler supported targets: xtensa-esp-elf
+-- App "superdial" version: 1
+-- Adding linker script D:/espidfproject/superdial/build/esp-idf/esp_system/ld/memory.ld
+-- Adding linker script D:/espidf/esp-idf/components/esp_system/ld/esp32s3/sections.ld.in
+-- Adding linker script D:/espidf/esp-idf/components/esp_rom/esp32s3/ld/esp32s3.rom.ld
+-- Adding linker script D:/espidf/esp-idf/components/esp_rom/esp32s3/ld/esp32s3.rom.api.ld
+-- Adding linker script D:/espidf/esp-idf/components/esp_rom/esp32s3/ld/esp32s3.rom.libgcc.ld
+-- Adding linker script D:/espidf/esp-idf/components/esp_rom/esp32s3/ld/esp32s3.rom.newlib.ld
+-- Adding linker script D:/espidf/esp-idf/components/esp_rom/esp32s3/ld/esp32s3.rom.version.ld
+-- Adding linker script D:/espidf/esp-idf/components/soc/esp32s3/ld/esp32s3.peripherals.ld
+-- BUTTON: 3.2.0
+-- ESP_LCD_GC9A01: 2.0.0
+-- Components: app_trace app_update bootloader bootloader_support bt cmock console cxx driver efuse esp-tls esp_adc esp_app_format esp_bootloader_format esp_coex esp_common esp_eth esp_event esp_gdbstub esp_hid esp_http_client esp_http_server esp_https_ota esp_https_server esp_hw_support esp_lcd esp_local_ctrl esp_mm esp_netif esp_netif_stack esp_partition esp_phy esp_pm esp_psram esp_ringbuf esp_rom esp_system esp_timer esp_wifi espcoredump espressif__arduino-foc espressif__button espressif__cmake_utilities espressif__esp_lcd_gc9a01 espressif__esp_lvgl_port espressif__esp_simplefoc espressif__iqmath espressif__pid_ctrl esptool_py fatfs foc_knob freertos hal heap http_parser idf_test ieee802154 json log lvgl__lvgl lwip main mbedtls mqtt newlib nvs_flash nvs_sec_provider openthread partition_table perfmon protobuf-c protocomm pthread sdmmc soc spi_flash spiffs tcp_transport touch_element ulp unity usb vfs wear_levelling wifi_provisioning wpa_supplicant xtensa
+-- Component paths: D:/espidf/esp-idf/components/app_trace D:/espidf/esp-idf/components/app_update D:/espidf/esp-idf/components/bootloader D:/espidf/esp-idf/components/bootloader_support D:/espidf/esp-idf/components/bt D:/espidf/esp-idf/components/cmock D:/espidf/esp-idf/components/console D:/espidf/esp-idf/components/cxx D:/espidf/esp-idf/components/driver D:/espidf/esp-idf/components/efuse D:/espidf/esp-idf/components/esp-tls D:/espidf/esp-idf/components/esp_adc D:/espidf/esp-idf/components/esp_app_format D:/espidf/esp-idf/components/esp_bootloader_format D:/espidf/esp-idf/components/esp_coex D:/espidf/esp-idf/components/esp_common D:/espidf/esp-idf/components/esp_eth D:/espidf/esp-idf/components/esp_event D:/espidf/esp-idf/components/esp_gdbstub D:/espidf/esp-idf/components/esp_hid D:/espidf/esp-idf/components/esp_http_client D:/espidf/esp-idf/components/esp_http_server D:/espidf/esp-idf/components/esp_https_ota D:/espidf/esp-idf/components/esp_https_server D:/espidf/esp-idf/components/esp_hw_support D:/espidf/esp-idf/components/esp_lcd D:/espidf/esp-idf/components/esp_local_ctrl D:/espidf/esp-idf/components/esp_mm D:/espidf/esp-idf/components/esp_netif D:/espidf/esp-idf/components/esp_netif_stack D:/espidf/esp-idf/components/esp_partition D:/espidf/esp-idf/components/esp_phy D:/espidf/esp-idf/components/esp_pm D:/espidf/esp-idf/components/esp_psram D:/espidf/esp-idf/components/esp_ringbuf D:/espidf/esp-idf/components/esp_rom D:/espidf/esp-idf/components/esp_system D:/espidf/esp-idf/components/esp_timer D:/espidf/esp-idf/components/esp_wifi D:/espidf/esp-idf/components/espcoredump D:/espidfproject/superdial/managed_components/espressif__arduino-foc D:/espidfproject/superdial/managed_components/espressif__button D:/espidfproject/superdial/managed_components/espressif__cmake_utilities D:/espidfproject/superdial/managed_components/espressif__esp_lcd_gc9a01 D:/espidfproject/superdial/managed_components/espressif__esp_lvgl_port D:/espidfproject/superdial/managed_components/espressif__esp_simplefoc D:/espidfproject/superdial/managed_components/espressif__iqmath D:/espidfproject/superdial/managed_components/espressif__pid_ctrl D:/espidf/esp-idf/components/esptool_py D:/espidf/esp-idf/components/fatfs D:/espidfproject/superdial/components/foc_knob D:/espidf/esp-idf/components/freertos D:/espidf/esp-idf/components/hal D:/espidf/esp-idf/components/heap D:/espidf/esp-idf/components/http_parser D:/espidf/esp-idf/components/idf_test D:/espidf/esp-idf/components/ieee802154 D:/espidf/esp-idf/components/json D:/espidf/esp-idf/components/log D:/espidfproject/superdial/managed_components/lvgl__lvgl D:/espidf/esp-idf/components/lwip D:/espidfproject/superdial/main D:/espidf/esp-idf/components/mbedtls D:/espidf/esp-idf/components/mqtt D:/espidf/esp-idf/components/newlib D:/espidf/esp-idf/components/nvs_flash D:/espidf/esp-idf/components/nvs_sec_provider D:/espidf/esp-idf/components/openthread D:/espidf/esp-idf/components/partition_table D:/espidf/esp-idf/components/perfmon D:/espidf/esp-idf/components/protobuf-c D:/espidf/esp-idf/components/protocomm D:/espidf/esp-idf/components/pthread D:/espidf/esp-idf/components/sdmmc D:/espidf/esp-idf/components/soc D:/espidf/esp-idf/components/spi_flash D:/espidf/esp-idf/components/spiffs D:/espidf/esp-idf/components/tcp_transport D:/espidf/esp-idf/components/touch_element D:/espidf/esp-idf/components/ulp D:/espidf/esp-idf/components/unity D:/espidf/esp-idf/components/usb D:/espidf/esp-idf/components/vfs D:/espidf/esp-idf/components/wear_levelling D:/espidf/esp-idf/components/wifi_provisioning D:/espidf/esp-idf/components/wpa_supplicant D:/espidf/esp-idf/components/xtensa
+-- Configuring done
+-- Generating done
+-- Build files have been written to: D:/espidfproject/superdial/build

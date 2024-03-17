@@ -1,0 +1,20 @@
+dependencies:
+  espressif/arduino-foc:
+    public: true
+    version: '>=2.3.0~3'
+  espressif/iqmath:
+    version: ^1.11.0
+  idf:
+    version: '>=5.0'
+description: Espressif's additions to SimpleFOC
+issues: https://github.com/espressif/esp-iot-solution/issues
+repository: https://github.com/espressif/esp-iot-solution.git
+targets:
+- esp32
+- esp32s2
+- esp32s3
+- esp32c3
+- esp32c6
+- esp32h2
+url: https://github.com/espressif/esp-iot-solution/tree/master/components/motor/esp_simplefoc
+version: 0.1.1
