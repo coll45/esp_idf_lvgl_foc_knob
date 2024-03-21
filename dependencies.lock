@@ -47,17 +47,23 @@ dependencies:
       service_url: https://api.components.espressif.com/
       type: service
     version: 0.2.0
+  espressif__tinyusb:
+    component_hash: null
+    source:
+      path: D:\espidfproject\superdial\components\espressif__tinyusb
+      type: local
+    version: 0.15.0~5
   idf:
     component_hash: null
     source:
       type: idf
     version: 5.2.0
   lvgl/lvgl:
-    component_hash: 948bff879a345149b83065535bbc4a026ce9f47498a22881e432a264b9098015
+    component_hash: d7c1ac037ae6e85d94897f807d6e7ba0946a83e720074fc95a4f6241da9f9f53
     source:
       service_url: https://api.components.espressif.com/
       type: service
-    version: 8.3.11
-manifest_hash: 8fa4f6b91283f9298fd5584addc2e38047a2e3d20fb8286e4eecdee9a5de81a4
+    version: 8.4.0
+manifest_hash: c882695a2f323d51d03d483c47b31dbdfcc36a16d48852aa5d01426dad6473d9
 target: esp32s3
 version: 1.0.0

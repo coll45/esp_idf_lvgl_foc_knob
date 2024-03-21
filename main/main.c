@@ -12,7 +12,9 @@
 
 #include "esp_lvgl_port.h"
 #include "display/display.h"
-#include "foc/foc.h"
+#include "dial/dial.h"
+#include "usb_device/usb_device.h"
+
 extern int16_t enc_num;
 extern int8_t enc_click;
 static const char *TAG = "MAIN";
@@ -68,6 +70,7 @@ static void lv_port_indev_init(void)
 }
 void app_main(void)
 {
+    usb_device_init();
     display_init();
     /* Show LVGL objects */
     lvgl_display_init();

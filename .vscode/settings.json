@@ -28,8 +28,10 @@
         "esp_simplefoc.h": "c",
         "esp_lcd_panel_ops.h": "c",
         "spi_master.h": "c",
-        "display.h": "c"
+        "display.h": "c",
+        "usb_device.h": "c",
+        "gpio.h": "c"
     },
-    "idf.portWin": "COM234",
+    "idf.portWin": "COM240",
     "idf.flashType": "UART"
 }
