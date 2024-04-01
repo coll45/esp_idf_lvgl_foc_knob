@@ -30,7 +30,12 @@
         "spi_master.h": "c",
         "display.h": "c",
         "usb_device.h": "c",
-        "gpio.h": "c"
+        "gpio.h": "c",
+        "hid_device.h": "c",
+        "freertos.h": "c",
+        "esp_check.h": "c",
+        "dial_power.h": "c",
+        "adc_continuous.h": "c"
     },
     "idf.portWin": "COM240",
     "idf.flashType": "UART"

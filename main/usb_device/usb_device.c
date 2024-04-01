@@ -83,3 +83,9 @@ void usb_device_init(void)
 
     ESP_ERROR_CHECK(tinyusb_driver_install(&tusb_cfg));
 }
+void usb_device_report(uint8_t state)
+{
+    if (tud_mounted()) {
+        tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,state);
+    }
+}

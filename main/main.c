@@ -14,6 +14,7 @@
 #include "display/display.h"
 #include "dial/dial.h"
 #include "usb_device/usb_device.h"
+#include "dial_power/dial_power.h"
 
 extern int16_t enc_num;
 extern int8_t enc_click;
@@ -68,9 +69,10 @@ static void lv_port_indev_init(void)
     lv_group_add_obj(group, ui_Button1);
 
 }
+
 void app_main(void)
 {
-    usb_device_init();
+    power_gpio_init();
     display_init();
     /* Show LVGL objects */
     lvgl_display_init();
@@ -78,4 +80,5 @@ void app_main(void)
     foc_init();
 
     lv_port_indev_init();
+    // usb_device_init();
 }

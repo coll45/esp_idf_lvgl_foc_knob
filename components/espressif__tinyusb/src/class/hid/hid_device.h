@@ -46,8 +46,8 @@
 #ifndef CFG_TUD_HID_EP_BUFSIZE
   #define CFG_TUD_HID_EP_BUFSIZE     64
 #endif
-#define DIAL_R       0x02
 #define DIAL_L       0x03
+#define DIAL_R       0x02
 #define DIAL_PRESS   0x01
 #define DIAL_RELEASE 0x00
 #define DIAL_UNIT     100

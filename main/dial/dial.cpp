@@ -56,14 +56,16 @@ static void button_press_cb(void *arg, void *data)
 {
     press_rotation = 1;
     ESP_LOGI(TAG, "press down:");
-    tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,DIAL_PRESS);
+    usb_device_report(DIAL_PRESS);
+    // tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,DIAL_PRESS);
     foc_knob_change_mode(foc_knob_handle, 2);
     motor_shake = true;
 }
 static void button_press_up_cb(void *arg, void *data)
 {
     ESP_LOGI(TAG, "press up:");
-    tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,DIAL_RELEASE);
+    usb_device_report(DIAL_RELEASE);
+    // tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,DIAL_RELEASE);
     foc_knob_change_mode(foc_knob_handle, 1);
 }
 static void button_single_click_cb(void *arg, void *data)
@@ -94,7 +96,8 @@ static void foc_knob_inc_cb(void *arg, void *data)
     enc_num ++;
     foc_knob_state_t state;
     foc_knob_get_state(arg, &state);
-    tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,DIAL_R);
+    usb_device_report(DIAL_R);
+    // tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,DIAL_R);
     ESP_LOGI(TAG, "foc_knob_inc_cb: position: %" PRId32 "\n", state.position);
 }
 
@@ -106,7 +109,8 @@ static void foc_knob_dec_cb(void *arg, void *data)
     enc_num --;
     foc_knob_state_t state;
     foc_knob_get_state(arg, &state);
-    tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,DIAL_L);
+    usb_device_report(DIAL_L);
+    // tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,DIAL_L);
     ESP_LOGI(TAG, "foc_knob_dec_cb: position: %" PRId32 "\n", state.position);
 }
 

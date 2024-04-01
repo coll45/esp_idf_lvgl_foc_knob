@@ -1,51 +1,63 @@
 dependencies:
-  espressif/arduino-foc:
-    component_hash: 043f369595cdbb18e6f1745d279ae23d9ee87e211c4da4a9ffcd721176ac827b
-    source:
-      service_url: https://api.components.espressif.com/
-      type: service
-    version: 2.3.0~3
-  espressif/button:
-    component_hash: 1f5297fe16f0ee988dbb14b6f4c91782fe2baf85025bb15cc1e0093edd3fb2ee
-    source:
-      service_url: https://api.components.espressif.com/
-      type: service
-    version: 3.2.0
   espressif/cmake_utilities:
     component_hash: 351350613ceafba240b761b4ea991e0f231ac7a9f59a9ee901f751bddc0bb18f
     source:
       service_url: https://api.components.espressif.com/
       type: service
     version: 0.5.3
-  espressif/esp_lcd_gc9a01:
-    component_hash: 9a6877a69d44729fa3f4aa6fa462cf1a9b47cd16d737e1a5191e5cf78437c7ee
-    source:
-      service_url: https://api.components.espressif.com/
-      type: service
-    version: 2.0.0
-  espressif/esp_lvgl_port:
-    component_hash: b43dc04720d126cbfe14d53a84787e4c24b7bd7f15468e224c930ad3ffb32258
-    source:
-      service_url: https://api.components.espressif.com/
-      type: service
-    version: 1.4.0
-  espressif/esp_simplefoc:
-    component_hash: ca7f0c17278d39be7ed2d478f43ea0ca1af3677c49b3da316cf5d95e26e0fa30
-    source:
-      service_url: https://api.components.espressif.com/
-      type: service
-    version: 0.1.1
   espressif/iqmath:
     component_hash: 407d5bc3fd358a73d2b09982918ab508b4e804cc547942c5979d226be86b7e75
     source:
       service_url: https://api.components.espressif.com/
       type: service
     version: 1.11.0
-  espressif/pid_ctrl:
-    component_hash: 22af0226d7adbea821e4c1a8c1fa5dad23c883eb7457e95e19342883a37c44a3
+  espressif__arduino-foc:
+    component_hash: null
     source:
-      service_url: https://api.components.espressif.com/
-      type: service
+      path: D:\espidfproject\superdial\components\espressif__arduino-foc
+      type: local
+    version: 2.3.0~3
+  espressif__button:
+    component_hash: null
+    source:
+      path: D:\espidfproject\superdial\components\espressif__button
+      type: local
+    version: 3.2.0
+  espressif__cmake_utilities:
+    component_hash: null
+    source:
+      path: D:\espidfproject\superdial\components\espressif__cmake_utilities
+      type: local
+    version: 0.5.3
+  espressif__esp_lcd_gc9a01:
+    component_hash: null
+    source:
+      path: D:\espidfproject\superdial\components\espressif__esp_lcd_gc9a01
+      type: local
+    version: 2.0.0
+  espressif__esp_lvgl_port:
+    component_hash: null
+    source:
+      path: D:\espidfproject\superdial\components\espressif__esp_lvgl_port
+      type: local
+    version: 1.4.0
+  espressif__esp_simplefoc:
+    component_hash: null
+    source:
+      path: D:\espidfproject\superdial\components\espressif__esp_simplefoc
+      type: local
+    version: 0.1.1
+  espressif__iqmath:
+    component_hash: null
+    source:
+      path: D:\espidfproject\superdial\components\espressif__iqmath
+      type: local
+    version: 1.11.0
+  espressif__pid_ctrl:
+    component_hash: null
+    source:
+      path: D:\espidfproject\superdial\components\espressif__pid_ctrl
+      type: local
     version: 0.2.0
   espressif__tinyusb:
     component_hash: null
@@ -64,6 +76,12 @@ dependencies:
       service_url: https://api.components.espressif.com/
       type: service
     version: 8.4.0
-manifest_hash: c882695a2f323d51d03d483c47b31dbdfcc36a16d48852aa5d01426dad6473d9
+  lvgl__lvgl:
+    component_hash: null
+    source:
+      path: D:\espidfproject\superdial\components\lvgl__lvgl
+      type: local
+    version: 8.4.0
+manifest_hash: 0982d62ab0293a9682503086b0f01633de30e7036e1ae86c2c796d980f7a9843
 target: esp32s3
 version: 1.0.0
