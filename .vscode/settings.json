@@ -35,7 +35,10 @@
         "freertos.h": "c",
         "esp_check.h": "c",
         "dial_power.h": "c",
-        "adc_continuous.h": "c"
+        "adc_continuous.h": "c",
+        "esp_err.h": "c",
+        "ledc.h": "c",
+        "ui.h": "c"
     },
     "idf.portWin": "COM240",
     "idf.flashType": "UART"

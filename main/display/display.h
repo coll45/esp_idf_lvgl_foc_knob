@@ -1,3 +1,5 @@
+#pragma once
+
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_check.h"
@@ -9,9 +11,10 @@
 #include "esp_lcd_panel_vendor.h"
 #include "esp_lcd_panel_ops.h"
 #include "esp_lcd_gc9a01.h"
-
+#include "stdlib.h"
 #include "esp_lvgl_port.h"
 #include "../ui/ui.h"
+#include "../dial_power/dial_power.h"
 
 /* LCD size */
 #define EXAMPLE_LCD_H_RES   (240)

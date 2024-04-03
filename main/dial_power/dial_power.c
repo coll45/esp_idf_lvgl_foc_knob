@@ -70,7 +70,7 @@ void adc_read_task()
     s_task_handle = xTaskGetCurrentTaskHandle();
 
     adc_continuous_handle_t handle = NULL;
-    continuous_adc_init(channel, sizeof(channel) / sizeof(adc_channel_t), &handle);
+    continuous_adc_init(adc_channel, sizeof(adc_channel) / sizeof(adc_channel_t), &handle);
 
     adc_continuous_evt_cbs_t cbs = {
         .on_conv_done = s_conv_done_cb,
@@ -102,7 +102,6 @@ void adc_read_task()
                     uint32_t chan_num = EXAMPLE_ADC_GET_CHANNEL(p);
                     // adc_val = EXAMPLE_ADC_GET_DATA(p);
                     adc_val = AvgFilter(EXAMPLE_ADC_GET_DATA(p));
-                    bat_val_get();
                     /* Check the channel number validation, the data is invalid if the channel num exceed the maximum channel */
                     // if (chan_num < SOC_ADC_CHANNEL_NUM(EXAMPLE_ADC_UNIT)) {
                     //     ESP_LOGI(TAG, "Unit: %s, Channel: %"PRIu32", Value: %"PRIu32, unit, chan_num, adc_val);
@@ -148,7 +147,7 @@ uint32_t bat_adc_get()
 }
 
 #define ARRAY_DIM(a) (sizeof(a) / sizeof((a)[0]))
-const static int Battery_Level_Percent_Table[11] = {3500, 3650, 3700, 3740, 3760, 3795, 3840, 3910, 3980, 4070, 4200};
+const static int Battery_Level_Percent_Table[11] = {3400, 3650, 3700, 3740, 3760, 3795, 3840, 3910, 3980, 4070, 4200};
 int toPercentage(uint32_t voltage)
 {
 	if(voltage < Battery_Level_Percent_Table[0])

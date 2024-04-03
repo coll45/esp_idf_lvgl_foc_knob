@@ -46,6 +46,8 @@ void motor_init(void)
 
     motor.useMonitoring(Serial);
     motor.init();                                        // initialize motor
+    // motor.sensor_direction = Direction::CCW;
+    // motor.zero_electric_angle = 0.81;
     motor.initFOC();                                     // align sensor and start FOC
     
     ESP_LOGI(TAG, "Motor motor.zero_electric_angle %f",motor.zero_electric_angle);

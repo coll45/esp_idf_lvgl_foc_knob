@@ -8,7 +8,7 @@ static esp_lcd_panel_handle_t lcd_panel = NULL;
 
 /* LVGL display and touch */
 static lv_disp_t *lvgl_disp = NULL;
-
+static lv_timer_t *bat_task = NULL;
 static esp_err_t app_lcd_init(void)
 {
     esp_err_t ret = ESP_OK;
@@ -125,6 +125,13 @@ static esp_err_t app_lvgl_init(void)
 
     return ESP_OK;
 }
+void bat_task_cb(lv_timer_t * tmr)
+{
+	uint8_t val = bat_val_get();
+    char buffer[10];
+    sprintf(buffer,"%d%s",val,"%");
+    lv_label_set_text(ui_Label1,buffer);
+}
 void display_init(void)
 {
      /* LCD HW initialization */
@@ -139,7 +146,8 @@ void lvgl_display_init(void)
     lvgl_port_lock(0);
 
     ui_init();
-
+    bat_task = lv_timer_create(bat_task_cb, 500, 0);
+	lv_timer_set_repeat_count(bat_task,-1);
     /* Task unlock */
     lvgl_port_unlock();
 }

@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string.h>
 #include <stdio.h>
 #include "sdkconfig.h"
@@ -30,7 +32,7 @@
 #if CONFIG_IDF_TARGET_ESP32
 static adc_channel_t channel[2] = {ADC_CHANNEL_6, ADC_CHANNEL_7};
 #else
-static adc_channel_t channel[1] = { ADC_CHANNEL_3};   //GPIO4
+static adc_channel_t adc_channel[1] = { ADC_CHANNEL_3};   //GPIO4
 #endif
 
 #define R1_VOLTAGE 22000  //22K

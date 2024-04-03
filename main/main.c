@@ -80,5 +80,5 @@ void app_main(void)
     foc_init();
 
     lv_port_indev_init();
-    // usb_device_init();
+    usb_device_init();
 }
