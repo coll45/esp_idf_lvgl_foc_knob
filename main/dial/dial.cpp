@@ -13,6 +13,10 @@
 #include "../usb_device/usb_device.h"
 
 #define TAG "FOC_Knob_Example"
+#define DIAL_CLICK 0x04
+#define DIAL_DOUBLE_CLICK 0x05
+#define DIAL_LONG_PRESS 0x06
+#define DIAL_LONG_PRESS_UP 0x07
 static foc_knob_handle_t foc_knob_handle = NULL;
 static int mode = MOTOR_UNBOUND_NO_DETENTS;
 static bool motor_shake = false;
@@ -23,7 +27,10 @@ int8_t press_rotation = 0;
 BLDCDriver3PWM driver = BLDCDriver3PWM(PHASE_U_GPIO, PHASE_V_GPIO, PHASE_W_GPIO);
 BLDCMotor motor = BLDCMotor(MOTOR_PP);
 MT6701 mt6701 = MT6701(MT6701_SPI_HOST, (gpio_num_t)MT6701_SPI_SCLK_GPIO, (gpio_num_t)MT6701_SPI_MISO_GPIO, (gpio_num_t)MT6701_SPI_MOSI_GPIO, (gpio_num_t)MT6701_SPI_CS_GPIO);
-
+extern QueueHandle_t Dial_Queue;
+void dial_publish(uint8_t state) {
+  xQueueOverwrite(Dial_Queue, state);
+}
 /*Motor initialization*/
 void motor_init(void)
 {
@@ -46,8 +53,8 @@ void motor_init(void)
 
     motor.useMonitoring(Serial);
     motor.init();                                        // initialize motor
-    // motor.sensor_direction = Direction::CCW;
-    // motor.zero_electric_angle = 0.81;
+    motor.sensor_direction = Direction::CCW;
+    motor.zero_electric_angle = 0.81;
     motor.initFOC();                                     // align sensor and start FOC
     
     ESP_LOGI(TAG, "Motor motor.zero_electric_angle %f",motor.zero_electric_angle);
@@ -59,7 +66,7 @@ static void button_press_cb(void *arg, void *data)
     press_rotation = 1;
     ESP_LOGI(TAG, "press down:");
     usb_device_report(DIAL_PRESS);
-    // tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,DIAL_PRESS);
+    dial_publish(DIAL_PRESS);
     foc_knob_change_mode(foc_knob_handle, 2);
     motor_shake = true;
 }
@@ -67,6 +74,7 @@ static void button_press_up_cb(void *arg, void *data)
 {
     ESP_LOGI(TAG, "press up:");
     usb_device_report(DIAL_RELEASE);
+    dial_publish(DIAL_RELEASE);
     // tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,DIAL_RELEASE);
     foc_knob_change_mode(foc_knob_handle, 1);
 }

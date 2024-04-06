@@ -12,11 +12,6 @@
 // SCREEN: ui_Screen1
 void ui_Screen1_screen_init(void);
 lv_obj_t * ui_Screen1;
-lv_obj_t * ui_Arc1;
-lv_obj_t * ui_Label1;
-lv_obj_t * ui_Button1;
-lv_obj_t * ui_Label2;
-lv_obj_t * ui____initial_actions0;
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 16
@@ -31,14 +26,76 @@ lv_obj_t * ui____initial_actions0;
 ///////////////////// FUNCTIONS ////////////////////
 
 ///////////////////// SCREENS ////////////////////
+extern int16_t enc_num;
+extern int8_t enc_click;
+lv_indev_t* encoder_indev;
+static lv_indev_drv_t indev_drv;
+struct
+{
+    uint8_t index;//current ui screen index
+} ui_state;
+void ui_state_init()
+{
+    ui_state.index = UI_MENU_INTERFACE; 
+}
+void ui_dial_event(uint8_t state)
+{
+    switch (ui_state.index)
+    {
+    case UI_MENU_INTERFACE:
+        /* code */
+        break;
+    case UI_HID_INTERFACE:
+        break;
+    default:
+        break;
+    }
+}
+static void encoder_init(void)
+{
+    // gpio_set_direction(GPIO_NUM_5, GPIO_MODE_INPUT);
+    /*Do it in Init*/
+}
+/* Will be called by the library to read the encoder */
+static void encoder_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
+{
+    data->enc_diff = enc_num;
+    enc_num = 0;
 
+    if(enc_click)
+    {
+        data->state =  LV_INDEV_STATE_PR;
+        enc_click = 0;
+    }
+    else
+        data->state = LV_INDEV_STATE_REL;
+}
+static void lv_port_indev_init(void)
+{
+
+    /*------------------
+     * Encoder
+     * -----------------*/
+
+    /*Initialize your encoder if you have*/
+    encoder_init();
+
+    /*Register a encoder input device*/
+    lv_indev_drv_init(&indev_drv);
+    indev_drv.type = LV_INDEV_TYPE_ENCODER;
+    indev_drv.read_cb = encoder_read;
+    // indev_drv.long_press_time = 2000;           // 按下 2s 为长按
+    // indev_drv.long_press_repeat_time = 500;    // 间隔 0.5s 发送LV_EVENT_LONG_PRESSED_REPEAT 事件
+    encoder_indev = lv_indev_drv_register(&indev_drv);
+
+}
 void ui_init(void)
 {
+    lv_port_indev_init();
     lv_disp_t * dispp = lv_disp_get_default();
     lv_theme_t * theme = lv_theme_default_init(dispp, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED),
                                                false, LV_FONT_DEFAULT);
     lv_disp_set_theme(dispp, theme);
     ui_Screen1_screen_init();
-    ui____initial_actions0 = lv_obj_create(NULL);
     lv_disp_load_scr(ui_Screen1);
 }

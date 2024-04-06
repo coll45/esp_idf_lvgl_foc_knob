@@ -14,15 +14,22 @@ extern "C" {
 
 #include "ui_helpers.h"
 #include "ui_events.h"
+
+enum {
+    UI_MENU_INTERFACE,            /*!< Main menu select different interface */
+    UI_HID_INTERFACE,            /*!< USB menu Control PC or Phone */
+};
+
 // SCREEN: ui_Screen1
+void ui_dial_event(uint8_t state);
+void MenuView_Delete();
 void ui_Screen1_screen_init(void);
 extern lv_obj_t * ui_Screen1;
-extern lv_obj_t * ui_Arc1;
-extern lv_obj_t * ui_Label1;
-extern lv_obj_t * ui_Button1;
-extern lv_obj_t * ui_Label2;
-extern lv_obj_t * ui____initial_actions0;
-
+extern lv_indev_t* encoder_indev;
+extern struct ui_state;
+LV_IMG_DECLARE(ui_img_pc_png);    // assets\pc.png
+LV_IMG_DECLARE(ui_img_power_off_png);    // assets\power_off.png
+LV_IMG_DECLARE(ui_img_setting_png);    // assets\setting.png
 
 
 

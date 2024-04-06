@@ -19,11 +19,11 @@ static const foc_knob_param_t unbound_no_detents[] = {
 };
 
 static const foc_knob_param_t unbound_fine_detents[] = {
-    {0, 0, 5 * PI / 180, 0.8, 0, 1.1, "Unbounded\nFine detents"},
+    {0, 0, 10 * PI / 180, 0.8, 0, 1.1, "Unbounded\nFine detents"},
 };
 
 static const foc_knob_param_t unbound_coarse_detents[] = {
-    {0, 0, 10 * PI / 180, 1.2, 0, 1.1, "Unbounded\nStrong detents"},
+    {0, 0, 20 * PI / 180, 1.2, 0, 1.1, "Unbounded\nStrong detents"},
 };
 
 static const foc_knob_param_t bound_no_detents[] = {

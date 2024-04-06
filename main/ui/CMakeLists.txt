@@ -2,6 +2,9 @@ SET(SOURCES screens/ui_Screen1.c
     ui.c
     components/ui_comp_hook.c
     ui_helpers.c
-    ui_events.c)
+    ui_events.c
+    images/ui_img_pc_png.c
+    images/ui_img_power_off_png.c
+    images/ui_img_setting_png.c)
 
 add_library(ui ${SOURCES})

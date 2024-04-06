@@ -38,7 +38,12 @@
         "adc_continuous.h": "c",
         "esp_err.h": "c",
         "ledc.h": "c",
-        "ui.h": "c"
+        "ui.h": "c",
+        "dial.h": "c",
+        "lvgl.h": "c",
+        "ui_events.h": "c",
+        "sdkconfig.h": "c",
+        "iot_button.h": "c"
     },
     "idf.portWin": "COM240",
     "idf.flashType": "UART"

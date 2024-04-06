@@ -48,6 +48,7 @@ static esp_err_t app_lcd_init(void)
     esp_lcd_panel_reset(lcd_panel);
     esp_lcd_panel_init(lcd_panel);
     esp_lcd_panel_mirror(lcd_panel, true, true);
+    esp_lcd_panel_invert_color(lcd_panel,true);
     esp_lcd_panel_disp_on_off(lcd_panel, true);
 
     /* LCD backlight on */
@@ -125,13 +126,6 @@ static esp_err_t app_lvgl_init(void)
 
     return ESP_OK;
 }
-void bat_task_cb(lv_timer_t * tmr)
-{
-	uint8_t val = bat_val_get();
-    char buffer[10];
-    sprintf(buffer,"%d%s",val,"%");
-    lv_label_set_text(ui_Label1,buffer);
-}
 void display_init(void)
 {
      /* LCD HW initialization */
@@ -146,8 +140,6 @@ void lvgl_display_init(void)
     lvgl_port_lock(0);
 
     ui_init();
-    bat_task = lv_timer_create(bat_task_cb, 500, 0);
-	lv_timer_set_repeat_count(bat_task,-1);
     /* Task unlock */
     lvgl_port_unlock();
 }
