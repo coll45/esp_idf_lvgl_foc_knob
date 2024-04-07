@@ -29,7 +29,7 @@ BLDCMotor motor = BLDCMotor(MOTOR_PP);
 MT6701 mt6701 = MT6701(MT6701_SPI_HOST, (gpio_num_t)MT6701_SPI_SCLK_GPIO, (gpio_num_t)MT6701_SPI_MISO_GPIO, (gpio_num_t)MT6701_SPI_MOSI_GPIO, (gpio_num_t)MT6701_SPI_CS_GPIO);
 extern QueueHandle_t Dial_Queue;
 void dial_publish(uint8_t state) {
-  xQueueOverwrite(Dial_Queue, state);
+  xQueueOverwrite(Dial_Queue, (void *)state);
 }
 /*Motor initialization*/
 void motor_init(void)
