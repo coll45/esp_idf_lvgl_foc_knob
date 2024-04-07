@@ -21,19 +21,28 @@ void dial_event_task()
 {
     uint8_t state;
     while (1)
-    {
-        if (xQueueReceive(Dial_Queue, &state, portMAX_DELAY) == pdTRUE) 
+    {   
+        if(uxQueueMessagesWaiting(Dial_Queue) != 0)
         {
-            ui_dial_event(state);
+            if (xQueueReceive(Dial_Queue, &state, 0) == pdTRUE) 
+            {   
+                ESP_LOGI(TAG, "mune:%d,state:%d",ui_state.index,state);
+                ui_dial_event(state);
+            }
         }
+        vTaskDelay(1 / portTICK_PERIOD_MS);
     }
 
 }
 void dial_event_queue_init()
 {
     Dial_Queue = xQueueCreate(5,/* 消息队列的长度 */ 
-                        1);/* 消息的大小 */ 
-    xTaskCreate(dial_event_task, "dial_event_task", 1024, NULL, 7, NULL);
+                        sizeof(uint8_t));/* 消息的大小 */ 
+    if (Dial_Queue != NULL)//判断队列是否创建成功
+    {
+        printf("Success\n");
+        xTaskCreate(dial_event_task, "dial_event_task", 1024 *5, NULL, 10, NULL);
+    }
 }
 void app_main(void)
 {

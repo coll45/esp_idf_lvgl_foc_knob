@@ -11,7 +11,7 @@ extern "C" {
 #endif
 
 #include "lvgl.h"
-
+#include "esp_log.h"
 #include "ui_helpers.h"
 #include "ui_events.h"
 
@@ -19,14 +19,17 @@ enum {
     UI_MENU_INTERFACE,            /*!< Main menu select different interface */
     UI_HID_INTERFACE,            /*!< USB menu Control PC or Phone */
 };
-
+typedef struct _ui_state{
+    uint8_t index;//current ui screen index
+}_ui_state;
 // SCREEN: ui_Screen1
 void ui_dial_event(uint8_t state);
 void MenuView_Delete();
 void ui_Screen1_screen_init(void);
+void ui_Screen1_get_index();
 extern lv_obj_t * ui_Screen1;
 extern lv_indev_t* encoder_indev;
-extern struct ui_state;
+extern _ui_state ui_state;
 LV_IMG_DECLARE(ui_img_pc_png);    // assets\pc.png
 LV_IMG_DECLARE(ui_img_power_off_png);    // assets\power_off.png
 LV_IMG_DECLARE(ui_img_setting_png);    // assets\setting.png

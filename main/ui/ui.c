@@ -8,11 +8,12 @@
 
 ///////////////////// VARIABLES ////////////////////
 
-
+#define TAG "UI"
 // SCREEN: ui_Screen1
 void ui_Screen1_screen_init(void);
 lv_obj_t * ui_Screen1;
-
+int16_t enc_num = 0;
+int16_t enc_click = 0;
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 16
     #error "LV_COLOR_DEPTH should be 16bit to match SquareLine Studio's settings"
@@ -26,14 +27,9 @@ lv_obj_t * ui_Screen1;
 ///////////////////// FUNCTIONS ////////////////////
 
 ///////////////////// SCREENS ////////////////////
-extern int16_t enc_num;
-extern int8_t enc_click;
 lv_indev_t* encoder_indev;
 static lv_indev_drv_t indev_drv;
-struct
-{
-    uint8_t index;//current ui screen index
-} ui_state;
+_ui_state ui_state;
 void ui_state_init()
 {
     ui_state.index = UI_MENU_INTERFACE; 
@@ -43,6 +39,8 @@ void ui_dial_event(uint8_t state)
     switch (ui_state.index)
     {
     case UI_MENU_INTERFACE:
+        
+        
         /* code */
         break;
     case UI_HID_INTERFACE:

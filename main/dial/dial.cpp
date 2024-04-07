@@ -17,11 +17,11 @@
 #define DIAL_DOUBLE_CLICK 0x05
 #define DIAL_LONG_PRESS 0x06
 #define DIAL_LONG_PRESS_UP 0x07
+#define DIAL_PRESS_R 0x08
+#define DIAL_PRESS_L 0x09
 static foc_knob_handle_t foc_knob_handle = NULL;
 static int mode = MOTOR_UNBOUND_NO_DETENTS;
 static bool motor_shake = false;
-int16_t enc_num = 0;
-int8_t enc_click = 0;
 int8_t press_rotation = 0;
 /*update motor parameters based on hardware design*/
 BLDCDriver3PWM driver = BLDCDriver3PWM(PHASE_U_GPIO, PHASE_V_GPIO, PHASE_W_GPIO);
@@ -29,7 +29,9 @@ BLDCMotor motor = BLDCMotor(MOTOR_PP);
 MT6701 mt6701 = MT6701(MT6701_SPI_HOST, (gpio_num_t)MT6701_SPI_SCLK_GPIO, (gpio_num_t)MT6701_SPI_MISO_GPIO, (gpio_num_t)MT6701_SPI_MOSI_GPIO, (gpio_num_t)MT6701_SPI_CS_GPIO);
 extern QueueHandle_t Dial_Queue;
 void dial_publish(uint8_t state) {
-  xQueueOverwrite(Dial_Queue, state);
+    uint8_t send_state;
+    send_state = state;
+    xQueueSend(Dial_Queue,&send_state,0);
 }
 /*Motor initialization*/
 void motor_init(void)
@@ -72,6 +74,7 @@ static void button_press_cb(void *arg, void *data)
 }
 static void button_press_up_cb(void *arg, void *data)
 {
+    press_rotation = 0;
     ESP_LOGI(TAG, "press up:");
     usb_device_report(DIAL_RELEASE);
     dial_publish(DIAL_RELEASE);
@@ -80,30 +83,38 @@ static void button_press_up_cb(void *arg, void *data)
 }
 static void button_single_click_cb(void *arg, void *data)
 {
-    if(press_rotation)
-        enc_click = 1;
-    press_rotation = 0;
+    if(press_rotation == 1)
+        dial_publish(DIAL_CLICK);
     ESP_LOGI(TAG, "single click:");
 }
 static void button_double_click_cb(void *arg, void *data)
 {
+    dial_publish(DIAL_DOUBLE_CLICK);
     ESP_LOGI(TAG, "double clic");
 }
 static void button_long_press_start_cb(void *arg, void *data)
 {
+    dial_publish(DIAL_LONG_PRESS);
     ESP_LOGI(TAG, "long press up");
 }
 static void button_long_press_up_cb(void *arg, void *data)
 {
+    dial_publish(DIAL_LONG_PRESS_UP);
     ESP_LOGI(TAG, "long press up");
 }
 static void foc_knob_inc_cb(void *arg, void *data)
 {
     //if press rotation clear flag
     if(press_rotation)
-        press_rotation = 0;
-        
-    enc_num ++;
+        press_rotation = 2;
+    if(press_rotation == 2)
+    {
+        dial_publish(DIAL_PRESS_R);
+    }
+    else
+    {
+        dial_publish(DIAL_R);
+    }
     foc_knob_state_t state;
     foc_knob_get_state(arg, &state);
     usb_device_report(DIAL_R);
@@ -114,9 +125,15 @@ static void foc_knob_inc_cb(void *arg, void *data)
 static void foc_knob_dec_cb(void *arg, void *data)
 {
     if(press_rotation)
-        press_rotation = 0;
-
-    enc_num --;
+        press_rotation = 2;
+    if(press_rotation == 2)
+    {
+        dial_publish(DIAL_PRESS_L);
+    }
+    else
+    {
+        dial_publish(DIAL_L);
+    }
     foc_knob_state_t state;
     foc_knob_get_state(arg, &state);
     usb_device_report(DIAL_L);

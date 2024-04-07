@@ -303,6 +303,7 @@ void Group_Init()
 }
 void ui_Screen1_screen_init(void)
 {
+	ui_state.index = UI_MENU_INTERFACE; 
     ui_Screen1 = lv_obj_create(NULL);
     lv_obj_clear_flag(ui_Screen1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 	Create(ui_Screen1);
