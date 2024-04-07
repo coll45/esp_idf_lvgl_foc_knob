@@ -36,6 +36,7 @@ lv_obj_t * ui_ArcScreen1;
 static void onFocus_cb(lv_event_t* event);
 void ui_event_screen1_change(uint8_t index)
 {
+	
 	switch (index)
 	{
 	case 0:
@@ -311,7 +312,7 @@ static void onFocus(lv_group_t* g)
 void Group_Init()
 {
 	ui.group = lv_group_create();
-	lv_indev_set_group(encoder_indev, ui.group);
+	// lv_indev_set_group(encoder_indev, ui.group);
 	// lv_indev_set_group(lv_get_indev(LV_INDEV_TYPE_ENCODER), ui.group);
 	// lv_indev_set_group(lv_get_indev(LV_INDEV_TYPE_ENCODER), ui.group);
 	lv_group_set_focus_cb(ui.group, onFocus);
@@ -353,6 +354,7 @@ void ui_Screen1_dial_event(uint8_t state)
             case 0:
                 ui_state.index = UI_HID_INTERFACE;
 				ui_event_screen1_change(index);
+
                 usb_device_init();
                 break;
             default:
@@ -365,10 +367,15 @@ void ui_Screen1_dial_event(uint8_t state)
     }
                     /* code */
 }
+void scr_Screen1_loaded_cb()
+{
+	lv_indev_set_group(encoder_indev, ui.group);
+}
 void ui_Screen1_screen_init(void)
 {
 	ui_state.index = UI_MENU_INTERFACE; 
     ui_Screen1 = lv_obj_create(NULL);
+	lv_obj_add_event_cb(ui_Screen1, scr_Screen1_loaded_cb, LV_EVENT_SCREEN_LOADED, &ui_Screen1);
     lv_obj_clear_flag(ui_Screen1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 	lv_obj_t * ui_Container = lv_obj_create(ui_Screen1);
     lv_obj_clear_flag(ui_Container, LV_OBJ_FLAG_SCROLLABLE);      /// Flags

@@ -23,6 +23,7 @@ void ui_Screen2_hid_event(uint8_t state)
     case DIAL_STA_DOUBLE_CLICK:
         ui_state.index = UI_MENU_INTERFACE;
         _ui_screen_change(&ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 300, 0, &ui_Screen1_screen_init);
+        _ui_screen_delete(&ui_Screen2);
         break;
     
     default:
@@ -30,9 +31,15 @@ void ui_Screen2_hid_event(uint8_t state)
     }
      
 }
+void scr_Screen2_loaded_cb()
+{
+    lv_group_t* group = lv_group_create();
+    lv_indev_set_group(encoder_indev, group);
+}
 void ui_Screen2_hid_init(void)
 {
     ui_Screen2 = lv_obj_create(NULL);
+    lv_obj_add_event_cb(ui_Screen2, scr_Screen2_loaded_cb, LV_EVENT_SCREEN_LOADED, &ui_Screen2);
     lv_obj_clear_flag(ui_Screen2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     lv_obj_t * ui_Button2 = lv_btn_create(ui_Screen2);
@@ -41,6 +48,4 @@ void ui_Screen2_hid_init(void)
     lv_obj_set_align(ui_Button2, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_Button2, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_Button2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-
-
 }
