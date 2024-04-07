@@ -43,7 +43,10 @@
         "lvgl.h": "c",
         "ui_events.h": "c",
         "sdkconfig.h": "c",
-        "iot_button.h": "c"
+        "iot_button.h": "c",
+        "*.inc": "cpp",
+        "tinyusb.h": "c",
+        "tusb_tasks.h": "c"
     },
     "idf.portWin": "COM240",
     "idf.flashType": "UART"

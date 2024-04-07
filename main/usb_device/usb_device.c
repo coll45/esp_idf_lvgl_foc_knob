@@ -1,6 +1,5 @@
 #include "usb_device.h"
 static const char *TAG = "usb_device";
-
 /************* TinyUSB descriptors ****************/
 
 #define TUSB_DESC_TOTAL_LEN      (TUD_CONFIG_DESC_LEN + CFG_TUD_HID * TUD_HID_DESC_LEN)
@@ -74,8 +73,12 @@ void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_
     
 }
 void usb_device_init(void)
-{
-    const tinyusb_config_t tusb_cfg = {
+{ 
+    static uint8_t usb_init_flag = 0;
+    if(usb_init_flag == 0)
+    {
+        usb_init_flag = 1;
+        const tinyusb_config_t tusb_cfg = {
         .device_descriptor = NULL,
         .string_descriptor = hid_string_descriptor,
         .string_descriptor_count = sizeof(hid_string_descriptor) / sizeof(hid_string_descriptor[0]),
@@ -84,10 +87,16 @@ void usb_device_init(void)
     };
 
     ESP_ERROR_CHECK(tinyusb_driver_install(&tusb_cfg));
+    }
 }
 void usb_device_report(uint8_t state)
 {
-    if (tud_mounted()) {
+    if (tud_connected()) {
         tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,state);
     }
+}
+void usb_device_uninstall(void)
+{
+    //not use
+    ESP_ERROR_CHECK(tinyusb_driver_uninstall());
 }

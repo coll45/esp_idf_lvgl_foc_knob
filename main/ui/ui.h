@@ -14,26 +14,44 @@ extern "C" {
 #include "esp_log.h"
 #include "ui_helpers.h"
 #include "ui_events.h"
-
+#include "../usb_device/usb_device.h"
 enum {
     UI_MENU_INTERFACE,            /*!< Main menu select different interface */
     UI_HID_INTERFACE,            /*!< USB menu Control PC or Phone */
 };
+enum
+{
+    DIAL_STA_RELEASE,
+    DIAL_STA_PRESS,
+    DIAL_STA_R,
+    DIAL_STA_L,
+    DIAL_STA_CLICK,
+    DIAL_STA_DOUBLE_CLICK,
+    DIAL_STA_LONG_PRESS,
+    DIAL_STA_LONG_PRESS_UP,
+    DIAL_STA_P_R,
+    DIAL_STA_P_L
+};
 typedef struct _ui_state{
     uint8_t index;//current ui screen index
 }_ui_state;
-// SCREEN: ui_Screen1
-void ui_dial_event(uint8_t state);
+extern int16_t enc_num;
+extern int16_t enc_click;
+// SCREEN: ui_Screen1  
 void MenuView_Delete();
+void ui_Screen1_dial_event(uint8_t state);
 void ui_Screen1_screen_init(void);
-void ui_Screen1_get_index();
 extern lv_obj_t * ui_Screen1;
+
+extern lv_obj_t * ui_Screen2;
+void ui_Screen2_hid_init(void);
+void ui_Screen2_hid_event(uint8_t state);
 extern lv_indev_t* encoder_indev;
 extern _ui_state ui_state;
 LV_IMG_DECLARE(ui_img_pc_png);    // assets\pc.png
 LV_IMG_DECLARE(ui_img_power_off_png);    // assets\power_off.png
 LV_IMG_DECLARE(ui_img_setting_png);    // assets\setting.png
-
+LV_IMG_DECLARE(ui_img_bg1_png);    // assets\bg1.png
 
 
 void ui_init(void);

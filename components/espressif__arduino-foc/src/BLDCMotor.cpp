@@ -90,11 +90,11 @@ void BLDCMotor::init() {
   }
   P_angle.limit = velocity_limit;
 
-  _delay(500);
+  // _delay(500);
   // enable motor
   SIMPLEFOC_DEBUG("MOT: Enable driver.");
   enable();
-  _delay(500);
+  // _delay(500);
   motor_status = FOCMotorStatus::motor_uncalibrated;
 }
 
@@ -140,7 +140,7 @@ int  BLDCMotor::initFOC( float zero_electric_offset, Direction _sensor_direction
 
   // sensor and motor alignment - can be skipped
   // by setting motor.sensor_direction and motor.zero_electric_angle
-  _delay(500);
+  _delay(100);
   if(sensor){
     exit_flag *= alignSensor();
     // added the shaft_angle update
@@ -154,7 +154,7 @@ int  BLDCMotor::initFOC( float zero_electric_offset, Direction _sensor_direction
   // aligning the current sensor - can be skipped
   // checks if driver phases are the same as current sense phases
   // and checks the direction of measuremnt.
-  _delay(500);
+  _delay(100);
   if(exit_flag){
     if(current_sense){ 
       if (!current_sense->initialized) {

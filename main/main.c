@@ -27,7 +27,17 @@ void dial_event_task()
             if (xQueueReceive(Dial_Queue, &state, 0) == pdTRUE) 
             {   
                 ESP_LOGI(TAG, "mune:%d,state:%d",ui_state.index,state);
-                ui_dial_event(state);
+                switch (ui_state.index)
+                {
+                case UI_MENU_INTERFACE:
+                    ui_Screen1_dial_event(state);
+                    break;
+                case UI_HID_INTERFACE:
+                    ui_Screen2_hid_event(state);
+                    break;
+                default:
+                    break;
+                }
             }
         }
         vTaskDelay(1 / portTICK_PERIOD_MS);

@@ -6,6 +6,7 @@
 #include "../ui.h"
 #define ITEM_HEIGHT_MIN   100
 #define ITEM_PAD          ((LV_VER_RES - ITEM_HEIGHT_MIN) / 2)
+int screen1_index = 0;
 typedef struct
 {
     lv_obj_t* cont;
@@ -31,7 +32,20 @@ struct
 	lv_style_t info;
 	lv_style_t data;
 } style;
+lv_obj_t * ui_ArcScreen1;
 static void onFocus_cb(lv_event_t* event);
+void ui_event_screen1_change(uint8_t index)
+{
+	switch (index)
+	{
+	case 0:
+		_ui_screen_change(&ui_Screen2, LV_SCR_LOAD_ANIM_FADE_ON, 300, 0, &ui_Screen2_hid_init);
+		break;
+	
+	default:
+		break;
+	}
+}
 void MenuView_Style_Reset()
 {
 	lv_style_reset(&style.icon);
@@ -154,8 +168,9 @@ void Create(lv_obj_t* root)
 {
 	lv_obj_remove_style_all(root);
 	lv_obj_set_size(root, LV_HOR_RES, LV_VER_RES);
-	lv_obj_set_style_bg_color(root, lv_color_black(), 0);
-	lv_obj_set_style_bg_opa(root, LV_OPA_COVER, 0);
+	// lv_obj_set_style_bg_color(root, lv_color_black(), 0);
+	// lv_obj_set_style_bg_opa(root, LV_OPA_COVER, 0);
+	lv_obj_set_style_bg_img_src(root, &ui_img_bg1_png, LV_PART_MAIN | LV_STATE_DEFAULT);
 	lv_obj_set_style_pad_ver(root, ITEM_PAD, 0);
 	lv_obj_set_flex_flow(root, LV_FLEX_FLOW_COLUMN);
 	lv_obj_set_flex_align(root, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
@@ -230,7 +245,26 @@ void Create(lv_obj_t* root)
 		"Fan \n"
 		"Monitor Bar"
 	);
-	
+	ui_ArcScreen1 = lv_arc_create(ui_Screen1);
+    lv_obj_set_width(ui_ArcScreen1, 240);
+    lv_obj_set_height(ui_ArcScreen1, 240);
+    lv_obj_set_x(ui_ArcScreen1, 3);
+    lv_obj_set_y(ui_ArcScreen1, -3);
+    lv_obj_set_align(ui_ArcScreen1, LV_ALIGN_CENTER);
+    lv_arc_set_value(ui_ArcScreen1, 50);
+    lv_arc_set_bg_angles(ui_ArcScreen1, 108, 169);
+    lv_obj_set_style_arc_color(ui_ArcScreen1, lv_color_hex(0x303030), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_opa(ui_ArcScreen1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_width(ui_ArcScreen1, 6, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_rounded(ui_ArcScreen1, true, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_set_style_arc_color(ui_ArcScreen1, lv_color_hex(0xB0E14A), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_opa(ui_ArcScreen1, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_width(ui_ArcScreen1, 6, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_rounded(ui_ArcScreen1, true, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+
+    lv_obj_set_style_bg_color(ui_ArcScreen1, lv_color_hex(0xFFFFFF), LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_ArcScreen1, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
 	uint32_t mid_btn_index = (lv_obj_get_child_cnt(root) - 1) / 2;
 	for (uint32_t i = 0; i < mid_btn_index; i++)
 	{
@@ -255,34 +289,24 @@ static void onFocus(lv_group_t* g)
 
 		if (current_btn_index > mid_btn_index)
 		{
+			screen1_index++;
+			if (screen1_index > mid_btn_index * 2)
+				screen1_index = 0;
 			lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index - 1), LV_ANIM_OFF);
 			lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index), LV_ANIM_ON);
 			lv_obj_move_to_index(lv_obj_get_child(container, 0), -1);
 		}
 		else if (current_btn_index < mid_btn_index)
 		{
+			screen1_index--;
+			if (screen1_index < 0)
+			{
+				screen1_index = mid_btn_index * 2;
+			}
 			lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index + 1), LV_ANIM_OFF);
 			lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index), LV_ANIM_ON);
 			lv_obj_move_to_index(lv_obj_get_child(container, -1), 0);
 		}
-}
-lv_indev_t* lv_get_indev(lv_indev_type_t type)
-{
-    lv_indev_t* cur_indev = NULL;
-    for (;;)
-    {
-        cur_indev = lv_indev_get_next(cur_indev);
-        if (!cur_indev)
-        {
-            break;
-        }
-
-        if (cur_indev->driver->type == type)
-        {
-            return cur_indev;
-        }
-    }
-    return NULL;
 }
 void Group_Init()
 {
@@ -301,11 +325,55 @@ void Group_Init()
 
 	lv_group_focus_obj(ui.dialpad.icon);
 }
+uint8_t ui_Screen1_get_index()
+{
+	return screen1_index;
+}
+void ui_Screen1_dial_event(uint8_t state)
+{
+	switch (state)
+    {
+        case DIAL_STA_RELEASE:
+            
+        	break;
+        case DIAL_STA_PRESS:
+
+            break;
+        case DIAL_STA_R:
+            enc_num++;
+            break;
+        case DIAL_STA_L:
+            enc_num--;
+            break;
+        case DIAL_STA_CLICK:
+            uint8_t index = ui_Screen1_get_index();//change screen1
+            printf("current:%d,state:%d",index,state);
+            switch (index)
+            {
+            case 0:
+                ui_state.index = UI_HID_INTERFACE;
+				ui_event_screen1_change(index);
+                usb_device_init();
+                break;
+            default:
+                break;
+            }
+            break;
+        
+        default:
+            break;
+    }
+                    /* code */
+}
 void ui_Screen1_screen_init(void)
 {
 	ui_state.index = UI_MENU_INTERFACE; 
     ui_Screen1 = lv_obj_create(NULL);
     lv_obj_clear_flag(ui_Screen1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-	Create(ui_Screen1);
+	lv_obj_t * ui_Container = lv_obj_create(ui_Screen1);
+    lv_obj_clear_flag(ui_Container, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_width(ui_Container, 240);
+    lv_obj_set_height(ui_Container, 240);
+	Create(ui_Container);
 	Group_Init();
 }

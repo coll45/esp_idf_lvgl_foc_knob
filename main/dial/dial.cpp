@@ -67,45 +67,49 @@ static void button_press_cb(void *arg, void *data)
 {
     press_rotation = 1;
     ESP_LOGI(TAG, "press down:");
-    usb_device_report(DIAL_PRESS);
     dial_publish(DIAL_PRESS);
     foc_knob_change_mode(foc_knob_handle, 2);
     motor_shake = true;
 }
 static void button_press_up_cb(void *arg, void *data)
 {
-    press_rotation = 0;
+    if(press_rotation != 1)
+        press_rotation = 0;
     ESP_LOGI(TAG, "press up:");
-    usb_device_report(DIAL_RELEASE);
     dial_publish(DIAL_RELEASE);
-    // tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,DIAL_RELEASE);
     foc_knob_change_mode(foc_knob_handle, 1);
 }
 static void button_single_click_cb(void *arg, void *data)
 {
     if(press_rotation == 1)
         dial_publish(DIAL_CLICK);
+    press_rotation = 0;
     ESP_LOGI(TAG, "single click:");
 }
 static void button_double_click_cb(void *arg, void *data)
 {
-    dial_publish(DIAL_DOUBLE_CLICK);
+     if(press_rotation == 1)
+        dial_publish(DIAL_DOUBLE_CLICK);
+    press_rotation = 0;
     ESP_LOGI(TAG, "double clic");
 }
 static void button_long_press_start_cb(void *arg, void *data)
 {
-    dial_publish(DIAL_LONG_PRESS);
-    ESP_LOGI(TAG, "long press up");
+    if(press_rotation == 1)
+        dial_publish(DIAL_LONG_PRESS);
+    ESP_LOGI(TAG, "long press start");
 }
 static void button_long_press_up_cb(void *arg, void *data)
 {
+    if(press_rotation != 1)
+        press_rotation = 0;
     dial_publish(DIAL_LONG_PRESS_UP);
     ESP_LOGI(TAG, "long press up");
 }
 static void foc_knob_inc_cb(void *arg, void *data)
 {
-    //if press rotation clear flag
-    if(press_rotation)
+    //if press rotation flag
+    if(press_rotation == 1)
         press_rotation = 2;
     if(press_rotation == 2)
     {
@@ -117,14 +121,13 @@ static void foc_knob_inc_cb(void *arg, void *data)
     }
     foc_knob_state_t state;
     foc_knob_get_state(arg, &state);
-    usb_device_report(DIAL_R);
-    // tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,DIAL_R);
     ESP_LOGI(TAG, "foc_knob_inc_cb: position: %" PRId32 "\n", state.position);
 }
 
 static void foc_knob_dec_cb(void *arg, void *data)
-{
-    if(press_rotation)
+{   
+    //if press rotation flag
+    if(press_rotation == 1)
         press_rotation = 2;
     if(press_rotation == 2)
     {
@@ -136,8 +139,6 @@ static void foc_knob_dec_cb(void *arg, void *data)
     }
     foc_knob_state_t state;
     foc_knob_get_state(arg, &state);
-    usb_device_report(DIAL_L);
-    // tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,DIAL_L);
     ESP_LOGI(TAG, "foc_knob_dec_cb: position: %" PRId32 "\n", state.position);
 }
 

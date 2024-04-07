@@ -35,7 +35,8 @@ const lvgl_port_display_cfg_t disp_cfg = {
 - [x] 运行FOC
 - [x] 电机数据做为LVGL输入
 - [x] 运行Knob电机控制，电机力反馈控制LVGL
-- [] usb hid
+- [x] usb hid 尝试切换界面时候启用HID成功，但是使用tinyusb_driver_uninstall卸载设备会出现USB设备虽然卸载了，但是再次HID_init时候电脑不会再次获取HID设备报文
+- - 最终解决办法是，切换界面HID init只调用一次，让HID功能常开，切回其他界面时也不卸载HID设备
 - [] 蓝牙 hid
 - [] wifiwebsever 页面实现自定义旋钮按键功能
 - 。。。。

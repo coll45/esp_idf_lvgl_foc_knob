@@ -68,6 +68,7 @@ esp_err_t tinyusb_driver_install(const tinyusb_config_t *config)
 
 esp_err_t tinyusb_driver_uninstall()
 {
+    tusb_stop_task();
     tinyusb_free_descriptors();
     return usb_del_phy(phy_hdl);
 }

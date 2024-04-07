@@ -11,7 +11,9 @@
 #define TAG "UI"
 // SCREEN: ui_Screen1
 void ui_Screen1_screen_init(void);
+
 lv_obj_t * ui_Screen1;
+lv_obj_t * ui_Screen2;
 int16_t enc_num = 0;
 int16_t enc_click = 0;
 ///////////////////// TEST LVGL SETTINGS ////////////////////
@@ -30,25 +32,6 @@ int16_t enc_click = 0;
 lv_indev_t* encoder_indev;
 static lv_indev_drv_t indev_drv;
 _ui_state ui_state;
-void ui_state_init()
-{
-    ui_state.index = UI_MENU_INTERFACE; 
-}
-void ui_dial_event(uint8_t state)
-{
-    switch (ui_state.index)
-    {
-    case UI_MENU_INTERFACE:
-        
-        
-        /* code */
-        break;
-    case UI_HID_INTERFACE:
-        break;
-    default:
-        break;
-    }
-}
 static void encoder_init(void)
 {
     // gpio_set_direction(GPIO_NUM_5, GPIO_MODE_INPUT);
