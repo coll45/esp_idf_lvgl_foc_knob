@@ -114,7 +114,7 @@ void adc_read_task()
                  * To avoid a task watchdog timeout, add a delay here. When you replace the way you process the data,
                  * usually you don't need this delay (as this task will block for a while).
                  */
-                vTaskDelay(10);
+                vTaskDelay(200);
             } else if (ret == ESP_ERR_TIMEOUT) {
                 //We try to read `EXAMPLE_READ_LEN` until API returns timeout, which means there's no available data
                 break;
@@ -130,7 +130,7 @@ void power_gpio_init()
     gpio_set_direction(POWER_GPIO, GPIO_MODE_OUTPUT);
     power_on();
 
-    xTaskCreate(adc_read_task, "adc_read_task", 4096, NULL, 7, NULL);
+    xTaskCreate(adc_read_task, "adc_read_task", 4096, NULL, 10, NULL);
 }
 void power_on()
 {
@@ -165,6 +165,6 @@ uint8_t bat_val_get()
 {
     uint32_t bat_val = bat_adc_get();
     int val = toPercentage(bat_val);
-    ESP_LOGI(TAG, "adc:%ld    percent: %d",bat_val,val);
+    // ESP_LOGI(TAG, "adc:%ld    percent: %d",bat_val,val);
     return val;
 }

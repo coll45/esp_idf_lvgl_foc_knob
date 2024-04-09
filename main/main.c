@@ -51,20 +51,19 @@ void dial_event_queue_init()
     if (Dial_Queue != NULL)//判断队列是否创建成功
     {
         printf("Success\n");
-        xTaskCreate(dial_event_task, "dial_event_task", 1024 *5, NULL, 10, NULL);
+        xTaskCreate(dial_event_task, "dial_event_task", 1024 *5, NULL, 7, NULL);
     }
 }
 void app_main(void)
 {
     power_gpio_init();
     display_init();
+    foc_init();
     /* Show LVGL objects */
     lvgl_display_init();
-
-    foc_init();
+    set_screen_light(50);
+    
     /* 创建 Queue */ 
     dial_event_queue_init();
 
-
-    // usb_device_init();
 }

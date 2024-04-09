@@ -40,7 +40,7 @@ void ui_event_screen1_change(uint8_t index)
 	switch (index)
 	{
 	case 0:
-		_ui_screen_change(&ui_Screen2, LV_SCR_LOAD_ANIM_FADE_ON, 300, 0, &ui_Screen2_hid_init);
+		_ui_screen_change(&ui_Screen2, LV_SCR_LOAD_ANIM_FADE_ON, 300, 0, &ui_Screen2_screen_init);
 		break;
 	
 	default:
@@ -217,7 +217,7 @@ void Create(lv_obj_t* root)
 		&ui.hass,
 		root,
 		"2",
-		&ui_img_power_off_png,
+		&ui_img_poweroff_png,
 	
 		"Your Smart Home\n"
 		"Light \n"
@@ -228,7 +228,7 @@ void Create(lv_obj_t* root)
 		&ui.battery,
 		root,
 		"3",
-		&ui_img_power_off_png,
+		&ui_img_poweroff_png,
 
 		"Your Smart Home\n"
 		"Light \n"
@@ -239,7 +239,7 @@ void Create(lv_obj_t* root)
 		&ui.storage,
 		root,
 		"4",
-		&ui_img_power_off_png,
+		&ui_img_poweroff_png,
 
 		"Your Smart Home\n"
 		"Light \n"
@@ -371,6 +371,11 @@ void scr_Screen1_loaded_cb()
 {
 	lv_indev_set_group(encoder_indev, ui.group);
 }
+void task_bat_cb(lv_timer_t * tmr)
+{
+	uint8_t value = bat_val_get();
+	lv_arc_set_value(ui_ArcScreen1, value);
+}
 void ui_Screen1_screen_init(void)
 {
 	ui_state.index = UI_MENU_INTERFACE; 
@@ -383,4 +388,6 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_height(ui_Container, 240);
 	Create(ui_Container);
 	Group_Init();
+	lv_timer_t * task1 = lv_timer_create(task_bat_cb, 200, 0);
+	lv_timer_set_repeat_count(task1,-1);
 }

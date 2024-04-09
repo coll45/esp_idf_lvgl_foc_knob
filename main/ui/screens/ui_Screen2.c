@@ -4,6 +4,23 @@
 // Project name: test1
 
 #include "../ui.h"
+static struct
+{
+    lv_style_t unfocused_0;//在焦点旁边 半透明
+    lv_style_t unfocused_1;//远离焦点 低透明度
+    lv_style_t unfocused_2;//远离焦点 低透明度 
+    lv_style_t focus;
+}style;
+struct
+{
+    const void* img_src;
+    uint8_t index;
+    const char* name;
+    const char* left_info;
+    const char* mid_info;
+    const char* right_info;
+} ui_hid;
+static uint8_t hid_index = 0;
 void ui_Screen2_hid_event(uint8_t state)
 {
     switch (state)
@@ -15,9 +32,11 @@ void ui_Screen2_hid_event(uint8_t state)
         usb_device_report(state);
         break;
     case DIAL_STA_R:
+        enc_num--;
         usb_device_report(state);
         break;
     case DIAL_STA_L:
+        enc_num++;
         usb_device_report(state);
         break;
     case DIAL_STA_DOUBLE_CLICK:
@@ -29,23 +48,201 @@ void ui_Screen2_hid_event(uint8_t state)
     default:
         break;
     }
-     
+}
+static lv_obj_t* container_create(lv_obj_t* screen)
+{
+    lv_obj_t* ui_Container = lv_obj_create(screen);
+    lv_obj_remove_style_all(ui_Container);
+    lv_obj_set_width(ui_Container, 220);
+    lv_obj_set_height(ui_Container, 115);
+    lv_obj_set_x(ui_Container, 0);
+    lv_obj_set_y(ui_Container, 74);
+    lv_obj_set_align(ui_Container, LV_ALIGN_CENTER);
+    lv_obj_set_flex_flow(ui_Container, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_align(ui_Container, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
+    lv_obj_clear_flag(ui_Container, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_Container, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_Container, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Container, 50, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_color(ui_Container, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_main_stop(ui_Container, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_stop(ui_Container, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(ui_Container, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_Container, lv_color_hex(0xFF0000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_Container, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_Container, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_side(ui_Container, LV_BORDER_SIDE_TOP, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui_Container, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui_Container, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui_Container, 10, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui_Container, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    return ui_Container;
+}
+static void Style_Init()
+{
+    lv_style_init(&style.focus);
+    lv_style_set_radius(&style.focus, 15);
+    lv_style_set_bg_color(&style.focus, lv_color_hex(0x000000));
+    lv_style_set_bg_opa(&style.focus, 50);
+    lv_style_set_bg_grad_color(&style.focus, lv_color_hex(0xFFFFFF));
+    lv_style_set_bg_main_stop(&style.focus, 150);
+    lv_style_set_bg_grad_stop(&style.focus, 255);
+    lv_style_set_bg_grad_dir(&style.focus, LV_GRAD_DIR_VER);
+
+    lv_style_init(&style.unfocused_0);
+    lv_style_set_opa(&style.unfocused_0, 150);
+    // lv_style_set_transform_zoom(&style.unfocused_0,220);
+    lv_style_set_translate_x(&style.unfocused_0,0);
+    lv_style_set_translate_y(&style.unfocused_0, 15);
+
+    lv_style_init(&style.unfocused_1);
+    lv_style_set_opa(&style.unfocused_1, 100);
+    // lv_style_set_transform_zoom(&style.unfocused_1, 150);
+    lv_style_set_translate_x(&style.unfocused_1, 15);
+    lv_style_set_translate_y(&style.unfocused_1, 25);
+
+    lv_style_init(&style.unfocused_2);
+    lv_style_set_opa(&style.unfocused_2, 100);
+    // lv_style_set_transform_zoom(&style.unfocused_2, 150);
+    lv_style_set_translate_x(&style.unfocused_2, -15);
+    lv_style_set_translate_y(&style.unfocused_2, 25);
+
+    static const lv_style_prop_t style_prop[] =
+    {
+        LV_STYLE_TRANSLATE_X,
+        // LV_STYLE_TRANSLATE_Y,
+        // LV_STYLE_TRANSFORM_ZOOM,
+        LV_STYLE_PROP_INV
+    };
+
+    static lv_style_transition_dsc_t trans;
+    lv_style_transition_dsc_init(
+        &trans,
+        style_prop,
+        lv_anim_path_bounce,
+        200,
+        0,
+        NULL
+    );
+    lv_style_set_transition(&style.focus, &trans);
+    lv_style_set_transition(&style.unfocused_0, &trans);
+    lv_style_set_transition(&style.unfocused_1, &trans);
+    lv_style_set_transition(&style.unfocused_2, &trans);
+}
+static lv_obj_t* icon_create(lv_obj_t* container, const void* img_src )
+{
+    lv_obj_t* ui_Image = lv_img_create(container);
+
+    lv_img_set_src(ui_Image, img_src);
+    lv_obj_remove_style_all(ui_Image);
+    lv_obj_clear_flag(ui_Image, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_add_flag(ui_Image, LV_OBJ_FLAG_CLICKABLE); //////////////正式的时候不用
+    lv_obj_add_style(ui_Image, &style.unfocused_0, LV_STATE_USER_1);
+    lv_obj_add_style(ui_Image, &style.unfocused_1, LV_STATE_USER_2);
+    lv_obj_add_style(ui_Image, &style.unfocused_2, LV_STATE_USER_3);
+    lv_obj_add_style(ui_Image, &style.focus, LV_STATE_FOCUSED);
+    return ui_Image;
+}
+static void onFocus(lv_group_t* g)
+{
+    lv_obj_t* icon = lv_group_get_focused(g);
+    uint32_t current_btn_index = lv_obj_get_index(icon);
+    //printf("current_btn_index:%ld\n", current_btn_index);
+    lv_obj_t* container = lv_obj_get_parent(icon);
+    uint32_t mid_btn_index = (lv_obj_get_child_cnt(container) - 1) / 2;
+    if (current_btn_index > mid_btn_index)
+    {
+        hid_index++;
+        if (hid_index > mid_btn_index * 2)
+            hid_index = 0;
+        lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index - 1), LV_ANIM_OFF);
+        lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index), LV_ANIM_ON);
+        lv_obj_move_to_index(lv_obj_get_child(container, 0), -1);
+    }
+    else if (current_btn_index < mid_btn_index)
+    {
+        hid_index--;
+        if (hid_index < 0)
+        {
+            hid_index = mid_btn_index * 2;
+        }
+        lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index + 1), LV_ANIM_OFF);
+        lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index), LV_ANIM_ON);
+        lv_obj_move_to_index(lv_obj_get_child(container, -1), 0);
+    }
+    uint8_t cnt = lv_obj_get_child_cnt(container);
+    for (uint8_t i = 0; i < cnt; i++)
+    {
+        lv_obj_t* obt = lv_obj_get_child(container, i);
+        lv_obj_clear_state(obt, LV_STATE_USER_1| LV_STATE_USER_2| LV_STATE_USER_3);
+        //远离中心两个图标以上的图标隐藏
+        if (i + 2 < mid_btn_index)
+        {
+            lv_obj_add_flag(obt, LV_OBJ_FLAG_HIDDEN);
+        }
+        else if(i > mid_btn_index + 2)
+        {
+            lv_obj_add_flag(obt, LV_OBJ_FLAG_HIDDEN);
+        }
+        else
+            lv_obj_clear_flag(obt, LV_OBJ_FLAG_HIDDEN);
+    }
+    //设置中间焦点左右两边图标样式，实现越远越小，越远越透明的效果
+          
+    lv_img_set_zoom(lv_obj_get_child(container, mid_btn_index), 256);                       /// ZOOM
+    lv_obj_add_state(lv_obj_get_child(container, mid_btn_index - 1), LV_STATE_USER_1);       /// States
+    lv_img_set_zoom(lv_obj_get_child(container, mid_btn_index - 1), 220);                       /// ZOOM
+    lv_obj_add_state(lv_obj_get_child(container, mid_btn_index + 1), LV_STATE_USER_1);       /// States
+    lv_img_set_zoom(lv_obj_get_child(container, mid_btn_index + 1), 220);                       /// ZOOM
+    lv_obj_add_state(lv_obj_get_child(container, mid_btn_index - 2), LV_STATE_USER_2);       /// States
+    lv_img_set_zoom(lv_obj_get_child(container, mid_btn_index - 2), 150);                       /// ZOOM
+    lv_obj_add_state(lv_obj_get_child(container, mid_btn_index + 2), LV_STATE_USER_3);       /// States
+    lv_img_set_zoom(lv_obj_get_child(container, mid_btn_index + 2), 150);                       /// ZOOM
+}
+static void group_init(lv_obj_t* container,uint8_t id)
+{
+    hid_index = 0;
+    lv_grad_t* group = lv_group_create();
+    uint8_t cnt = lv_obj_get_child_cnt(container);
+    //printf("%ld\n", cnt);
+    for (uint8_t i = 0; i < cnt; i++)
+    {
+    	lv_group_add_obj(group, lv_obj_get_child(container,i));
+    }
+    lv_group_set_focus_cb(group, onFocus);
+    uint32_t mid_btn_index = (lv_obj_get_child_cnt(container) - 1) / 2; 
+    lv_group_focus_obj(lv_obj_get_child(container, mid_btn_index));
+    for (uint8_t i = 0; i < id; i++)
+    {
+       lv_group_focus_obj(lv_obj_get_child(container, -3));
+    }
+    lv_indev_set_group(encoder_indev, group);
 }
 void scr_Screen2_loaded_cb()
 {
-    lv_group_t* group = lv_group_create();
-    lv_indev_set_group(encoder_indev, group);
+
 }
-void ui_Screen2_hid_init(void)
+
+void ui_Screen2_screen_init(void)
 {
     ui_Screen2 = lv_obj_create(NULL);
     lv_obj_add_event_cb(ui_Screen2, scr_Screen2_loaded_cb, LV_EVENT_SCREEN_LOADED, &ui_Screen2);
     lv_obj_clear_flag(ui_Screen2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_img_src(ui_Screen2, &ui_img_bg1_png, LV_PART_MAIN | LV_STATE_DEFAULT);
+    Style_Init();
+    lv_obj_t* container = container_create(ui_Screen2);
+    icon_create(container, &ui_img_dial_png);
+    icon_create(container, &ui_img_music_png);
+    icon_create(container, &ui_img_wheel_png);
+    icon_create(container, &ui_img_l_r_png);
+    icon_create(container, &ui_img_video_png);
+    icon_create(container, &ui_img_pc_png);
+    icon_create(container, &ui_img_pc_png);
+    uint32_t mid_btn_index = (lv_obj_get_child_cnt(container) - 1) / 2;
+    for (uint32_t i = 0; i < mid_btn_index; i++) 
+    {
+        lv_obj_move_to_index(lv_obj_get_child(container, -1), 0);
+    }
+    group_init(container,hid_index);
 
-    lv_obj_t * ui_Button2 = lv_btn_create(ui_Screen2);
-    lv_obj_set_width(ui_Button2, 100);
-    lv_obj_set_height(ui_Button2, 50);
-    lv_obj_set_align(ui_Button2, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_Button2, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-    lv_obj_clear_flag(ui_Button2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 }

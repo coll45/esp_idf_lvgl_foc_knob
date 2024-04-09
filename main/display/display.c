@@ -73,7 +73,7 @@ static esp_err_t app_lcd_init(void)
         .hpoint         = 0
     };
     ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
-    ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY));
+    ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, 0));
     // Update duty to apply the new value
     ESP_ERROR_CHECK(ledc_update_duty(LEDC_MODE, LEDC_CHANNEL));
     return ret;
@@ -126,6 +126,11 @@ static esp_err_t app_lvgl_init(void)
 
     return ESP_OK;
 }
+void set_screen_light(uint8_t duty)
+{
+    ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, 1024*duty*0.01));
+    ESP_ERROR_CHECK(ledc_update_duty(LEDC_MODE, LEDC_CHANNEL));
+}
 void display_init(void)
 {
      /* LCD HW initialization */
@@ -133,6 +138,7 @@ void display_init(void)
 
     /* LVGL initialization */
     ESP_ERROR_CHECK(app_lvgl_init());
+    
 }
 void lvgl_display_init(void)
 {

@@ -15,6 +15,7 @@ extern "C" {
 #include "ui_helpers.h"
 #include "ui_events.h"
 #include "../usb_device/usb_device.h"
+#include "../dial_power/dial_power.h"
 enum {
     UI_MENU_INTERFACE,            /*!< Main menu select different interface */
     UI_HID_INTERFACE,            /*!< USB menu Control PC or Phone */
@@ -44,15 +45,20 @@ void ui_Screen1_screen_init(void);
 extern lv_obj_t * ui_Screen1;
 
 extern lv_obj_t * ui_Screen2;
-void ui_Screen2_hid_init(void);
 void ui_Screen2_hid_event(uint8_t state);
+void ui_Screen2_screen_init(void);
 extern lv_indev_t* encoder_indev;
 extern _ui_state ui_state;
-LV_IMG_DECLARE(ui_img_pc_png);    // assets\pc.png
-LV_IMG_DECLARE(ui_img_power_off_png);    // assets\power_off.png
-LV_IMG_DECLARE(ui_img_setting_png);    // assets\setting.png
 LV_IMG_DECLARE(ui_img_bg1_png);    // assets\bg1.png
-
+LV_IMG_DECLARE(ui_img_pc_png);    // assets\pc.png
+LV_IMG_DECLARE(ui_img_poweroff_png);    // assets\poweroff.png
+LV_IMG_DECLARE(ui_img_setting_png);    // assets\setting.png
+LV_IMG_DECLARE(ui_img_l_r_png);    // assets\L_R.png
+LV_IMG_DECLARE(ui_img_video_png);    // assets\video.png
+LV_IMG_DECLARE(ui_img_dial_png);    // assets\dial.png
+LV_IMG_DECLARE(ui_img_music_png);    // assets\music.png
+LV_IMG_DECLARE(ui_img_wheel_png);    // assets\wheel.png
+LV_IMG_DECLARE(ui_img_pointer_png);    // assets\pointer.png
 
 void ui_init(void);
 

@@ -48,3 +48,8 @@
 
 void lvgl_display_init(void);
 void display_init(void);
+/**
+ * @brief Value duty 0-100
+ *
+ */
+void set_screen_light(uint8_t duty);
