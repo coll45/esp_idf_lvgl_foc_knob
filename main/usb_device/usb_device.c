@@ -1,7 +1,11 @@
 #include "usb_device.h"
 static const char *TAG = "usb_device";
 /************* TinyUSB descriptors ****************/
-
+QueueHandle_t HID_Queue = NULL;
+// struct Command_HID {
+//   uint8_t hid_id;
+//   char 
+// };
 #define TUSB_DESC_TOTAL_LEN      (TUD_CONFIG_DESC_LEN + CFG_TUD_HID * TUD_HID_DESC_LEN)
 
 /**
@@ -72,6 +76,28 @@ void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_
 {
     printf("Set report :%d\n", report_id);
     
+}
+void dial_hid_task()
+{
+    uint8_t state;
+    while (1)
+    {   
+        if (xQueueReceive(HID_Queue, &state, portMAX_DELAY) == pdTRUE) 
+        {   
+
+        }
+    }
+
+}
+void dial_hid_queue_init()
+{
+    HID_Queue = xQueueCreate(5,/* 消息队列的长度 */ 
+                        sizeof(uint8_t));/* 消息的大小 */ 
+    if (HID_Queue != NULL)//判断队列是否创建成功
+    {
+        printf("dial_hid_task Success\n");
+        xTaskCreate(dial_hid_task, "dial_hid_task", 1024 *4, NULL, 10, NULL);
+    }
 }
 void usb_device_init(void)
 { 
