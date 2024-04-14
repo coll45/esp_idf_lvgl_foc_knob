@@ -128,7 +128,7 @@ void power_gpio_init()
 {
     // power gpio init
     gpio_set_direction(POWER_GPIO, GPIO_MODE_OUTPUT);
-    power_on();
+    // power_on();
 
     xTaskCreate(adc_read_task, "adc_read_task", 4096, NULL, 10, NULL);
 }
