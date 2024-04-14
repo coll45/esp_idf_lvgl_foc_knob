@@ -14,6 +14,7 @@ void ui_Screen1_screen_init(void);
 
 lv_obj_t * ui_Screen1;
 lv_obj_t * ui_Screen2;
+uint8_t ui_event_flag = 0;
 int16_t enc_num = 0;
 int16_t enc_click = 0;
 ///////////////////// TEST LVGL SETTINGS ////////////////////
@@ -78,5 +79,6 @@ void ui_init(void)
                                                true, LV_FONT_DEFAULT);
     lv_disp_set_theme(dispp, theme);
     ui_Screen1_screen_init();
+    ui_Screen2_screen_init();
     lv_disp_load_scr(ui_Screen1);
 }

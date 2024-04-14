@@ -70,7 +70,8 @@ typedef enum
   HID_ITF_PROTOCOL_NONE     = 0, ///< None
   HID_ITF_PROTOCOL_KEYBOARD = 1, ///< Keyboard
   HID_ITF_PROTOCOL_MOUSE    = 2,  ///< Mouse
-  HID_ITF_PROTOCOL_DIAL     = 3
+  HID_ITF_PROTOCOL_DIAL     = 3, ///< Surface dial
+  HID_ITF_PROTOCOL_MEDIAL   = 4,
 }hid_interface_protocol_enum_t;
 
 /// HID Descriptor Type

@@ -182,7 +182,10 @@ static void motor_task(void *arg)
         vTaskDelay(1 / portTICK_PERIOD_MS);
     }
 }
-
+float get_motor_shaft_angle(void)
+{
+    return motor.shaft_angle;
+}
 void foc_init()
 {
     button_config_t btn_config = {

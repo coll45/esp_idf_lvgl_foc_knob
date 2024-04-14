@@ -4,23 +4,34 @@
 // Project name: test1
 
 #include "../ui.h"
+static lv_group_t* group;
+static lv_obj_t* pointer;
+static int8_t icon_index = 0;
+static lv_timer_t * pointer_task;
 static struct
 {
     lv_style_t unfocused_0;//在焦点旁边 半透明
     lv_style_t unfocused_1;//远离焦点 低透明度
     lv_style_t unfocused_2;//远离焦点 低透明度 
     lv_style_t focus;
+    lv_style_t font16;
+    lv_style_t font20;
 }style;
-struct
+static struct
+{
+    lv_obj_t* name;
+    lv_obj_t* left;
+    lv_obj_t* mid;
+    lv_obj_t* right;
+}ui_label;
+static struct _ui_hid
 {
     const void* img_src;
-    uint8_t index;
     const char* name;
     const char* left_info;
     const char* mid_info;
     const char* right_info;
-} ui_hid;
-static uint8_t hid_index = 0;
+};
 void ui_Screen2_hid_event(uint8_t state)
 {
     switch (state)
@@ -32,19 +43,21 @@ void ui_Screen2_hid_event(uint8_t state)
         usb_device_report(state);
         break;
     case DIAL_STA_R:
-        enc_num--;
+        
         usb_device_report(state);
         break;
     case DIAL_STA_L:
-        enc_num++;
         usb_device_report(state);
         break;
     case DIAL_STA_DOUBLE_CLICK:
-        ui_state.index = UI_MENU_INTERFACE;
         _ui_screen_change(&ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 300, 0, &ui_Screen1_screen_init);
-        _ui_screen_delete(&ui_Screen2);
         break;
-    
+    case DIAL_STA_P_R:
+        enc_num--;
+        break;
+    case DIAL_STA_P_L:
+        enc_num++;
+        break;
     default:
         break;
     }
@@ -128,6 +141,11 @@ static void Style_Init()
     lv_style_set_transition(&style.unfocused_0, &trans);
     lv_style_set_transition(&style.unfocused_1, &trans);
     lv_style_set_transition(&style.unfocused_2, &trans);
+
+    lv_style_init(&style.font20);
+    lv_style_set_text_font(&style.font20, &ui_font_SmileySansOblique20);
+    lv_style_init(&style.font16);
+    lv_style_set_text_font(&style.font16, &ui_font_SmileySansOblique16);
 }
 static lv_obj_t* icon_create(lv_obj_t* container, const void* img_src )
 {
@@ -136,7 +154,6 @@ static lv_obj_t* icon_create(lv_obj_t* container, const void* img_src )
     lv_img_set_src(ui_Image, img_src);
     lv_obj_remove_style_all(ui_Image);
     lv_obj_clear_flag(ui_Image, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_add_flag(ui_Image, LV_OBJ_FLAG_CLICKABLE); //////////////正式的时候不用
     lv_obj_add_style(ui_Image, &style.unfocused_0, LV_STATE_USER_1);
     lv_obj_add_style(ui_Image, &style.unfocused_1, LV_STATE_USER_2);
     lv_obj_add_style(ui_Image, &style.unfocused_2, LV_STATE_USER_3);
@@ -152,19 +169,19 @@ static void onFocus(lv_group_t* g)
     uint32_t mid_btn_index = (lv_obj_get_child_cnt(container) - 1) / 2;
     if (current_btn_index > mid_btn_index)
     {
-        hid_index++;
-        if (hid_index > mid_btn_index * 2)
-            hid_index = 0;
+        icon_index++;
+        if (icon_index > mid_btn_index * 2)
+            icon_index = 0;
         lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index - 1), LV_ANIM_OFF);
         lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index), LV_ANIM_ON);
         lv_obj_move_to_index(lv_obj_get_child(container, 0), -1);
     }
     else if (current_btn_index < mid_btn_index)
     {
-        hid_index--;
-        if (hid_index < 0)
+        icon_index--;
+        if (icon_index < 0)
         {
-            hid_index = mid_btn_index * 2;
+            icon_index = mid_btn_index * 2;
         }
         lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index + 1), LV_ANIM_OFF);
         lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index), LV_ANIM_ON);
@@ -199,10 +216,10 @@ static void onFocus(lv_group_t* g)
     lv_obj_add_state(lv_obj_get_child(container, mid_btn_index + 2), LV_STATE_USER_3);       /// States
     lv_img_set_zoom(lv_obj_get_child(container, mid_btn_index + 2), 150);                       /// ZOOM
 }
-static void group_init(lv_obj_t* container,uint8_t id)
+static void group_init(lv_obj_t* container,int8_t id)
 {
-    hid_index = 0;
-    lv_grad_t* group = lv_group_create();
+    icon_index = 0;
+    group = lv_group_create();
     uint8_t cnt = lv_obj_get_child_cnt(container);
     //printf("%ld\n", cnt);
     for (uint8_t i = 0; i < cnt; i++)
@@ -216,20 +233,88 @@ static void group_init(lv_obj_t* container,uint8_t id)
     {
        lv_group_focus_obj(lv_obj_get_child(container, -3));
     }
+}
+static void Create(lv_obj_t* root)
+{
+    ui_label.name = lv_label_create(root);
+    lv_obj_set_width(ui_label.name, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_label.name, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_label.name, 0);
+    lv_obj_set_y(ui_label.name, 93);
+    lv_obj_set_align(ui_label.name, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_label.name, "旋钮");
+    lv_obj_add_style(ui_label.name, &style.font20, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_label.left = lv_label_create(root);
+    lv_obj_set_width(ui_label.left, LV_SIZE_CONTENT);   /// 73
+    lv_obj_set_height(ui_label.left, LV_SIZE_CONTENT);    /// 40
+    lv_obj_set_x(ui_label.left, -67);
+    lv_obj_set_y(ui_label.left, 0);
+    lv_obj_set_align(ui_label.left, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_label.left, "-");
+    lv_obj_add_style(ui_label.left, &style.font16, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_label.mid = lv_label_create(root);
+    lv_obj_set_width(ui_label.mid, LV_SIZE_CONTENT);   /// 73
+    lv_obj_set_height(ui_label.mid, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_label.mid, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_label.mid, "360");
+    lv_obj_add_style(ui_label.mid, &style.font16, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_label.right = lv_label_create(root);
+    lv_obj_set_width(ui_label.right, LV_SIZE_CONTENT);   /// 74
+    lv_obj_set_height(ui_label.right, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_label.right, 67);
+    lv_obj_set_y(ui_label.right, 0);
+    lv_obj_set_align(ui_label.right, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_label.right, "+");
+    lv_obj_add_style(ui_label.right, &style.font16, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    pointer = lv_img_create(ui_Screen2);
+    lv_img_set_src(pointer, &ui_img_pointer_png);
+    lv_obj_set_align(pointer, LV_ALIGN_TOP_MID);
+    lv_obj_set_y(pointer, 10);
+    lv_img_set_pivot(pointer,24,110);
+    lv_obj_add_flag(pointer, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(pointer, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+}
+void task_pointer_cb()
+{
+    uint16_t num = 0;
+    char chr[10];
+    num = 360 - (uint16_t)(get_motor_shaft_angle() * 57.3) % 360;
+    if(num > 360)
+    {
+        num = 0;
+    }
+    sprintf(chr, "%d",(int)num);
+    num = num*10;
+    lv_label_set_text(ui_label.mid, chr);
+    lv_img_set_angle(pointer, num);
+}
+void scr_Screen2_unloaded_cb(lv_event_t * e)
+{
+    lv_obj_t ** var = lv_event_get_user_data(e);
+    lv_timer_del(pointer_task);
+    lv_group_del(group);
+    lv_obj_del(*var);
+    (*var) = NULL;
+}
+void scr_Screen2_loaded_cb(lv_event_t * e)
+{
+    usb_device_init();
+    ui_state.index = UI_HID_INTERFACE;
     lv_indev_set_group(encoder_indev, group);
 }
-void scr_Screen2_loaded_cb()
-{
-
-}
-
 void ui_Screen2_screen_init(void)
 {
     ui_Screen2 = lv_obj_create(NULL);
     lv_obj_add_event_cb(ui_Screen2, scr_Screen2_loaded_cb, LV_EVENT_SCREEN_LOADED, &ui_Screen2);
-    lv_obj_clear_flag(ui_Screen2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    // lv_obj_add_event_cb(ui_Screen2, scr_Screen2_unloaded_cb, LV_EVENT_SCREEN_UNLOADED, &ui_Screen2);
+    lv_obj_clear_flag(          ui_Screen2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_img_src(ui_Screen2, &ui_img_bg1_png, LV_PART_MAIN | LV_STATE_DEFAULT);
     Style_Init();
+    Create(ui_Screen2);
     lv_obj_t* container = container_create(ui_Screen2);
     icon_create(container, &ui_img_dial_png);
     icon_create(container, &ui_img_music_png);
@@ -243,6 +328,7 @@ void ui_Screen2_screen_init(void)
     {
         lv_obj_move_to_index(lv_obj_get_child(container, -1), 0);
     }
-    group_init(container,hid_index);
-
+    group_init(container,icon_index);
+    pointer_task = lv_timer_create(task_pointer_cb, 10, 0);
+	lv_timer_set_repeat_count(pointer_task,-1);
 }

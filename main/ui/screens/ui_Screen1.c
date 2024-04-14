@@ -4,39 +4,25 @@
 // Project name: dial
 
 #include "../ui.h"
-#define ITEM_HEIGHT_MIN   100
-#define ITEM_PAD          ((LV_VER_RES - ITEM_HEIGHT_MIN) / 2)
-int screen1_index = 0;
-typedef struct
+#define ITEM_HEIGHT_MIN   90
+#define ITEM_PAD          10
+static lv_obj_t* ui_ArcScreen1;
+static lv_group_t* group;
+static int icon_index = 0;
+static lv_timer_t * task1;
+static struct
 {
-    lv_obj_t* cont;
-    lv_obj_t* icon;
-    lv_obj_t* labelInfo;
-    lv_obj_t* labelData;
-} item_t;
-struct
+    lv_style_t def;//默认
+    lv_style_t focus;
+    lv_style_t icon_def;
+    lv_style_t icon_focus;
+    lv_style_t name;  
+    lv_style_t info;
+    lv_style_t data;
+	lv_style_t font;
+}style;
+void ui_event_screen1_change(int8_t index)
 {
-    item_t dialpad;
-    item_t switches;
-    item_t system;
-    item_t hass;   // home assistant
-    item_t setting;
-    item_t battery;
-    item_t storage;
-    lv_group_t* group;
-} ui;
-struct
-{
-	lv_style_t icon;
-	lv_style_t focus;
-	lv_style_t info;
-	lv_style_t data;
-} style;
-lv_obj_t * ui_ArcScreen1;
-static void onFocus_cb(lv_event_t* event);
-void ui_event_screen1_change(uint8_t index)
-{
-	
 	switch (index)
 	{
 	case 0:
@@ -47,205 +33,193 @@ void ui_event_screen1_change(uint8_t index)
 		break;
 	}
 }
-void MenuView_Style_Reset()
+static void onFocus(lv_group_t* g)
 {
-	lv_style_reset(&style.icon);
-	lv_style_reset(&style.info);
-	lv_style_reset(&style.data);
-	lv_style_reset(&style.focus);
+    lv_obj_t* icon = lv_group_get_focused(g);
+    uint32_t current_btn_index = lv_obj_get_index(icon);
+    lv_obj_t* container = lv_obj_get_parent(icon);
+    uint32_t mid_btn_index = (lv_obj_get_child_cnt(container) - 1) / 2;
+    if (current_btn_index > mid_btn_index)
+    {
+        icon_index++;
+        if (icon_index > mid_btn_index * 2)
+            icon_index = 0;
+        lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index - 1), LV_ANIM_OFF);
+        lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index), LV_ANIM_ON);
+        lv_obj_move_to_index(lv_obj_get_child(container, 0), -1);
+    }
+    else if (current_btn_index < mid_btn_index)
+    {
+        icon_index--;
+        if (icon_index < 0)
+        {
+            icon_index = mid_btn_index * 2;
+        }
+        lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index + 1), LV_ANIM_OFF);
+        lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index), LV_ANIM_ON);
+        lv_obj_move_to_index(lv_obj_get_child(container, -1), 0);
+    }
+    uint8_t cnt = lv_obj_get_child_cnt(container);
+    for (uint8_t i = 0; i < cnt; i++)
+    {
+        lv_obj_t* obt = lv_obj_get_child(container, i);
+        lv_obj_clear_state(lv_obj_get_child(obt, 0), LV_STATE_FOCUSED);
+        //远离中心一个图标以上的图标隐藏
+        if (i + 1 < mid_btn_index)
+        {
+            lv_obj_add_flag(obt, LV_OBJ_FLAG_HIDDEN);
+        }
+        else if (i > mid_btn_index + 1)
+        {
+            lv_obj_add_flag(obt, LV_OBJ_FLAG_HIDDEN);
+        }
+        else
+            lv_obj_clear_flag(obt, LV_OBJ_FLAG_HIDDEN);
+        if (i == mid_btn_index)
+        {
+            lv_obj_add_state(lv_obj_get_child(obt, 0), LV_STATE_FOCUSED);       /// States
+        }
+    }
 }
-void MenuView_Delete()
+static void group_init(lv_obj_t* container, uint8_t id)
 {
-	lv_group_del(ui.group);
-	MenuView_Style_Reset();
+    icon_index = 0;
+    group = lv_group_create();
+    uint8_t cnt = lv_obj_get_child_cnt(container);
+    for (uint8_t i = 0; i < cnt; i++)
+    {
+        lv_group_add_obj(group, lv_obj_get_child(container, i));
+    }
+    lv_group_set_focus_cb(group, onFocus);
+    uint32_t mid_btn_index = (lv_obj_get_child_cnt(container) - 1) / 2;
+    lv_group_focus_obj(lv_obj_get_child(container, mid_btn_index));
+    for (uint8_t i = 0; i < id; i++)
+    {
+        lv_group_focus_obj(lv_obj_get_child(container, -3));
+    }
 }
-void Style_Init()
+static void Style_Init()
 {
-	lv_style_init(&style.icon);
-	lv_style_set_width(&style.icon, 220);
-	lv_style_set_bg_color(&style.icon, lv_color_black());
-	lv_style_set_bg_opa(&style.icon, LV_OPA_COVER);
-	//lv_style_set_text_font(&style.icon, Resource.GetFont("bahnschrift_17"));
-	lv_style_set_text_color(&style.icon, lv_color_white());
+    lv_style_init(&style.def);
+    lv_style_set_width(&style.def, 70); 
 
-	lv_style_init(&style.focus);
-	lv_style_set_width(&style.focus, 70);
-	lv_style_set_border_side(&style.focus, LV_BORDER_SIDE_RIGHT);
-	lv_style_set_border_width(&style.focus, 2);
-	lv_style_set_border_color(&style.focus, lv_color_hex(0xff0000));
+    lv_style_init(&style.focus);
+    lv_style_set_width(&style.focus, 240);
+    lv_style_set_pad_column(&style.focus, ITEM_PAD);
 
-	static const lv_style_prop_t style_prop[] =
-	{
-		LV_STYLE_WIDTH,
-		LV_STYLE_PROP_INV
-	};
+    static const lv_style_prop_t style_prop[] =
+    {
+        LV_STYLE_WIDTH,
+        LV_STYLE_PROP_INV
+    };
 
-	static lv_style_transition_dsc_t trans;
-	lv_style_transition_dsc_init(
-		&trans,
-		style_prop,
-		lv_anim_path_overshoot,
-		200,
-		0,
-		NULL
-	);
-	lv_style_set_transition(&style.focus, &trans);
-	lv_style_set_transition(&style.icon, &trans);
+    static lv_style_transition_dsc_t trans;
+    lv_style_transition_dsc_init(
+        &trans,
+        style_prop,
+        lv_anim_path_overshoot,
+        200,
+        0,
+        NULL
+    );
+    lv_style_set_transition(&style.focus, &trans);
+    lv_style_set_transition(&style.def, &trans);
 
-	lv_style_init(&style.info);
-	//lv_style_set_text_font(&style.info, Resource.GetFont("bahnschrift_13"));
-	lv_style_set_text_color(&style.info, lv_color_hex(0x999999));
+    lv_style_init(&style.icon_focus);
+    lv_style_set_border_side(&style.icon_focus, LV_BORDER_SIDE_RIGHT);
+    lv_style_set_border_width(&style.icon_focus, 2);
+    lv_style_set_border_color(&style.icon_focus, lv_color_hex(0xff0000));
 
-	lv_style_init(&style.data);
-	//lv_style_set_text_font(&style.data, Resource.GetFont("bahnschrift_13"));
-	lv_style_set_text_color(&style.data, lv_color_white());
+	lv_style_init(&style.font);
+    lv_style_set_text_font(&style.font, &ui_font_SmileySansOblique16);
 }
-void Item_Create(
-	item_t* item,
-	lv_obj_t* par,
+static void Item_Create(
+	lv_obj_t* container,
 	const char* name,
 	const void* img_src,
 	const char* infos
 )
 {
-	lv_obj_t* cont = lv_obj_create(par);
-	lv_obj_remove_style_all(cont);
-	lv_obj_set_width(cont, 220);
+    lv_obj_t* box = lv_obj_create(container);
+    lv_obj_remove_style_all(box);
+    lv_obj_set_align(box, LV_ALIGN_CENTER);
+    lv_obj_set_flex_flow(box, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_align(box, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_clear_flag(box, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_add_style(box, &style.def, 0);
+    lv_obj_add_style(box, &style.focus, LV_STATE_FOCUSED);
 
-	lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
-	item->cont = cont;
-	
-	
-	/* icon */
-	lv_obj_t* icon = lv_obj_create(cont);
-	lv_obj_remove_style_all(icon);
-	lv_obj_clear_flag(icon, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_t* icon = lv_obj_create(box);
+    lv_obj_remove_style_all(icon);
+    lv_obj_set_width(icon, 70);
+    lv_obj_set_align(icon, LV_ALIGN_CENTER);
+    lv_obj_set_flex_flow(icon, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(icon, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_clear_flag(icon, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_pad_row(icon,5, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_add_style(icon, &style.icon_focus, LV_STATE_FOCUSED);
 
-	lv_obj_add_style(icon, &style.icon, 0);
-	lv_obj_add_style(icon, &style.focus, LV_STATE_FOCUSED);
-	//lv_obj_add_style(icon, &style.focus, LV_STATE_FOCUSED);
-	lv_obj_set_style_align(icon, LV_ALIGN_LEFT_MID, 0);
+    lv_obj_t* img = lv_img_create(icon);
+    lv_img_set_src(img, img_src);
+    lv_obj_set_width(img, LV_SIZE_CONTENT);   /// 48
+    lv_obj_set_height(img, LV_SIZE_CONTENT);    /// 48
 
-	lv_obj_set_flex_flow(icon, LV_FLEX_FLOW_COLUMN);
-	lv_obj_set_flex_align(
-		icon,
-		LV_FLEX_ALIGN_SPACE_AROUND,
-		LV_FLEX_ALIGN_CENTER,
-		LV_FLEX_ALIGN_CENTER
-	);
-	//lv_obj_add_event_cb(icon, onFocus_cb, LV_EVENT_ALL, NULL);
+    lv_obj_t* label_name = lv_label_create(icon);
+    lv_label_set_text(label_name, name);
+    lv_obj_set_width(label_name, LV_SIZE_CONTENT);   /// 48
+    lv_obj_set_height(label_name, LV_SIZE_CONTENT);    /// 48
+	lv_obj_add_style(label_name, &style.font, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-	lv_obj_t* img = lv_img_create(icon);
-	lv_img_set_src(img, img_src);
+    lv_obj_t* label_data = lv_label_create(box);
+    lv_obj_remove_style_all(label_data);
+    lv_label_set_text(label_data, infos);
+    lv_obj_set_width(label_data, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(label_data, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(label_data, LV_ALIGN_LEFT_MID);
+	lv_obj_add_style(label_data, &style.font, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-	lv_obj_t* label = lv_label_create(icon);
-	lv_label_set_text(label, name);
-	item->icon = icon;
-
-	/* infos */
-	label = lv_label_create(cont);
-	lv_label_set_text(label, infos);
-	lv_obj_add_style(label, &style.info, 0);
-	lv_obj_align(label, LV_ALIGN_LEFT_MID, 75, 0);
-	item->labelInfo = label;
-
-	/* datas */
-	label = lv_label_create(cont);
-	lv_label_set_text(label, "");
-	lv_obj_add_style(label, &style.data, 0);
-	lv_obj_align(label, LV_ALIGN_CENTER, 60, 0);
-	item->labelData = label;
-
-	lv_obj_move_foreground(icon);
-
-	/* get real max height */
-	lv_obj_update_layout(item->labelInfo);
-	lv_coord_t height = lv_obj_get_height(item->labelInfo);
-	height = LV_MAX(height, ITEM_HEIGHT_MIN);
-	lv_obj_set_height(cont, height);
-	lv_obj_set_height(icon, height);
+    /* get real max height */
+    lv_obj_update_layout(label_data);
+    lv_coord_t height = lv_obj_get_height(label_data);
+    height = LV_MAX(height, ITEM_HEIGHT_MIN);
+    lv_obj_set_height(box, height);
+    lv_obj_set_height(icon, height);
 }
-void Create(lv_obj_t* root)
+static void Create(lv_obj_t* root)
 {
-	lv_obj_remove_style_all(root);
-	lv_obj_set_size(root, LV_HOR_RES, LV_VER_RES);
-	// lv_obj_set_style_bg_color(root, lv_color_black(), 0);
-	// lv_obj_set_style_bg_opa(root, LV_OPA_COVER, 0);
-	lv_obj_set_style_bg_img_src(root, &ui_img_bg1_png, LV_PART_MAIN | LV_STATE_DEFAULT);
-	lv_obj_set_style_pad_ver(root, ITEM_PAD, 0);
-	lv_obj_set_flex_flow(root, LV_FLEX_FLOW_COLUMN);
-	lv_obj_set_flex_align(root, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
-	//lv_obj_set_scroll_snap_y(root, LV_SCROLL_SNAP_CENTER);
+    lv_obj_remove_style_all(root);
+    lv_obj_set_width(root, 240);
+    lv_obj_set_height(root, 240);
+    lv_obj_set_align(root, LV_ALIGN_CENTER);
+    lv_obj_set_flex_flow(root, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(root, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_clear_flag(root, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-	lv_obj_set_flex_flow(root, LV_FLEX_FLOW_COLUMN);
-	lv_obj_set_flex_align(
-		root,
-		LV_FLEX_ALIGN_CENTER,
-		LV_FLEX_ALIGN_CENTER,
-		LV_FLEX_ALIGN_CENTER
-	);
+    Item_Create(root,
+        "0",
+        &ui_img_pc_png,
 
-	Style_Init();
+        "Surface Dial"
+        );
+    Item_Create(root,
+        "1",
+        &ui_img_setting_png,
 
-	/* Item Super Dial */
-	Item_Create(
-		&ui.dialpad,
-		root,
-		"0",
-		&ui_img_pc_png,
+        "Setting"
+    );
+    Item_Create(root,
+        "2",
+        &ui_img_poweroff_png,
 
-		"Surface Dial"
-		"Control\n"
-		"Your PC\n"
-		"with X-Knob\n"
-	);
+        "PowerOff"
+    );
+    Item_Create(root,
+        "3",
+        &ui_img_poweroff_png,
 
-	Item_Create(
-		&ui.switches,
-		root,
-		"1",
-		&ui_img_setting_png,
-	
-		"Playground\n"
-		"Unbounded No detents\n"
-		"On/off\n"
-		"Return-to-center\n"
-		"Fine values\n"
-		"Coarse values\n"
-	);
-	Item_Create(
-		&ui.hass,
-		root,
-		"2",
-		&ui_img_poweroff_png,
-	
-		"Your Smart Home\n"
-		"Light \n"
-		"Fan \n"
-		"Monitor Bar"
-	);
-	Item_Create(
-		&ui.battery,
-		root,
-		"3",
-		&ui_img_poweroff_png,
+        "PowerOff"
+    );
 
-		"Your Smart Home\n"
-		"Light \n"
-		"Fan \n"
-		"Monitor Bar"
-	);
-	Item_Create(
-		&ui.storage,
-		root,
-		"4",
-		&ui_img_poweroff_png,
-
-		"Your Smart Home\n"
-		"Light \n"
-		"Fan \n"
-		"Monitor Bar"
-	);
 	ui_ArcScreen1 = lv_arc_create(ui_Screen1);
     lv_obj_set_width(ui_ArcScreen1, 240);
     lv_obj_set_height(ui_ArcScreen1, 240);
@@ -266,69 +240,6 @@ void Create(lv_obj_t* root)
 
     lv_obj_set_style_bg_color(ui_ArcScreen1, lv_color_hex(0xFFFFFF), LV_PART_KNOB | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_ArcScreen1, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
-	uint32_t mid_btn_index = (lv_obj_get_child_cnt(root) - 1) / 2;
-	for (uint32_t i = 0; i < mid_btn_index; i++)
-	{
-		lv_obj_move_to_index(lv_obj_get_child(root, -1), 0);
-	}
-	/*当按钮数为偶数时，确保按钮居中*/
-	lv_obj_scroll_to_view(lv_obj_get_child(root, mid_btn_index), LV_ANIM_OFF);
-}
-static void onFocus(lv_group_t* g)
-{/*
-	lv_obj_t* icon = lv_group_get_focused(g);
-	lv_obj_t* cont = lv_obj_get_parent(icon);
-	lv_coord_t y = lv_obj_get_y(cont);
-	lv_obj_scroll_to_y(lv_obj_get_parent(cont), y, LV_ANIM_ON);*/
-
-	//lv_obj_t* current_btn = lv_event_get_current_target(event);
-	lv_obj_t* icon = lv_group_get_focused(g);
-	lv_obj_t* cont = lv_obj_get_parent(icon);
-	lv_obj_t* container = lv_obj_get_parent(cont);
-	uint32_t current_btn_index = lv_obj_get_index(cont);
-	uint32_t mid_btn_index = (lv_obj_get_child_cnt(container) - 1) / 2;
-
-		if (current_btn_index > mid_btn_index)
-		{
-			screen1_index++;
-			if (screen1_index > mid_btn_index * 2)
-				screen1_index = 0;
-			lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index - 1), LV_ANIM_OFF);
-			lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index), LV_ANIM_ON);
-			lv_obj_move_to_index(lv_obj_get_child(container, 0), -1);
-		}
-		else if (current_btn_index < mid_btn_index)
-		{
-			screen1_index--;
-			if (screen1_index < 0)
-			{
-				screen1_index = mid_btn_index * 2;
-			}
-			lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index + 1), LV_ANIM_OFF);
-			lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index), LV_ANIM_ON);
-			lv_obj_move_to_index(lv_obj_get_child(container, -1), 0);
-		}
-}
-void Group_Init()
-{
-	ui.group = lv_group_create();
-	// lv_indev_set_group(encoder_indev, ui.group);
-	// lv_indev_set_group(lv_get_indev(LV_INDEV_TYPE_ENCODER), ui.group);
-	// lv_indev_set_group(lv_get_indev(LV_INDEV_TYPE_ENCODER), ui.group);
-	lv_group_set_focus_cb(ui.group, onFocus);
-	
-	lv_group_add_obj(ui.group, ui.dialpad.icon);
-	lv_group_add_obj(ui.group, ui.switches.icon);
-	lv_group_add_obj(ui.group, ui.hass.icon);
-
-	lv_group_add_obj(ui.group, ui.battery.icon);
-	lv_group_add_obj(ui.group, ui.storage.icon);
-
-	lv_group_focus_obj(ui.dialpad.icon);
-}
-uint8_t ui_Screen1_get_index()
-{
-	return screen1_index;
 }
 void ui_Screen1_dial_event(uint8_t state)
 {
@@ -347,15 +258,12 @@ void ui_Screen1_dial_event(uint8_t state)
             enc_num--;
             break;
         case DIAL_STA_CLICK:
-            uint8_t index = ui_Screen1_get_index();//change screen1
+            int8_t index = icon_index;//change screen1
             printf("current:%d,state:%d",index,state);
             switch (index)
             {
             case 0:
-                ui_state.index = UI_HID_INTERFACE;
 				ui_event_screen1_change(index);
-
-                usb_device_init();
                 break;
             default:
                 break;
@@ -367,9 +275,18 @@ void ui_Screen1_dial_event(uint8_t state)
     }
                     /* code */
 }
-void scr_Screen1_loaded_cb()
+void scr_Screen1_unloaded_cb(lv_event_t * e)
 {
-	lv_indev_set_group(encoder_indev, ui.group);
+	lv_obj_t ** var = lv_event_get_user_data(e);
+	lv_timer_del(task1);
+    lv_group_del(group);
+    lv_obj_del(*var);
+    (*var) = NULL;
+}
+void scr_Screen1_loaded_cb(lv_event_t * e)
+{
+    ui_state.index = UI_MENU_INTERFACE; 
+    lv_indev_set_group(encoder_indev, group);
 }
 void task_bat_cb(lv_timer_t * tmr)
 {
@@ -378,16 +295,20 @@ void task_bat_cb(lv_timer_t * tmr)
 }
 void ui_Screen1_screen_init(void)
 {
-	ui_state.index = UI_MENU_INTERFACE; 
     ui_Screen1 = lv_obj_create(NULL);
-	lv_obj_add_event_cb(ui_Screen1, scr_Screen1_loaded_cb, LV_EVENT_SCREEN_LOADED, &ui_Screen1);
+    lv_obj_add_event_cb(ui_Screen1, scr_Screen1_loaded_cb, LV_EVENT_SCREEN_LOADED, &ui_Screen1);
+	// lv_obj_add_event_cb(ui_Screen1, scr_Screen1_unloaded_cb, LV_EVENT_SCREEN_UNLOADED, &ui_Screen1);
+	lv_obj_set_style_bg_img_src(ui_Screen1, &ui_img_bg1_png, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_clear_flag(ui_Screen1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-	lv_obj_t * ui_Container = lv_obj_create(ui_Screen1);
-    lv_obj_clear_flag(ui_Container, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_width(ui_Container, 240);
-    lv_obj_set_height(ui_Container, 240);
-	Create(ui_Container);
-	Group_Init();
-	lv_timer_t * task1 = lv_timer_create(task_bat_cb, 200, 0);
+	Style_Init();
+    lv_obj_t* container = lv_obj_create(ui_Screen1);
+    Create(container);
+    uint32_t mid_btn_index = (lv_obj_get_child_cnt(container) - 1) / 2;
+    for (uint32_t i = 0; i < mid_btn_index; i++)
+    {
+        lv_obj_move_to_index(lv_obj_get_child(container, -1), 0);
+    }
+    group_init(container, icon_index);
+	task1 = lv_timer_create(task_bat_cb, 200, 0);
 	lv_timer_set_repeat_count(task1,-1);
 }

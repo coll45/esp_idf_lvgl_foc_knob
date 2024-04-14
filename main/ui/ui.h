@@ -16,7 +16,9 @@ extern "C" {
 #include "ui_events.h"
 #include "../usb_device/usb_device.h"
 #include "../dial_power/dial_power.h"
+#include "../dial/dial.h"
 enum {
+    UI_NULL,
     UI_MENU_INTERFACE,            /*!< Main menu select different interface */
     UI_HID_INTERFACE,            /*!< USB menu Control PC or Phone */
 };
@@ -38,12 +40,10 @@ typedef struct _ui_state{
 }_ui_state;
 extern int16_t enc_num;
 extern int16_t enc_click;
-// SCREEN: ui_Screen1  
-void MenuView_Delete();
+// SCREEN:
 void ui_Screen1_dial_event(uint8_t state);
 void ui_Screen1_screen_init(void);
 extern lv_obj_t * ui_Screen1;
-
 extern lv_obj_t * ui_Screen2;
 void ui_Screen2_hid_event(uint8_t state);
 void ui_Screen2_screen_init(void);
@@ -60,6 +60,8 @@ LV_IMG_DECLARE(ui_img_music_png);    // assets\music.png
 LV_IMG_DECLARE(ui_img_wheel_png);    // assets\wheel.png
 LV_IMG_DECLARE(ui_img_pointer_png);    // assets\pointer.png
 
+LV_FONT_DECLARE(ui_font_SmileySansOblique16);
+LV_FONT_DECLARE(ui_font_SmileySansOblique20);
 void ui_init(void);
 
 #ifdef __cplusplus

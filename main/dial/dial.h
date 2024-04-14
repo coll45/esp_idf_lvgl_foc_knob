@@ -22,6 +22,7 @@ extern "C" {
 #define LEDC_CHAN_2 3
 #endif
 
+float get_motor_shaft_angle(void);
 
 
 void foc_init(void);
