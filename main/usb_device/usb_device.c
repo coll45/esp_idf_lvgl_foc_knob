@@ -1,11 +1,9 @@
 #include "usb_device.h"
 static const char *TAG = "usb_device";
-/************* TinyUSB descriptors ****************/
 QueueHandle_t HID_Queue = NULL;
-// struct Command_HID {
-//   uint8_t hid_id;
-//   char 
-// };
+/************* TinyUSB descriptors ****************/
+
+
 #define TUSB_DESC_TOTAL_LEN      (TUD_CONFIG_DESC_LEN + CFG_TUD_HID * TUD_HID_DESC_LEN)
 
 /**
@@ -77,14 +75,40 @@ void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_
     printf("Set report :%d\n", report_id);
     
 }
+void usb_mouse_report(uint8_t state)
+{
+    if (tud_connected()) {
+        switch (state)
+        {
+        case DIAL_STA_R:
+            tud_hid_mouse_report(HID_ITF_PROTOCOL_MOUSE,0x00,10,0,0,0);
+            break;
+        case DIAL_STA_L:
+            tud_hid_mouse_report(HID_ITF_PROTOCOL_MOUSE,0x00,-10,0,0,0);
+            break;
+        default:
+            break;
+        }
+    }
+}
 void dial_hid_task()
 {
-    uint8_t state;
+    Command_HID cmd;
     while (1)
     {   
-        if (xQueueReceive(HID_Queue, &state, portMAX_DELAY) == pdTRUE) 
+        if (xQueueReceive(HID_Queue, &cmd, portMAX_DELAY) == pdTRUE) 
         {   
-
+            switch (cmd.hid_id)
+            {
+            case HID_ITF_PROTOCOL_DIAL:
+                tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,cmd.hid_data[0]);
+                break;
+            case HID_ITF_PROTOCOL_MOUSE:
+                tud_hid_mouse_report(HID_ITF_PROTOCOL_MOUSE,cmd.hid_data[0],cmd.hid_data[1],cmd.hid_data[2],0,0);
+                break;
+            default:
+                break;
+            }
         }
     }
 
@@ -92,7 +116,7 @@ void dial_hid_task()
 void dial_hid_queue_init()
 {
     HID_Queue = xQueueCreate(5,/* 消息队列的长度 */ 
-                        sizeof(uint8_t));/* 消息的大小 */ 
+                        sizeof(Command_HID));/* 消息的大小 */ 
     if (HID_Queue != NULL)//判断队列是否创建成功
     {
         printf("dial_hid_task Success\n");
@@ -105,6 +129,7 @@ void usb_device_init(void)
     if(usb_init_flag == 0)
     {
         usb_init_flag = 1;
+        dial_hid_queue_init();
         const tinyusb_config_t tusb_cfg = {
         .device_descriptor = NULL,
         .string_descriptor = hid_string_descriptor,

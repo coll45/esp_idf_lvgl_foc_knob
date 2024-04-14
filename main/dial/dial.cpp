@@ -11,14 +11,9 @@
 #include "iot_button.h"
 #include "dial.h"
 #include "../usb_device/usb_device.h"
+#include "../ui/ui.h"
 
 #define TAG "FOC_Knob_Example"
-#define DIAL_CLICK 0x04
-#define DIAL_DOUBLE_CLICK 0x05
-#define DIAL_LONG_PRESS 0x06
-#define DIAL_LONG_PRESS_UP 0x07
-#define DIAL_PRESS_R 0x08
-#define DIAL_PRESS_L 0x09
 static foc_knob_handle_t foc_knob_handle = NULL;
 static int mode = MOTOR_UNBOUND_NO_DETENTS;
 static bool motor_shake = false;
@@ -32,6 +27,8 @@ void dial_publish(uint8_t state) {
     uint8_t send_state;
     send_state = state;
     xQueueSend(Dial_Queue,&send_state,0);
+    // if(ui_state.index == UI_HID_INTERFACE)
+    //     xQueueSend(HID_Queue,&send_state,0);
 }
 /*Motor initialization*/
 void motor_init(void)
@@ -65,63 +62,69 @@ void motor_init(void)
 
 static void button_press_cb(void *arg, void *data)
 {
+    //按键按下
     press_rotation = 1;
-    ESP_LOGI(TAG, "press down:");
-    dial_publish(DIAL_PRESS);
+    // ESP_LOGI(TAG, "press down:");
+    dial_publish(DIAL_STA_PRESS);
     foc_knob_change_mode(foc_knob_handle, 2);
     motor_shake = true;
 }
 static void button_press_up_cb(void *arg, void *data)
 {
+    //按键弹起
     if(press_rotation != 1)
         press_rotation = 0;
-    ESP_LOGI(TAG, "press up:");
-    dial_publish(DIAL_RELEASE);
+    // ESP_LOGI(TAG, "press up:");
+    dial_publish(DIAL_STA_RELEASE);
     foc_knob_change_mode(foc_knob_handle, 1);
 }
 static void button_single_click_cb(void *arg, void *data)
 {
+    //按键单击（期间如果旋钮旋转就不会触发按键单击
     if(press_rotation == 1)
-        dial_publish(DIAL_CLICK);
+        dial_publish(DIAL_STA_CLICK);
     press_rotation = 0;
-    ESP_LOGI(TAG, "single click:");
+    // ESP_LOGI(TAG, "single click:");
 }
 static void button_double_click_cb(void *arg, void *data)
 {
+    //单击双击
      if(press_rotation == 1)
-        dial_publish(DIAL_DOUBLE_CLICK);
+        dial_publish(DIAL_STA_DOUBLE_CLICK);
     press_rotation = 0;
-    ESP_LOGI(TAG, "double clic");
+    // ESP_LOGI(TAG, "double clic");
 }
 static void button_long_press_start_cb(void *arg, void *data)
 {
+    //按键长按
     if(press_rotation == 1)
-        dial_publish(DIAL_LONG_PRESS);
-    ESP_LOGI(TAG, "long press start");
+        dial_publish(DIAL_STA_LONG_PRESS);
+    // ESP_LOGI(TAG, "long press start");
 }
 static void button_long_press_up_cb(void *arg, void *data)
 {
+    //按键长按抬起
     if(press_rotation != 1)
         press_rotation = 0;
-    dial_publish(DIAL_LONG_PRESS_UP);
-    ESP_LOGI(TAG, "long press up");
+    dial_publish(DIAL_STA_LONG_PRESS_UP);
+    // ESP_LOGI(TAG, "long press up");
 }
 static void foc_knob_inc_cb(void *arg, void *data)
 {
-    //if press rotation flag
+    //判断按键按下flag，如果按下了会从1变到2
     if(press_rotation == 1)
         press_rotation = 2;
     if(press_rotation == 2)
     {
-        dial_publish(DIAL_PRESS_R);
+        dial_publish(DIAL_STA_P_R);
     }
     else
     {
-        dial_publish(DIAL_R);
+        dial_publish(DIAL_STA_R);
     }
     foc_knob_state_t state;
     foc_knob_get_state(arg, &state);
-    ESP_LOGI(TAG, "foc_knob_inc_cb: position: %" PRId32 "\n", state.position);
+    // ESP_LOGI(TAG, "foc_knob_inc_cb: position: %" PRId32 "\n", state.position);
 }
 
 static void foc_knob_dec_cb(void *arg, void *data)
@@ -131,15 +134,15 @@ static void foc_knob_dec_cb(void *arg, void *data)
         press_rotation = 2;
     if(press_rotation == 2)
     {
-        dial_publish(DIAL_PRESS_L);
+        dial_publish(DIAL_STA_P_L);
     }
     else
     {
-        dial_publish(DIAL_L);
+        dial_publish(DIAL_STA_L);
     }
     foc_knob_state_t state;
     foc_knob_get_state(arg, &state);
-    ESP_LOGI(TAG, "foc_knob_dec_cb: position: %" PRId32 "\n", state.position);
+    // ESP_LOGI(TAG, "foc_knob_dec_cb: position: %" PRId32 "\n", state.position);
 }
 
 static void foc_knob_h_lim_cb(void *arg, void *data)

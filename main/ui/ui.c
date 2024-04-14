@@ -33,6 +33,14 @@ int16_t enc_click = 0;
 lv_indev_t* encoder_indev;
 static lv_indev_drv_t indev_drv;
 _ui_state ui_state;
+void ui_send_hid_dial_command(uint8_t state)
+{
+    Command_HID cmd = {
+        .hid_id = HID_ITF_PROTOCOL_DIAL,
+        .hid_data[0] = state
+    };
+    xQueueSend(HID_Queue, &cmd, 0);
+}
 static void encoder_init(void)
 {
     // gpio_set_direction(GPIO_NUM_5, GPIO_MODE_INPUT);

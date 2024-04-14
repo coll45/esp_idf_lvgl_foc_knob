@@ -25,7 +25,7 @@ void dial_event_task()
     {   
         if (xQueueReceive(Dial_Queue, &state, portMAX_DELAY) == pdTRUE) 
         {   
-            ESP_LOGI(TAG, "mune:%d,state:%d",ui_state.index,state);
+            // ESP_LOGI(TAG, "mune:%d,state:%d",ui_state.index,state);
             switch (ui_state.index)
             {
             case UI_MENU_INTERFACE:

@@ -6,6 +6,7 @@
 #include "../ui.h"
 #define ITEM_HEIGHT_MIN   90
 #define ITEM_PAD          10
+static const char *TAG = "SCREEN1";
 static lv_obj_t* ui_ArcScreen1;
 static lv_group_t* group;
 static int icon_index = 0;
@@ -38,11 +39,12 @@ static void onFocus(lv_group_t* g)
     lv_obj_t* icon = lv_group_get_focused(g);
     uint32_t current_btn_index = lv_obj_get_index(icon);
     lv_obj_t* container = lv_obj_get_parent(icon);
-    uint32_t mid_btn_index = (lv_obj_get_child_cnt(container) - 1) / 2;
+    uint32_t icon_num = lv_obj_get_child_cnt(container);
+    uint32_t mid_btn_index = (icon_num - 1) / 2;
     if (current_btn_index > mid_btn_index)
     {
         icon_index++;
-        if (icon_index > mid_btn_index * 2)
+        if (icon_index > icon_num - 1)
             icon_index = 0;
         lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index - 1), LV_ANIM_OFF);
         lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index), LV_ANIM_ON);
@@ -53,7 +55,7 @@ static void onFocus(lv_group_t* g)
         icon_index--;
         if (icon_index < 0)
         {
-            icon_index = mid_btn_index * 2;
+            icon_index = icon_num - 1;
         }
         lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index + 1), LV_ANIM_OFF);
         lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index), LV_ANIM_ON);
@@ -259,7 +261,7 @@ void ui_Screen1_dial_event(uint8_t state)
             break;
         case DIAL_STA_CLICK:
             int8_t index = icon_index;//change screen1
-            printf("current:%d,state:%d",index,state);
+            ESP_LOGI(TAG, "current:%d ,state: %d", index,state);
             switch (index)
             {
             case 0:

@@ -12,6 +12,8 @@ extern "C" {
 
 #include "lvgl.h"
 #include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "ui_helpers.h"
 #include "ui_events.h"
 #include "../usb_device/usb_device.h"
@@ -38,8 +40,11 @@ enum
 typedef struct _ui_state{
     uint8_t index;//current ui screen index
 }_ui_state;
+extern _ui_state ui_state;
+extern int screem2_index;
 extern int16_t enc_num;
 extern int16_t enc_click;
+void ui_send_hid_dial_command(uint8_t state);
 // SCREEN:
 void ui_Screen1_dial_event(uint8_t state);
 void ui_Screen1_screen_init(void);
@@ -48,7 +53,7 @@ extern lv_obj_t * ui_Screen2;
 void ui_Screen2_hid_event(uint8_t state);
 void ui_Screen2_screen_init(void);
 extern lv_indev_t* encoder_indev;
-extern _ui_state ui_state;
+
 LV_IMG_DECLARE(ui_img_bg1_png);    // assets\bg1.png
 LV_IMG_DECLARE(ui_img_pc_png);    // assets\pc.png
 LV_IMG_DECLARE(ui_img_poweroff_png);    // assets\poweroff.png

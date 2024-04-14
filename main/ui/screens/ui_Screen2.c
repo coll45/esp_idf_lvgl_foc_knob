@@ -6,7 +6,7 @@
 #include "../ui.h"
 static lv_group_t* group;
 static lv_obj_t* pointer;
-static int8_t icon_index = 0;
+int screem2_index = 0;
 static lv_timer_t * pointer_task;
 static struct
 {
@@ -37,17 +37,16 @@ void ui_Screen2_hid_event(uint8_t state)
     switch (state)
     {
     case DIAL_STA_RELEASE:
-        usb_device_report(state);
+        ui_send_hid_dial_command(DIAL_STA_RELEASE);
         break;
     case DIAL_STA_PRESS:
-        usb_device_report(state);
+        ui_send_hid_dial_command(DIAL_STA_PRESS);
         break;
     case DIAL_STA_R:
-        
-        usb_device_report(state);
+        ui_send_hid_dial_command(DIAL_STA_R);
         break;
     case DIAL_STA_L:
-        usb_device_report(state);
+        ui_send_hid_dial_command(DIAL_STA_L);
         break;
     case DIAL_STA_DOUBLE_CLICK:
         _ui_screen_change(&ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 300, 0, &ui_Screen1_screen_init);
@@ -166,22 +165,23 @@ static void onFocus(lv_group_t* g)
     uint32_t current_btn_index = lv_obj_get_index(icon);
     //printf("current_btn_index:%ld\n", current_btn_index);
     lv_obj_t* container = lv_obj_get_parent(icon);
-    uint32_t mid_btn_index = (lv_obj_get_child_cnt(container) - 1) / 2;
+    uint32_t icon_num = lv_obj_get_child_cnt(container);
+    uint32_t mid_btn_index = (icon_num - 1) / 2;
     if (current_btn_index > mid_btn_index)
     {
-        icon_index++;
-        if (icon_index > mid_btn_index * 2)
-            icon_index = 0;
+        screem2_index++;
+        if (screem2_index > icon_num - 1)
+            screem2_index = 0;
         lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index - 1), LV_ANIM_OFF);
         lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index), LV_ANIM_ON);
         lv_obj_move_to_index(lv_obj_get_child(container, 0), -1);
     }
     else if (current_btn_index < mid_btn_index)
     {
-        icon_index--;
-        if (icon_index < 0)
+        screem2_index--;
+        if (screem2_index < 0)
         {
-            icon_index = mid_btn_index * 2;
+            screem2_index = icon_num - 1;
         }
         lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index + 1), LV_ANIM_OFF);
         lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index), LV_ANIM_ON);
@@ -218,7 +218,7 @@ static void onFocus(lv_group_t* g)
 }
 static void group_init(lv_obj_t* container,int8_t id)
 {
-    icon_index = 0;
+    screem2_index = 0;
     group = lv_group_create();
     uint8_t cnt = lv_obj_get_child_cnt(container);
     //printf("%ld\n", cnt);
@@ -328,7 +328,7 @@ void ui_Screen2_screen_init(void)
     {
         lv_obj_move_to_index(lv_obj_get_child(container, -1), 0);
     }
-    group_init(container,icon_index);
+    group_init(container,screem2_index);
     pointer_task = lv_timer_create(task_pointer_cb, 10, 0);
 	lv_timer_set_repeat_count(pointer_task,-1);
 }
