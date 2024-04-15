@@ -13,8 +13,7 @@ extern "C" {
 #endif
 typedef struct {
     uint8_t hid_id;
-    uint8_t hid_size;
-    char hid_data[10];
+    char hid_data[6];
 }Command_HID;
 extern QueueHandle_t HID_Queue;
 void usb_device_uninstall(void);

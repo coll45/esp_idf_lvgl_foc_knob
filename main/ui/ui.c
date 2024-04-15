@@ -17,6 +17,7 @@ lv_obj_t * ui_Screen2;
 uint8_t ui_event_flag = 0;
 int16_t enc_num = 0;
 int16_t enc_click = 0;
+
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 16
     #error "LV_COLOR_DEPTH should be 16bit to match SquareLine Studio's settings"
@@ -33,11 +34,16 @@ int16_t enc_click = 0;
 lv_indev_t* encoder_indev;
 static lv_indev_drv_t indev_drv;
 _ui_state ui_state;
-void ui_send_hid_dial_command(uint8_t state)
+void ui_send_hid_command(uint8_t hid_id,uint8_t keycode[6])
 {
     Command_HID cmd = {
-        .hid_id = HID_ITF_PROTOCOL_DIAL,
-        .hid_data[0] = state
+        .hid_id = hid_id,
+        .hid_data[0] = keycode[0],
+        .hid_data[1] = keycode[1],
+        .hid_data[2] = keycode[2],
+        .hid_data[3] = keycode[3],
+        .hid_data[4] = keycode[4],
+        .hid_data[5] = keycode[5],
     };
     xQueueSend(HID_Queue, &cmd, 0);
 }

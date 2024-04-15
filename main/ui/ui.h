@@ -19,6 +19,8 @@ extern "C" {
 #include "../usb_device/usb_device.h"
 #include "../dial_power/dial_power.h"
 #include "../dial/dial.h"
+
+#define DIAL_STA_NUM 10
 enum {
     UI_NULL,
     UI_MENU_INTERFACE,            /*!< Main menu select different interface */
@@ -37,14 +39,23 @@ enum
     DIAL_STA_P_R,
     DIAL_STA_P_L
 };
-typedef struct _ui_state{
+typedef struct{
     uint8_t index;//current ui screen index
 }_ui_state;
+struct DIAL_STA_DATA {
+    uint8_t hid_data[6];
+};
+typedef struct 
+{
+    uint8_t icon_id; //图标的id
+    uint8_t hid_id; //hid设备id
+    struct DIAL_STA_DATA dial_sta[DIAL_STA_NUM];
+}UI_HID_INFO;
+
 extern _ui_state ui_state;
-extern int screem2_index;
 extern int16_t enc_num;
 extern int16_t enc_click;
-void ui_send_hid_dial_command(uint8_t state);
+void ui_send_hid_command(uint8_t hid_id,uint8_t keycode[6]);
 // SCREEN:
 void ui_Screen1_dial_event(uint8_t state);
 void ui_Screen1_screen_init(void);

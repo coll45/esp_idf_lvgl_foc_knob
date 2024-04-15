@@ -49,7 +49,7 @@ void dial_event_queue_init()
     if (Dial_Queue != NULL)//判断队列是否创建成功
     {
         printf("Success\n");
-        xTaskCreate(dial_event_task, "dial_event_task", 1024 *5, NULL, 7, NULL);
+        xTaskCreate(dial_event_task, "dial_event_task", 1024 *5, NULL, 1, NULL);
     }
 }
 void app_main(void)

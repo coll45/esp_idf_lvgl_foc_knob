@@ -4,10 +4,13 @@
 // Project name: test1
 
 #include "../ui.h"
+static const char *TAG = "SCREEN2";
 static lv_group_t* group;
 static lv_obj_t* pointer;
-int screem2_index = 0;
+static int icon_index = 0;
 static lv_timer_t * pointer_task;
+UI_HID_INFO ui_icon_hid[10];
+static void ui_icon_hid_init();
 static struct
 {
     lv_style_t unfocused_0;//在焦点旁边 半透明
@@ -32,30 +35,61 @@ static struct _ui_hid
     const char* mid_info;
     const char* right_info;
 };
+void ui_icon_hid_init()
+{
+    memset(ui_icon_hid, 0x00, sizeof(ui_icon_hid));//全部清零
+    ui_icon_hid[0].icon_id = 0;
+    ui_icon_hid[0].hid_id = HID_ITF_PROTOCOL_DIAL;
+    ui_icon_hid[0].dial_sta[DIAL_STA_RELEASE].hid_data[0] = DIAL_RELEASE;
+    ui_icon_hid[0].dial_sta[DIAL_STA_PRESS].hid_data[0] = DIAL_PRESS;
+    ui_icon_hid[0].dial_sta[DIAL_STA_R].hid_data[0] = DIAL_R;
+    ui_icon_hid[0].dial_sta[DIAL_STA_L].hid_data[0] = DIAL_L;
+    ui_icon_hid[0].dial_sta[DIAL_STA_P_R].hid_data[0] = DIAL_STA_P_R;
+    ui_icon_hid[0].dial_sta[DIAL_STA_P_L].hid_data[0] = DIAL_STA_P_L;
+
+    //
+    ui_icon_hid[1].icon_id = 1;
+    ui_icon_hid[1].hid_id = HID_ITF_PROTOCOL_MOUSE;
+    ui_icon_hid[1].dial_sta[DIAL_STA_RELEASE].hid_data[0] = 0;
+    ui_icon_hid[1].dial_sta[DIAL_STA_PRESS].hid_data[0] = 0;
+    ui_icon_hid[1].dial_sta[DIAL_STA_R].hid_data[0] = 0;
+    ui_icon_hid[1].dial_sta[DIAL_STA_R].hid_data[1] = 10;
+    ui_icon_hid[1].dial_sta[DIAL_STA_L].hid_data[0] = 0;
+    ui_icon_hid[1].dial_sta[DIAL_STA_L].hid_data[1] = -10;
+}
+static void hid_send(uint8_t state)
+{
+        uint8_t hid_id = ui_icon_hid[icon_index].hid_id;
+        uint8_t keycode[6];
+        memcpy(keycode, &ui_icon_hid[icon_index].dial_sta[state], 6);
+        ui_send_hid_command(hid_id,keycode);
+}
 void ui_Screen2_hid_event(uint8_t state)
 {
     switch (state)
     {
     case DIAL_STA_RELEASE:
-        ui_send_hid_dial_command(DIAL_STA_RELEASE);
+        hid_send(DIAL_STA_RELEASE);
         break;
     case DIAL_STA_PRESS:
-        ui_send_hid_dial_command(DIAL_STA_PRESS);
+        hid_send(DIAL_STA_PRESS);
         break;
     case DIAL_STA_R:
-        ui_send_hid_dial_command(DIAL_STA_R);
+        hid_send(DIAL_STA_R);
         break;
     case DIAL_STA_L:
-        ui_send_hid_dial_command(DIAL_STA_L);
+        hid_send(DIAL_STA_L);
         break;
     case DIAL_STA_DOUBLE_CLICK:
         _ui_screen_change(&ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 300, 0, &ui_Screen1_screen_init);
         break;
     case DIAL_STA_P_R:
-        enc_num--;
+        hid_send(DIAL_STA_P_R);
+        enc_num++;
         break;
     case DIAL_STA_P_L:
-        enc_num++;
+        hid_send(DIAL_STA_P_L);
+        enc_num--;
         break;
     default:
         break;
@@ -169,19 +203,19 @@ static void onFocus(lv_group_t* g)
     uint32_t mid_btn_index = (icon_num - 1) / 2;
     if (current_btn_index > mid_btn_index)
     {
-        screem2_index++;
-        if (screem2_index > icon_num - 1)
-            screem2_index = 0;
+        icon_index++;
+        if (icon_index > icon_num - 1)
+            icon_index = 0;
         lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index - 1), LV_ANIM_OFF);
         lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index), LV_ANIM_ON);
         lv_obj_move_to_index(lv_obj_get_child(container, 0), -1);
     }
     else if (current_btn_index < mid_btn_index)
     {
-        screem2_index--;
-        if (screem2_index < 0)
+        icon_index--;
+        if (icon_index < 0)
         {
-            screem2_index = icon_num - 1;
+            icon_index = icon_num - 1;
         }
         lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index + 1), LV_ANIM_OFF);
         lv_obj_scroll_to_view(lv_obj_get_child(container, mid_btn_index), LV_ANIM_ON);
@@ -218,7 +252,7 @@ static void onFocus(lv_group_t* g)
 }
 static void group_init(lv_obj_t* container,int8_t id)
 {
-    screem2_index = 0;
+    icon_index = 0;
     group = lv_group_create();
     uint8_t cnt = lv_obj_get_child_cnt(container);
     //printf("%ld\n", cnt);
@@ -231,7 +265,7 @@ static void group_init(lv_obj_t* container,int8_t id)
     lv_group_focus_obj(lv_obj_get_child(container, mid_btn_index));
     for (uint8_t i = 0; i < id; i++)
     {
-       lv_group_focus_obj(lv_obj_get_child(container, -3));
+       lv_group_focus_obj(lv_obj_get_child(container, 1));
     }
 }
 static void Create(lv_obj_t* root)
@@ -309,6 +343,7 @@ void scr_Screen2_loaded_cb(lv_event_t * e)
 void ui_Screen2_screen_init(void)
 {
     ui_Screen2 = lv_obj_create(NULL);
+    ui_icon_hid_init();
     lv_obj_add_event_cb(ui_Screen2, scr_Screen2_loaded_cb, LV_EVENT_SCREEN_LOADED, &ui_Screen2);
     // lv_obj_add_event_cb(ui_Screen2, scr_Screen2_unloaded_cb, LV_EVENT_SCREEN_UNLOADED, &ui_Screen2);
     lv_obj_clear_flag(          ui_Screen2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
@@ -328,7 +363,7 @@ void ui_Screen2_screen_init(void)
     {
         lv_obj_move_to_index(lv_obj_get_child(container, -1), 0);
     }
-    group_init(container,screem2_index);
+    group_init(container,icon_index);
     pointer_task = lv_timer_create(task_pointer_cb, 10, 0);
 	lv_timer_set_repeat_count(pointer_task,-1);
 }

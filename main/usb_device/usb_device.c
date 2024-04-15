@@ -16,7 +16,7 @@ const uint8_t hid_report_descriptor[] = {
     TUD_HID_REPORT_DESC_KEYBOARD(HID_REPORT_ID(HID_ITF_PROTOCOL_KEYBOARD)),
     TUD_HID_REPORT_DESC_MOUSE(HID_REPORT_ID(HID_ITF_PROTOCOL_MOUSE)),
     TUD_HID_REPORT_DESC_DIAL(HID_REPORT_ID(HID_ITF_PROTOCOL_DIAL)),
-    TUD_HID_REPORT_DESC_CONSUMER(HID_REPORT_ID(HID_ITF_PROTOCOL_MEDIAL))
+    TUD_HID_REPORT_DESC_CONSUMER(HID_REPORT_ID(HID_ITF_PROTOCOL_MEDIA))
 };
 
 /**
@@ -91,6 +91,17 @@ void usb_mouse_report(uint8_t state)
         }
     }
 }
+static void medial_report(uint8_t report_id,uint8_t key0,uint8_t key1)
+{
+    uint8_t _report[2];
+    _report[0] = key0;
+    _report[1] = key1;
+    tud_hid_report(report_id, _report ,2);
+    vTaskDelay(pdMS_TO_TICKS(20));
+    _report[0] = 0;
+    _report[1] = 0;
+    tud_hid_report(report_id, _report ,2);
+}
 void dial_hid_task()
 {
     Command_HID cmd;
@@ -101,10 +112,29 @@ void dial_hid_task()
             switch (cmd.hid_id)
             {
             case HID_ITF_PROTOCOL_DIAL:
-                tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,cmd.hid_data[0]);
+                if(cmd.hid_data[0] == DIAL_STA_P_R || cmd.hid_data[0] == DIAL_STA_P_L)
+                {
+                    //按下旋转为切换界面，以防界面卡住需要旋钮发送按下并且50ms后弹起
+                    tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,DIAL_RELEASE);
+                    vTaskDelay(50 / portTICK_PERIOD_MS);
+                    tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,DIAL_PRESS);
+                    vTaskDelay(50 / portTICK_PERIOD_MS);
+                    tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,DIAL_RELEASE);
+                }
+                else
+                {
+                    tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,cmd.hid_data[0]);
+                }
                 break;
             case HID_ITF_PROTOCOL_MOUSE:
-                tud_hid_mouse_report(HID_ITF_PROTOCOL_MOUSE,cmd.hid_data[0],cmd.hid_data[1],cmd.hid_data[2],0,0);
+                tud_hid_mouse_report(HID_ITF_PROTOCOL_MOUSE,cmd.hid_data[0],cmd.hid_data[1],cmd.hid_data[2],cmd.hid_data[3],cmd.hid_data[4]);
+                break;
+            case HID_ITF_PROTOCOL_MEDIA:
+                medial_report(HID_ITF_PROTOCOL_MEDIA,cmd.hid_data[0],cmd.hid_data[1]);
+                break;
+            case HID_ITF_PROTOCOL_KEYBOARD:
+                uint8_t keycode[6] = {cmd.hid_data[1]};
+                tud_hid_keyboard_report(HID_ITF_PROTOCOL_KEYBOARD,cmd.hid_data[0],keycode);
                 break;
             default:
                 break;
@@ -120,7 +150,7 @@ void dial_hid_queue_init()
     if (HID_Queue != NULL)//判断队列是否创建成功
     {
         printf("dial_hid_task Success\n");
-        xTaskCreate(dial_hid_task, "dial_hid_task", 1024 *4, NULL, 10, NULL);
+        xTaskCreate(dial_hid_task, "dial_hid_task", 1024 *4, NULL, 2, NULL);
     }
 }
 void usb_device_init(void)

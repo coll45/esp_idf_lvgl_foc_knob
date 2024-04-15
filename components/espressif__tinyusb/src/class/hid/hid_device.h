@@ -147,12 +147,11 @@ static inline bool tud_hid_report(uint8_t report_id, void const* report, uint16_
 {
   return tud_hid_n_report(0, report_id, report, len);
 }
-
 static inline bool tud_hid_keyboard_report(uint8_t report_id, uint8_t modifier, uint8_t keycode[6])
 {
   return tud_hid_n_keyboard_report(0, report_id, modifier, keycode);
 }
-
+//horizontal（AC Pan） 是类似水平方向的滚轮，在使用 Excel 这样的软件经常需要水平方向的滚动用这个功能会很方便。
 static inline bool tud_hid_mouse_report(uint8_t report_id, uint8_t buttons, int8_t x, int8_t y, int8_t vertical, int8_t horizontal)
 {
   return tud_hid_n_mouse_report(0, report_id, buttons, x, y, vertical, horizontal);
