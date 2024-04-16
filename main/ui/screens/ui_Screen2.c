@@ -4,6 +4,7 @@
 // Project name: test1
 
 #include "../ui.h"
+#define ICON_CNT 7
 static const char *TAG = "SCREEN2";
 static lv_group_t* group;
 static lv_obj_t* pointer;
@@ -11,6 +12,7 @@ static int icon_index = 0;
 static lv_timer_t * pointer_task;
 UI_HID_INFO ui_icon_hid[10];
 static void ui_icon_hid_init();
+static void setl_label_info(uint8_t index);
 static struct
 {
     lv_style_t unfocused_0;//在焦点旁边 半透明
@@ -27,17 +29,10 @@ static struct
     lv_obj_t* mid;
     lv_obj_t* right;
 }ui_label;
-static struct _ui_hid
-{
-    const void* img_src;
-    const char* name;
-    const char* left_info;
-    const char* mid_info;
-    const char* right_info;
-};
 void ui_icon_hid_init()
 {
     memset(ui_icon_hid, 0x00, sizeof(ui_icon_hid));//全部清零
+    //surface dial
     ui_icon_hid[0].icon_id = 0;
     ui_icon_hid[0].hid_id = HID_ITF_PROTOCOL_DIAL;
     ui_icon_hid[0].dial_sta[DIAL_STA_RELEASE].hid_data[0] = DIAL_RELEASE;
@@ -47,15 +42,89 @@ void ui_icon_hid_init()
     ui_icon_hid[0].dial_sta[DIAL_STA_P_R].hid_data[0] = DIAL_STA_P_R;
     ui_icon_hid[0].dial_sta[DIAL_STA_P_L].hid_data[0] = DIAL_STA_P_L;
 
-    //
+    ui_icon_hid[0].icon.img_src = &ui_img_dial_png;
+    ui_icon_hid[0].icon.name = "旋钮";
+    ui_icon_hid[0].icon.left_info = "-";
+    ui_icon_hid[0].icon.mid_info = "Surface Dial";
+    ui_icon_hid[0].icon.right_info = "+";
+    //鼠标左右，按下鼠标左键
     ui_icon_hid[1].icon_id = 1;
     ui_icon_hid[1].hid_id = HID_ITF_PROTOCOL_MOUSE;
-    ui_icon_hid[1].dial_sta[DIAL_STA_RELEASE].hid_data[0] = 0;
-    ui_icon_hid[1].dial_sta[DIAL_STA_PRESS].hid_data[0] = 0;
-    ui_icon_hid[1].dial_sta[DIAL_STA_R].hid_data[0] = 0;
+    ui_icon_hid[1].dial_sta[DIAL_STA_CLICK].hid_data[0] = MOUSE_BUTTON_LEFT;
     ui_icon_hid[1].dial_sta[DIAL_STA_R].hid_data[1] = 10;
-    ui_icon_hid[1].dial_sta[DIAL_STA_L].hid_data[0] = 0;
     ui_icon_hid[1].dial_sta[DIAL_STA_L].hid_data[1] = -10;
+
+    ui_icon_hid[1].icon.img_src = &ui_img_left_right_png;
+    ui_icon_hid[1].icon.name = "鼠标左右";
+    ui_icon_hid[1].icon.left_info = "-10X";
+    ui_icon_hid[1].icon.mid_info = "Left";
+    ui_icon_hid[1].icon.right_info = "+10X";
+    //鼠标上下，按下鼠标右键
+    ui_icon_hid[2].icon_id = 2;
+    ui_icon_hid[2].hid_id = HID_ITF_PROTOCOL_MOUSE;
+    ui_icon_hid[2].dial_sta[DIAL_STA_CLICK].hid_data[0] = MOUSE_BUTTON_RIGHT;
+    ui_icon_hid[2].dial_sta[DIAL_STA_R].hid_data[2] = 10;
+    ui_icon_hid[2].dial_sta[DIAL_STA_L].hid_data[2] = -10;
+
+    ui_icon_hid[2].icon.img_src = &ui_img_up_dowm_png;
+    ui_icon_hid[2].icon.name = "鼠标上下";
+    ui_icon_hid[2].icon.left_info = "-10Y";
+    ui_icon_hid[2].icon.mid_info = "Right";
+    ui_icon_hid[2].icon.right_info = "+10Y";
+    //鼠标滚轮，按下鼠标中键
+    ui_icon_hid[3].icon_id = 3;
+    ui_icon_hid[3].hid_id = HID_ITF_PROTOCOL_MOUSE;
+    ui_icon_hid[3].dial_sta[DIAL_STA_CLICK].hid_data[0] = MOUSE_BUTTON_MIDDLE;
+    ui_icon_hid[3].dial_sta[DIAL_STA_R].hid_data[3] = -2;
+    ui_icon_hid[3].dial_sta[DIAL_STA_L].hid_data[3] = 2;
+
+    ui_icon_hid[3].icon.img_src = &ui_img_wheel_png;
+    ui_icon_hid[3].icon.name = "鼠标滚轮";
+    ui_icon_hid[3].icon.left_info = "-2V";
+    ui_icon_hid[3].icon.mid_info = "Middle";
+    ui_icon_hid[3].icon.right_info = "+2V";
+    //键盘ctrl+c/ctrl+v，按下ctrl+s
+    ui_icon_hid[4].icon_id = 4;
+    ui_icon_hid[4].hid_id = HID_ITF_PROTOCOL_KEYBOARD;
+    ui_icon_hid[4].dial_sta[DIAL_STA_CLICK].hid_data[0] = KEYBOARD_MODIFIER_LEFTCTRL;
+    ui_icon_hid[4].dial_sta[DIAL_STA_CLICK].hid_data[1] = HID_KEY_Z;
+    ui_icon_hid[4].dial_sta[DIAL_STA_R].hid_data[0] = KEYBOARD_MODIFIER_LEFTCTRL;
+    ui_icon_hid[4].dial_sta[DIAL_STA_R].hid_data[1] = HID_KEY_V;
+    ui_icon_hid[4].dial_sta[DIAL_STA_L].hid_data[0] = KEYBOARD_MODIFIER_LEFTCTRL;
+    ui_icon_hid[4].dial_sta[DIAL_STA_L].hid_data[1] = HID_KEY_C;
+
+    ui_icon_hid[4].icon.img_src = &ui_img_copy_png;
+    ui_icon_hid[4].icon.name = "快捷键";
+    ui_icon_hid[4].icon.left_info = "Ctrl+C";
+    ui_icon_hid[4].icon.mid_info = "Ctrl+Z";
+    ui_icon_hid[4].icon.right_info = "Ctrl+V";
+    //媒体音量大小，按下静音
+    ui_icon_hid[5].icon_id = 5;
+    ui_icon_hid[5].hid_id = HID_ITF_PROTOCOL_MEDIA;
+    ui_icon_hid[5].dial_sta[DIAL_STA_CLICK].hid_data[0] = HID_USAGE_CONSUMER_MUTE&0xff;
+    ui_icon_hid[5].dial_sta[DIAL_STA_CLICK].hid_data[1] = HID_USAGE_CONSUMER_MUTE>>8;
+    ui_icon_hid[5].dial_sta[DIAL_STA_R].hid_data[0] = HID_USAGE_CONSUMER_VOLUME_INCREMENT&0xff;
+    ui_icon_hid[5].dial_sta[DIAL_STA_R].hid_data[1] = HID_USAGE_CONSUMER_VOLUME_INCREMENT>>8;
+    ui_icon_hid[5].dial_sta[DIAL_STA_L].hid_data[0] = HID_USAGE_CONSUMER_VOLUME_DECREMENT&0xff;
+    ui_icon_hid[5].dial_sta[DIAL_STA_L].hid_data[1] = HID_USAGE_CONSUMER_VOLUME_DECREMENT>>8;
+
+    ui_icon_hid[5].icon.img_src = &ui_img_volume_png;
+    ui_icon_hid[5].icon.name = "音量";
+    ui_icon_hid[5].icon.left_info = "-";
+    ui_icon_hid[5].icon.mid_info = "Mute";
+    ui_icon_hid[5].icon.right_info = "+";
+    //方向键左右，按下空格
+    ui_icon_hid[6].icon_id = 6;
+    ui_icon_hid[6].hid_id = HID_ITF_PROTOCOL_KEYBOARD;
+    ui_icon_hid[6].dial_sta[DIAL_STA_CLICK].hid_data[1] = HID_KEY_SPACE;
+    ui_icon_hid[6].dial_sta[DIAL_STA_R].hid_data[1] = HID_KEY_ARROW_RIGHT;
+    ui_icon_hid[6].dial_sta[DIAL_STA_L].hid_data[1] = HID_KEY_ARROW_LEFT;
+
+    ui_icon_hid[6].icon.img_src = &ui_img_copy_png;
+    ui_icon_hid[6].icon.name = "方向键";
+    ui_icon_hid[6].icon.left_info = "Left";
+    ui_icon_hid[6].icon.mid_info = "Space";
+    ui_icon_hid[6].icon.right_info = "Right";
 }
 static void hid_send(uint8_t state)
 {
@@ -66,29 +135,24 @@ static void hid_send(uint8_t state)
 }
 void ui_Screen2_hid_event(uint8_t state)
 {
+    hid_send(state);
     switch (state)
     {
     case DIAL_STA_RELEASE:
-        hid_send(DIAL_STA_RELEASE);
         break;
     case DIAL_STA_PRESS:
-        hid_send(DIAL_STA_PRESS);
         break;
     case DIAL_STA_R:
-        hid_send(DIAL_STA_R);
         break;
     case DIAL_STA_L:
-        hid_send(DIAL_STA_L);
         break;
     case DIAL_STA_DOUBLE_CLICK:
         _ui_screen_change(&ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 300, 0, &ui_Screen1_screen_init);
         break;
     case DIAL_STA_P_R:
-        hid_send(DIAL_STA_P_R);
         enc_num++;
         break;
     case DIAL_STA_P_L:
-        hid_send(DIAL_STA_P_L);
         enc_num--;
         break;
     default:
@@ -239,7 +303,6 @@ static void onFocus(lv_group_t* g)
             lv_obj_clear_flag(obt, LV_OBJ_FLAG_HIDDEN);
     }
     //设置中间焦点左右两边图标样式，实现越远越小，越远越透明的效果
-          
     lv_img_set_zoom(lv_obj_get_child(container, mid_btn_index), 256);                       /// ZOOM
     lv_obj_add_state(lv_obj_get_child(container, mid_btn_index - 1), LV_STATE_USER_1);       /// States
     lv_img_set_zoom(lv_obj_get_child(container, mid_btn_index - 1), 220);                       /// ZOOM
@@ -249,6 +312,8 @@ static void onFocus(lv_group_t* g)
     lv_img_set_zoom(lv_obj_get_child(container, mid_btn_index - 2), 150);                       /// ZOOM
     lv_obj_add_state(lv_obj_get_child(container, mid_btn_index + 2), LV_STATE_USER_3);       /// States
     lv_img_set_zoom(lv_obj_get_child(container, mid_btn_index + 2), 150);                       /// ZOOM
+
+    setl_label_info(icon_index);
 }
 static void group_init(lv_obj_t* container,int8_t id)
 {
@@ -268,6 +333,13 @@ static void group_init(lv_obj_t* container,int8_t id)
        lv_group_focus_obj(lv_obj_get_child(container, 1));
     }
 }
+static void setl_label_info(uint8_t index)
+{
+    lv_label_set_text(ui_label.name, ui_icon_hid[index].icon.name);
+    lv_label_set_text(ui_label.left, ui_icon_hid[index].icon.left_info);
+    lv_label_set_text(ui_label.mid, ui_icon_hid[index].icon.mid_info);
+    lv_label_set_text(ui_label.right, ui_icon_hid[index].icon.right_info);
+}
 static void Create(lv_obj_t* root)
 {
     ui_label.name = lv_label_create(root);
@@ -276,7 +348,6 @@ static void Create(lv_obj_t* root)
     lv_obj_set_x(ui_label.name, 0);
     lv_obj_set_y(ui_label.name, 93);
     lv_obj_set_align(ui_label.name, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_label.name, "旋钮");
     lv_obj_add_style(ui_label.name, &style.font20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_label.left = lv_label_create(root);
@@ -285,14 +356,12 @@ static void Create(lv_obj_t* root)
     lv_obj_set_x(ui_label.left, -67);
     lv_obj_set_y(ui_label.left, 0);
     lv_obj_set_align(ui_label.left, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_label.left, "-");
     lv_obj_add_style(ui_label.left, &style.font16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_label.mid = lv_label_create(root);
     lv_obj_set_width(ui_label.mid, LV_SIZE_CONTENT);   /// 73
     lv_obj_set_height(ui_label.mid, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_label.mid, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_label.mid, "360");
     lv_obj_add_style(ui_label.mid, &style.font16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_label.right = lv_label_create(root);
@@ -301,7 +370,6 @@ static void Create(lv_obj_t* root)
     lv_obj_set_x(ui_label.right, 67);
     lv_obj_set_y(ui_label.right, 0);
     lv_obj_set_align(ui_label.right, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_label.right, "+");
     lv_obj_add_style(ui_label.right, &style.font16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     pointer = lv_img_create(ui_Screen2);
@@ -315,15 +383,12 @@ static void Create(lv_obj_t* root)
 void task_pointer_cb()
 {
     uint16_t num = 0;
-    char chr[10];
     num = 360 - (uint16_t)(get_motor_shaft_angle() * 57.3) % 360;
     if(num > 360)
     {
         num = 0;
     }
-    sprintf(chr, "%d",(int)num);
     num = num*10;
-    lv_label_set_text(ui_label.mid, chr);
     lv_img_set_angle(pointer, num);
 }
 void scr_Screen2_unloaded_cb(lv_event_t * e)
@@ -350,14 +415,12 @@ void ui_Screen2_screen_init(void)
     lv_obj_set_style_bg_img_src(ui_Screen2, &ui_img_bg1_png, LV_PART_MAIN | LV_STATE_DEFAULT);
     Style_Init();
     Create(ui_Screen2);
+    setl_label_info(icon_index);
     lv_obj_t* container = container_create(ui_Screen2);
-    icon_create(container, &ui_img_dial_png);
-    icon_create(container, &ui_img_music_png);
-    icon_create(container, &ui_img_wheel_png);
-    icon_create(container, &ui_img_l_r_png);
-    icon_create(container, &ui_img_video_png);
-    icon_create(container, &ui_img_pc_png);
-    icon_create(container, &ui_img_pc_png);
+    for (uint8_t i = 0; i < ICON_CNT; i++)
+    {
+        icon_create(container, ui_icon_hid[i].icon.img_src);
+    }
     uint32_t mid_btn_index = (lv_obj_get_child_cnt(container) - 1) / 2;
     for (uint32_t i = 0; i < mid_btn_index; i++) 
     {

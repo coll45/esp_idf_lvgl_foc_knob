@@ -45,11 +45,20 @@ typedef struct{
 struct DIAL_STA_DATA {
     uint8_t hid_data[6];
 };
+struct UI_HID_ICON_INFO
+{
+    const void* img_src;
+    const char* name;
+    const char* left_info;
+    const char* mid_info;
+    const char* right_info;
+};
 typedef struct 
 {
     uint8_t icon_id; //图标的id
     uint8_t hid_id; //hid设备id
     struct DIAL_STA_DATA dial_sta[DIAL_STA_NUM];
+    struct UI_HID_ICON_INFO icon;
 }UI_HID_INFO;
 
 extern _ui_state ui_state;
@@ -67,13 +76,15 @@ extern lv_indev_t* encoder_indev;
 
 LV_IMG_DECLARE(ui_img_bg1_png);    // assets\bg1.png
 LV_IMG_DECLARE(ui_img_pc_png);    // assets\pc.png
-LV_IMG_DECLARE(ui_img_poweroff_png);    // assets\poweroff.png
-LV_IMG_DECLARE(ui_img_setting_png);    // assets\setting.png
-LV_IMG_DECLARE(ui_img_l_r_png);    // assets\L_R.png
-LV_IMG_DECLARE(ui_img_video_png);    // assets\video.png
+LV_IMG_DECLARE(ui_img_set_png);    // assets\set.png
+LV_IMG_DECLARE(ui_img_power_png);    // assets\power.png
+LV_IMG_DECLARE(ui_img_copy_png);    // assets\copy.png
+LV_IMG_DECLARE(ui_img_left_right_png);    // assets\left_right.png
 LV_IMG_DECLARE(ui_img_dial_png);    // assets\dial.png
-LV_IMG_DECLARE(ui_img_music_png);    // assets\music.png
+LV_IMG_DECLARE(ui_img_up_dowm_png);    // assets\up_dowm.png
 LV_IMG_DECLARE(ui_img_wheel_png);    // assets\wheel.png
+LV_IMG_DECLARE(ui_img_key_left_right_png);    // assets\key_left_right.png
+LV_IMG_DECLARE(ui_img_volume_png);    // assets\volume.png
 LV_IMG_DECLARE(ui_img_pointer_png);    // assets\pointer.png
 
 LV_FONT_DECLARE(ui_font_SmileySansOblique16);

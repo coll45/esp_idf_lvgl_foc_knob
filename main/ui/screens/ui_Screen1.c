@@ -201,23 +201,20 @@ static void Create(lv_obj_t* root)
         "0",
         &ui_img_pc_png,
 
-        "Surface Dial"
+        "Surface Dial\n"
+		"KeyBoard\n"
+		"Mouse\n"
+		"Media\n"
         );
     Item_Create(root,
         "1",
-        &ui_img_setting_png,
+        &ui_img_set_png,
 
         "Setting"
     );
     Item_Create(root,
         "2",
-        &ui_img_poweroff_png,
-
-        "PowerOff"
-    );
-    Item_Create(root,
-        "3",
-        &ui_img_poweroff_png,
+        &ui_img_power_png,
 
         "PowerOff"
     );

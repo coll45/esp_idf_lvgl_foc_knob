@@ -127,14 +127,26 @@ void dial_hid_task()
                 }
                 break;
             case HID_ITF_PROTOCOL_MOUSE:
-                tud_hid_mouse_report(HID_ITF_PROTOCOL_MOUSE,cmd.hid_data[0],cmd.hid_data[1],cmd.hid_data[2],cmd.hid_data[3],cmd.hid_data[4]);
+            //鼠标数据0为按键，1为X移动，2为Y移动，3为滚轮垂直移动，4为滚轮水平移动（在excel里面用到
+                if(cmd.hid_data[0])
+                {
+                    tud_hid_mouse_report(HID_ITF_PROTOCOL_MOUSE,cmd.hid_data[0],cmd.hid_data[1],cmd.hid_data[2],cmd.hid_data[3],cmd.hid_data[4]);
+                    vTaskDelay(10 / portTICK_PERIOD_MS);
+                    tud_hid_mouse_report(HID_ITF_PROTOCOL_MOUSE,0,0,0,0,0);
+                }
+                else
+                    tud_hid_mouse_report(HID_ITF_PROTOCOL_MOUSE,cmd.hid_data[0],cmd.hid_data[1],cmd.hid_data[2],cmd.hid_data[3],cmd.hid_data[4]);
                 break;
             case HID_ITF_PROTOCOL_MEDIA:
                 medial_report(HID_ITF_PROTOCOL_MEDIA,cmd.hid_data[0],cmd.hid_data[1]);
+                vTaskDelay(10 / portTICK_PERIOD_MS);
+                medial_report(HID_ITF_PROTOCOL_MEDIA,0,0);
                 break;
             case HID_ITF_PROTOCOL_KEYBOARD:
                 uint8_t keycode[6] = {cmd.hid_data[1]};
                 tud_hid_keyboard_report(HID_ITF_PROTOCOL_KEYBOARD,cmd.hid_data[0],keycode);
+                vTaskDelay(10 / portTICK_PERIOD_MS);
+                tud_hid_keyboard_report(HID_ITF_PROTOCOL_KEYBOARD,0,NULL);
                 break;
             default:
                 break;
