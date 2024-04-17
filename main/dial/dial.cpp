@@ -160,10 +160,11 @@ static void foc_knob_l_lim_cb(void *arg, void *data)
 {
     ESP_LOGI(TAG, "foc_knob_l_lim_cb");
 }
-static float motor_pid_cb(float P, float limit, float error)
+static float motor_pid_cb(float P, float D, float limit, float error)
 {
-    motor.PID_velocity.limit = limit; //out_of_bounds ? 10 : 3;
-    motor.PID_velocity.P =P;
+    motor.PID_velocity.limit = limit;
+    motor.PID_velocity.P = P;
+    motor.PID_velocity.D = D;
     return motor.PID_velocity(error);
 }
 float motor_shake_func(float strength, int delay_cnt)

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022-2023 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2022-2024 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
@@ -15,7 +16,6 @@
 #include "esp_check.h"
 #include "foc_knob.h"
 #include "foc_knob_default.h"
-#include "math.h"
 
 static const char *TAG = "FOC_Knob";
 
@@ -29,6 +29,14 @@ static const char *TAG = "FOC_Knob";
 #define MAX_VELOCITY_CONTROL          CONFIG_FOC_KNOB_MAX_VELOCITY
 
 #define CLAMP(value, low, high) ((value) < (low) ? (low) : ((value) > (high) ? (high) : (value)))
+
+#define max(a, b) ((a) > (b) ? (a) : (b))
+
+#define min(a, b) ((a) < (b) ? (a) : (b))
+
+#define DEG_TO_RAD 0.017453292519943295769236907684886
+
+#define radians(deg) ((deg)*DEG_TO_RAD)
 
 #define CALL_EVENT_CB(ev)   if(p_knob->cb[ev])p_knob->cb[ev](p_knob, p_knob->usr_data[ev])
 
@@ -117,7 +125,6 @@ float foc_knob_run(foc_knob_handle_t handle, float shaft_velocity, float shaft_a
     foc_knob_t *p_knob = (foc_knob_t *)handle;
     const foc_knob_param_t *motor_config = p_knob->param_lists[p_knob->current_mode];
     ESP_RETURN_ON_FALSE(NULL != motor_config, 0.0, TAG, "invalid motor config");
-    esp_err_t ret = ESP_OK;
     float torque = 0.0;
     xSemaphoreTake(p_knob->mutex, portMAX_DELAY);
     if (p_knob->center_adjusted == false) {
@@ -183,23 +190,38 @@ float foc_knob_run(foc_knob_handle_t handle, float shaft_velocity, float shaft_a
 
     float limit = out_of_bounds ? p_knob->max_torque_out_limit : p_knob->max_torque;
     float P = out_of_bounds ? motor_config->endstop_strength_unit * 4 : motor_config->detent_strength_unit * 4;
-
-    ESP_GOTO_ON_FALSE(ret == ESP_OK, ESP_FAIL, fail, TAG, "PID parameters are not updated");
+    // Update derivative factor of torque controller based on detent width.
+    // If the D factor is large on coarse detents, the motor ends up making noise because the P&D factors amplify the noise from the sensor.
+    // This is a piecewise linear function so that fine detents (small width) get a higher D factor and coarse detents get a small D factor.
+    // Fine detents need a nonzero D factor to artificially create "clicks" each time a new value is reached (the P factor is small
+    // for fine detents due to the smaller angular errors, and the existing P factor doesn't work well for very small angle changes (easy to
+    // get runaway due to sensor noise & lag)).
+    // TODO: consider eliminating this D factor entirely and just "play" a hardcoded haptic "click" (e.g. a quick burst of torque in each
+    // direction) whenever the position changes when the detent width is too small for the P factor to work well.
+    const float derivative_lower_strength = motor_config->detent_strength_unit * 0.08;
+    const float derivative_upper_strength = motor_config->detent_strength_unit * 0.02;
+    const float derivative_position_width_lower = radians(3);
+    const float derivative_position_width_upper = radians(8);
+    const float raw = derivative_lower_strength + (derivative_upper_strength - derivative_lower_strength) / (derivative_position_width_upper - derivative_position_width_lower) * (motor_config->position_width_radians - derivative_position_width_lower);
+    // When there are intermittent detents (set via detent_positions), disable derivative factor as this adds extra "clicks" when nearing
+    // a detent.
+    float D = CLAMP(
+                  raw,
+                  min(derivative_lower_strength, derivative_upper_strength),
+                  max(derivative_lower_strength, derivative_upper_strength)
+              );
+    // printf("P: %f, D: %f\n", P, D);
 
     /*!< Calculate torque */
     if (fabsf(shaft_velocity) > MAX_VELOCITY_CONTROL) {
         torque = 0;
     } else {
         float input_error = -p_knob->angle_to_detent_center + dead_zone_adjustment;
-        torque = p_knob->pid_cb(P, limit, input_error);
-        ESP_GOTO_ON_FALSE(ret == ESP_OK, ESP_FAIL, fail, TAG, "PID Computation error");
+        torque = p_knob->pid_cb(P, D, limit, input_error);
     }
     xSemaphoreGive(p_knob->mutex);
 
     return (torque);
-fail:
-    xSemaphoreGive(p_knob->mutex);
-    return 0;
 }
 
 esp_err_t foc_knob_delete(foc_knob_handle_t handle)

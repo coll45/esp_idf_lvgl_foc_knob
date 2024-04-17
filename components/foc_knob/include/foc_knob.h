@@ -56,7 +56,7 @@ typedef enum {
     FOC_KNOB_EVENT_MAX,                    /*!< EVENT: Number of events */
 } foc_knob_event_t;
 
-typedef float (*foc_knob_pid_cb_t)(float P, float limit, float error);
+typedef float (*foc_knob_pid_cb_t)(float P, float D, float limit, float error);
 
 /**
  * @brief Knob specified configurations, used when creating a Knob
