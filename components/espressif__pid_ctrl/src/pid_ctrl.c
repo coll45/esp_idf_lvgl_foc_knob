@@ -9,7 +9,7 @@
 #include "esp_check.h"
 #include "esp_log.h"
 #include "pid_ctrl.h"
-
+#include "math.h"
 static const char *TAG = "pid_ctrl";
 
 typedef struct pid_ctrl_block_t pid_ctrl_block_t;
@@ -36,8 +36,8 @@ static float pid_calc_positional(pid_ctrl_block_t *pid, float error)
     /* Add current error to the integral error */
     pid->integral_err += error;
     /* If the integral error is out of the range, it will be limited */
-    pid->integral_err = MIN(pid->integral_err, pid->max_integral);
-    pid->integral_err = MAX(pid->integral_err, pid->min_integral);
+    pid->integral_err = fmin(pid->integral_err, pid->max_integral);
+    pid->integral_err = fmax(pid->integral_err, pid->min_integral);
 
     /* Calculate the pid control value by location formula */
     /* u(k) = e(k)*Kp + (e(k)-e(k-1))*Kd + integral*Ki */
@@ -46,8 +46,8 @@ static float pid_calc_positional(pid_ctrl_block_t *pid, float error)
              pid->integral_err * pid->Ki;
 
     /* If the output is out of the range, it will be limited */
-    output = MIN(output, pid->max_output);
-    output = MAX(output, pid->min_output);
+    output = fmin(output, pid->max_output);
+    output = fmax(output, pid->min_output);
 
     /* Update previous error */
     pid->previous_err1 = error;
@@ -68,8 +68,8 @@ static float pid_calc_incremental(pid_ctrl_block_t *pid, float error)
              pid->last_output;
 
     /* If the output is beyond the range, it will be limited */
-    output = MIN(output, pid->max_output);
-    output = MAX(output, pid->min_output);
+    output = fmin(output, pid->max_output);
+    output = fmax(output, pid->min_output);
 
     /* Update previous error */
     pid->previous_err2 = pid->previous_err1;

@@ -41,7 +41,7 @@ static const uint8_t hid_configuration_descriptor[] = {
     TUD_CONFIG_DESCRIPTOR(1, 1, 0, TUSB_DESC_TOTAL_LEN, TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 100),
 
     // Interface number, string index, boot protocol, report descriptor len, EP In address, size & polling interval
-    TUD_HID_DESCRIPTOR(0, 4, false, sizeof(hid_report_descriptor), 0x81, 16, 10),
+    TUD_HID_DESCRIPTOR(0, 4, false, sizeof(hid_report_descriptor), 0x81, 16, 1),
 };
 
 /********* TinyUSB HID callbacks ***************/
@@ -131,7 +131,7 @@ void dial_hid_task()
                 if(cmd.hid_data[0])
                 {
                     tud_hid_mouse_report(HID_ITF_PROTOCOL_MOUSE,cmd.hid_data[0],cmd.hid_data[1],cmd.hid_data[2],cmd.hid_data[3],cmd.hid_data[4]);
-                    vTaskDelay(10 / portTICK_PERIOD_MS);
+                    vTaskDelay(2 / portTICK_PERIOD_MS);
                     tud_hid_mouse_report(HID_ITF_PROTOCOL_MOUSE,0,0,0,0,0);
                 }
                 else
@@ -139,13 +139,13 @@ void dial_hid_task()
                 break;
             case HID_ITF_PROTOCOL_MEDIA:
                 medial_report(HID_ITF_PROTOCOL_MEDIA,cmd.hid_data[0],cmd.hid_data[1]);
-                vTaskDelay(10 / portTICK_PERIOD_MS);
+                vTaskDelay(2 / portTICK_PERIOD_MS);
                 medial_report(HID_ITF_PROTOCOL_MEDIA,0,0);
                 break;
             case HID_ITF_PROTOCOL_KEYBOARD:
                 uint8_t keycode[6] = {cmd.hid_data[1]};
                 tud_hid_keyboard_report(HID_ITF_PROTOCOL_KEYBOARD,cmd.hid_data[0],keycode);
-                vTaskDelay(10 / portTICK_PERIOD_MS);
+                vTaskDelay(2 / portTICK_PERIOD_MS);
                 tud_hid_keyboard_report(HID_ITF_PROTOCOL_KEYBOARD,0,NULL);
                 break;
             default:
@@ -162,7 +162,7 @@ void dial_hid_queue_init()
     if (HID_Queue != NULL)//判断队列是否创建成功
     {
         printf("dial_hid_task Success\n");
-        xTaskCreate(dial_hid_task, "dial_hid_task", 1024 *4, NULL, 2, NULL);
+        xTaskCreate(dial_hid_task, "dial_hid_task", 1024 *4, NULL, 23, NULL);
     }
 }
 void usb_device_init(void)

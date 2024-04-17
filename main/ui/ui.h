@@ -57,6 +57,7 @@ typedef struct
 {
     uint8_t icon_id; //图标的id
     uint8_t hid_id; //hid设备id
+    uint16_t img_angle;//图标的角度
     struct DIAL_STA_DATA dial_sta[DIAL_STA_NUM];
     struct UI_HID_ICON_INFO icon;
 }UI_HID_INFO;

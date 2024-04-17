@@ -50,10 +50,16 @@ void motor_init(void)
     motor.foc_modulation = SpaceVectorPWM;
     motor.controller = MotionControlType::torque;
 
+    motor.PID_velocity.P = 4;
+    motor.PID_velocity.I = 0;
+    motor.PID_velocity.D = 0.04;
+    motor.PID_velocity.output_ramp = 10000;
+    motor.PID_velocity.limit = 10;
+
     motor.useMonitoring(Serial);
     motor.init();                                        // initialize motor
     motor.sensor_direction = Direction::CCW;
-    motor.zero_electric_angle = 0.81;
+    motor.zero_electric_angle = 0.8;
     motor.initFOC();                                     // align sensor and start FOC
     
     ESP_LOGI(TAG, "Motor motor.zero_electric_angle %f",motor.zero_electric_angle);
@@ -154,7 +160,12 @@ static void foc_knob_l_lim_cb(void *arg, void *data)
 {
     ESP_LOGI(TAG, "foc_knob_l_lim_cb");
 }
-
+static float motor_pid_cb(float P, float limit, float error)
+{
+    motor.PID_velocity.limit = limit; //out_of_bounds ? 10 : 3;
+    motor.PID_velocity.P =P;
+    return motor.PID_velocity(error);
+}
 float motor_shake_func(float strength, int delay_cnt)
 {
     static int time_cnt = 0;
@@ -215,7 +226,8 @@ void foc_init()
         .param_lists = default_foc_knob_param_lst,
         .param_list_num = MOTOR_MAX_MODES,
         .max_torque_out_limit = 5,
-        .max_torque = 4,
+        .max_torque = 5,
+        .pid_cb = motor_pid_cb,
     };
 
     foc_knob_handle = foc_knob_create(&cfg);
@@ -225,5 +237,5 @@ void foc_init()
     foc_knob_register_cb(foc_knob_handle, FOC_KNOB_H_LIM, foc_knob_h_lim_cb, NULL);
     foc_knob_register_cb(foc_knob_handle, FOC_KNOB_L_LIM, foc_knob_l_lim_cb, NULL);
 
-    xTaskCreate(motor_task, "motor_task", 4096, NULL, 6, NULL);
+    xTaskCreate(motor_task, "motor_task", 4096, NULL, 24, NULL);
 }

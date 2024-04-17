@@ -8,22 +8,17 @@
 #include "foc_knob_default.h"
 
 /* arrays of knob parameters for different knob modes */
-  // int32_t num_positions;   位置总数
-  // int32_t position;    当前位置
-  // float position_width_radians;   角度
-  // float detent_strength_unit;    力度
-  // float endstop_strength_unit;   撞墙力度
-  // float snap_point;   切换点
+
 static const foc_knob_param_t unbound_no_detents[] = {
-    {0, 0, 1 * PI / 180, 0, 0, 1.1, "Unbounded\nNo detents"},
+    {0, 0, 1 * PI / 180, 1, 0, 1.1, "Unbounded\nNo detents"},
 };
 
 static const foc_knob_param_t unbound_fine_detents[] = {
-    {0, 0, 10 * PI / 180, 0.8, 0, 1.1, "Unbounded\nFine detents"},
+    {0, 0, 5 * PI / 180, 0.8, 0, 1.1, "Unbounded\nFine detents"},
 };
 
 static const foc_knob_param_t unbound_coarse_detents[] = {
-    {0, 0, 20 * PI / 180, 1.2, 0, 1.1, "Unbounded\nStrong detents"},
+    {0, 0, 10 * PI / 180, 1.2, 0, 1.1, "Unbounded\nStrong detents"},
 };
 
 static const foc_knob_param_t bound_no_detents[] = {
