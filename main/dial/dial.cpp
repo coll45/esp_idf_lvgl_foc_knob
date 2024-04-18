@@ -5,13 +5,11 @@
 #include "esp_log.h"
 #include "esp_timer.h"
 #include "driver/gpio.h"
-#include "foc_knob.h"
-#include "foc_knob_default.h"
 #include "esp_simplefoc.h"
 #include "iot_button.h"
-#include "dial.h"
 #include "../usb_device/usb_device.h"
 #include "../ui/ui.h"
+#include "dial.h"
 
 #define TAG "FOC_Knob_Example"
 static foc_knob_handle_t foc_knob_handle = NULL;
@@ -58,8 +56,8 @@ void motor_init(void)
 
     motor.useMonitoring(Serial);
     motor.init();                                        // initialize motor
-    motor.sensor_direction = Direction::CCW;
-    motor.zero_electric_angle = 0.8;
+    // motor.sensor_direction = Direction::CCW;
+    // motor.zero_electric_angle =  0.762389;
     motor.initFOC();                                     // align sensor and start FOC
     
     ESP_LOGI(TAG, "Motor motor.zero_electric_angle %f",motor.zero_electric_angle);
@@ -72,7 +70,6 @@ static void button_press_cb(void *arg, void *data)
     press_rotation = 1;
     // ESP_LOGI(TAG, "press down:");
     dial_publish(DIAL_STA_PRESS);
-    foc_knob_change_mode(foc_knob_handle, 2);
     motor_shake = true;
 }
 static void button_press_up_cb(void *arg, void *data)
@@ -82,7 +79,6 @@ static void button_press_up_cb(void *arg, void *data)
         press_rotation = 0;
     // ESP_LOGI(TAG, "press up:");
     dial_publish(DIAL_STA_RELEASE);
-    foc_knob_change_mode(foc_knob_handle, 1);
 }
 static void button_single_click_cb(void *arg, void *data)
 {
@@ -110,8 +106,7 @@ static void button_long_press_start_cb(void *arg, void *data)
 static void button_long_press_up_cb(void *arg, void *data)
 {
     //按键长按抬起
-    if(press_rotation != 1)
-        press_rotation = 0;
+    press_rotation = 0;
     dial_publish(DIAL_STA_LONG_PRESS_UP);
     // ESP_LOGI(TAG, "long press up");
 }
@@ -120,13 +115,13 @@ static void foc_knob_inc_cb(void *arg, void *data)
     //判断按键按下flag，如果按下了会从1变到2
     if(press_rotation == 1)
         press_rotation = 2;
-    if(press_rotation == 2)
+    if(gpio_get_level(SWITCH_BUTTON))
     {
-        dial_publish(DIAL_STA_P_R);
+        dial_publish(DIAL_STA_R);
     }
     else
     {
-        dial_publish(DIAL_STA_R);
+        dial_publish(DIAL_STA_P_R);
     }
     foc_knob_state_t state;
     foc_knob_get_state(arg, &state);
@@ -138,13 +133,13 @@ static void foc_knob_dec_cb(void *arg, void *data)
     //if press rotation flag
     if(press_rotation == 1)
         press_rotation = 2;
-    if(press_rotation == 2)
+    if(gpio_get_level(SWITCH_BUTTON))
     {
-        dial_publish(DIAL_STA_P_L);
+        dial_publish(DIAL_STA_L);
     }
     else
     {
-        dial_publish(DIAL_STA_L);
+        dial_publish(DIAL_STA_P_L);
     }
     foc_knob_state_t state;
     foc_knob_get_state(arg, &state);
@@ -201,6 +196,10 @@ float get_motor_shaft_angle(void)
 {
     return motor.shaft_angle;
 }
+void foc_knob_set_param(foc_knob_param_t param)
+{
+    foc_knob_set_param_list(foc_knob_handle, param);
+}
 void foc_init()
 {
     button_config_t btn_config = {
@@ -232,7 +231,7 @@ void foc_init()
     };
 
     foc_knob_handle = foc_knob_create(&cfg);
-    foc_knob_change_mode(foc_knob_handle, 1);
+    // foc_knob_change_mode(foc_knob_handle, 1);
     foc_knob_register_cb(foc_knob_handle, FOC_KNOB_INC, foc_knob_inc_cb, NULL);
     foc_knob_register_cb(foc_knob_handle, FOC_KNOB_DEC, foc_knob_dec_cb, NULL);
     foc_knob_register_cb(foc_knob_handle, FOC_KNOB_H_LIM, foc_knob_h_lim_cb, NULL);

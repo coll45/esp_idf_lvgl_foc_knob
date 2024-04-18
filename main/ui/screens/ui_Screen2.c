@@ -11,6 +11,7 @@ static lv_obj_t* pointer;
 static int icon_index = 0;
 static lv_timer_t * pointer_task;
 UI_HID_INFO ui_icon_hid[ICON_CNT];
+
 static void ui_icon_hid_init();
 static void setl_label_info(uint8_t index);
 static struct
@@ -29,116 +30,152 @@ static struct
     lv_obj_t* mid;
     lv_obj_t* right;
 }ui_label;
+static const foc_knob_param_t hid_foc_knob_param_lst[] = {
+    [0] = { 0, 0, 5 * PI / 180, 1, 1, 1.1, ""},    //surface dial            
+    [1] = { 0, 0, 1 * PI / 180, 1, 1, 1.1, ""},    //鼠标左右         
+    [2] = { 0, 0, 1 * PI / 180, 1, 1, 1.1, ""},    //鼠标上下         
+    [3] = { 0, 0, 2 * PI / 180, 1, 1, 1.1, ""},    //滚轮上下         
+    [4] = { 0, 0, 2 * PI / 180, 1, 1, 1.1, ""},    //滚轮左右         
+    [5] = { 2, 1, 60 * PI / 180, 1, 1, 0.55, ""},    //快捷键         
+    [6] = { 50, 25, 5 * PI / 180, 1, 1, 1.1, ""},    //音量         
+    [7] = { 0, 0, 2 * PI / 180, 1, 1, 1.1, ""},    //方向键左右
+};
+static const foc_knob_param_t screen2_press_foc_knob_param = { 0, 0, 10 * PI / 180, 2, 1, 0.7, ""};
 static void ui_icon_hid_init()
 {
+    uint8_t id;
     memset(ui_icon_hid, 0x00, sizeof(ui_icon_hid));//全部清零
     //surface dial
-    ui_icon_hid[0].icon_id = 0;
-    ui_icon_hid[0].hid_id = HID_ITF_PROTOCOL_DIAL;
-    ui_icon_hid[0].dial_sta[DIAL_STA_RELEASE].hid_data[0] = DIAL_RELEASE;
-    ui_icon_hid[0].dial_sta[DIAL_STA_PRESS].hid_data[0] = DIAL_PRESS;
-    ui_icon_hid[0].dial_sta[DIAL_STA_R].hid_data[0] = DIAL_R;
-    ui_icon_hid[0].dial_sta[DIAL_STA_L].hid_data[0] = DIAL_L;
-    ui_icon_hid[0].dial_sta[DIAL_STA_P_R].hid_data[0] = DIAL_STA_P_R;
-    ui_icon_hid[0].dial_sta[DIAL_STA_P_L].hid_data[0] = DIAL_STA_P_L;
+    id = 0;
+    ui_icon_hid[id].icon_id = id;
+    ui_icon_hid[id].hid_id = HID_ITF_PROTOCOL_DIAL;
+    ui_icon_hid[id].dial_sta[DIAL_STA_RELEASE].hid_data[0] = DIAL_RELEASE;
+    ui_icon_hid[id].dial_sta[DIAL_STA_PRESS].hid_data[0] = DIAL_PRESS;
+    ui_icon_hid[id].dial_sta[DIAL_STA_R].hid_data[0] = DIAL_R;
+    ui_icon_hid[id].dial_sta[DIAL_STA_L].hid_data[0] = DIAL_L;
+    ui_icon_hid[id].dial_sta[DIAL_STA_P_R].hid_data[0] = DIAL_STA_P_R;
+    ui_icon_hid[id].dial_sta[DIAL_STA_P_L].hid_data[0] = DIAL_STA_P_L;
 
-    ui_icon_hid[0].icon.img_src = &ui_img_dial_png;
-    ui_icon_hid[0].icon.name = "旋钮";
-    ui_icon_hid[0].icon.left_info = "-";
-    ui_icon_hid[0].icon.mid_info = "Surface Dial";
-    ui_icon_hid[0].icon.right_info = "+";
+    ui_icon_hid[id].param_list = hid_foc_knob_param_lst[id];
+
+    ui_icon_hid[id].icon.img_src = &ui_img_dial_png;
+    ui_icon_hid[id].icon.name = "旋钮";
+    ui_icon_hid[id].icon.left_info = "-";
+    ui_icon_hid[id].icon.mid_info = "Surface Dial";
+    ui_icon_hid[id].icon.right_info = "+";
     //鼠标左右，按下鼠标左键
-    ui_icon_hid[1].icon_id = 1;
-    ui_icon_hid[1].hid_id = HID_ITF_PROTOCOL_MOUSE;
-    ui_icon_hid[1].dial_sta[DIAL_STA_CLICK].hid_data[0] = MOUSE_BUTTON_LEFT;
-    ui_icon_hid[1].dial_sta[DIAL_STA_R].hid_data[1] = 10;
-    ui_icon_hid[1].dial_sta[DIAL_STA_L].hid_data[1] = -10;
+    id = 1;
+    ui_icon_hid[id].icon_id = id;
+    ui_icon_hid[id].hid_id = HID_ITF_PROTOCOL_MOUSE;
+    ui_icon_hid[id].dial_sta[DIAL_STA_CLICK].hid_data[0] = MOUSE_BUTTON_LEFT;
+    ui_icon_hid[id].dial_sta[DIAL_STA_R].hid_data[1] = 10;
+    ui_icon_hid[id].dial_sta[DIAL_STA_L].hid_data[1] = -10;
 
-    ui_icon_hid[1].icon.img_src = &ui_img_left_right_png;
-    ui_icon_hid[1].icon.name = "鼠标左右";
-    ui_icon_hid[1].icon.left_info = "-10X";
-    ui_icon_hid[1].icon.mid_info = "Left";
-    ui_icon_hid[1].icon.right_info = "+10X";
+    ui_icon_hid[id].param_list = hid_foc_knob_param_lst[id];
+
+    ui_icon_hid[id].icon.img_src = &ui_img_left_right_png;
+    ui_icon_hid[id].icon.name = "鼠标左右";
+    ui_icon_hid[id].icon.left_info = "-10X";
+    ui_icon_hid[id].icon.mid_info = "Left";
+    ui_icon_hid[id].icon.right_info = "+10X";
     //鼠标上下，按下鼠标右键
-    ui_icon_hid[2].icon_id = 2;
-    ui_icon_hid[2].hid_id = HID_ITF_PROTOCOL_MOUSE;
-    ui_icon_hid[2].dial_sta[DIAL_STA_CLICK].hid_data[0] = MOUSE_BUTTON_RIGHT;
-    ui_icon_hid[2].dial_sta[DIAL_STA_R].hid_data[2] = 10;
-    ui_icon_hid[2].dial_sta[DIAL_STA_L].hid_data[2] = -10;
+    id = 2;
+    ui_icon_hid[id].icon_id = id;
+    ui_icon_hid[id].hid_id = HID_ITF_PROTOCOL_MOUSE;
+    ui_icon_hid[id].dial_sta[DIAL_STA_CLICK].hid_data[0] = MOUSE_BUTTON_RIGHT;
+    ui_icon_hid[id].dial_sta[DIAL_STA_R].hid_data[2] = 10;
+    ui_icon_hid[id].dial_sta[DIAL_STA_L].hid_data[2] = -10;
 
-    ui_icon_hid[2].icon.img_src = &ui_img_up_dowm_png;
-    ui_icon_hid[2].icon.name = "鼠标上下";
-    ui_icon_hid[2].icon.left_info = "-10Y";
-    ui_icon_hid[2].icon.mid_info = "Right";
-    ui_icon_hid[2].icon.right_info = "+10Y";
+    ui_icon_hid[id].param_list = hid_foc_knob_param_lst[id];
+
+    ui_icon_hid[id].icon.img_src = &ui_img_up_dowm_png;
+    ui_icon_hid[id].icon.name = "鼠标上下";
+    ui_icon_hid[id].icon.left_info = "-10Y";
+    ui_icon_hid[id].icon.mid_info = "Right";
+    ui_icon_hid[id].icon.right_info = "+10Y";
     //鼠标滚轮上下移动，按下鼠标中键
-    ui_icon_hid[3].icon_id = 3;
-    ui_icon_hid[3].hid_id = HID_ITF_PROTOCOL_MOUSE;
-    ui_icon_hid[3].dial_sta[DIAL_STA_CLICK].hid_data[0] = MOUSE_BUTTON_MIDDLE;
-    ui_icon_hid[3].dial_sta[DIAL_STA_R].hid_data[3] = -1;
-    ui_icon_hid[3].dial_sta[DIAL_STA_L].hid_data[3] = 1;
+    id = 3;
+    ui_icon_hid[id].icon_id = id;
+    ui_icon_hid[id].hid_id = HID_ITF_PROTOCOL_MOUSE;
+    ui_icon_hid[id].dial_sta[DIAL_STA_CLICK].hid_data[0] = MOUSE_BUTTON_MIDDLE;
+    ui_icon_hid[id].dial_sta[DIAL_STA_R].hid_data[3] = -1;
+    ui_icon_hid[id].dial_sta[DIAL_STA_L].hid_data[3] = 1;
 
-    ui_icon_hid[3].icon.img_src = &ui_img_wheel_png;
-    ui_icon_hid[3].icon.name = "上下滚轮";
-    ui_icon_hid[3].icon.left_info = "-1";
-    ui_icon_hid[3].icon.mid_info = "Middle";
-    ui_icon_hid[3].icon.right_info = "+1";
+    ui_icon_hid[id].param_list = hid_foc_knob_param_lst[id];
+
+    ui_icon_hid[id].icon.img_src = &ui_img_wheel_png;
+    ui_icon_hid[id].icon.name = "上下滚轮";
+    ui_icon_hid[id].icon.left_info = "-1";
+    ui_icon_hid[id].icon.mid_info = "Middle";
+    ui_icon_hid[id].icon.right_info = "+1";
 
     //鼠标滚轮水平移动，按下鼠标中键
-    ui_icon_hid[4].icon_id = 4;
-    ui_icon_hid[4].hid_id = HID_ITF_PROTOCOL_MOUSE;
-    ui_icon_hid[4].dial_sta[DIAL_STA_CLICK].hid_data[0] = MOUSE_BUTTON_MIDDLE;
-    ui_icon_hid[4].dial_sta[DIAL_STA_R].hid_data[4] = 1;
-    ui_icon_hid[4].dial_sta[DIAL_STA_L].hid_data[4] = -1;
-    ui_icon_hid[4].img_angle = 900; //翻转90.0度
+    id = 4;
+    ui_icon_hid[id].icon_id = id;
+    ui_icon_hid[id].hid_id = HID_ITF_PROTOCOL_MOUSE;
+    ui_icon_hid[id].dial_sta[DIAL_STA_CLICK].hid_data[0] = MOUSE_BUTTON_MIDDLE;
+    ui_icon_hid[id].dial_sta[DIAL_STA_R].hid_data[4] = 1;
+    ui_icon_hid[id].dial_sta[DIAL_STA_L].hid_data[4] = -1;
+    ui_icon_hid[id].img_angle = 900; //翻转90.0度
 
-    ui_icon_hid[4].icon.img_src = &ui_img_wheel_png;
-    ui_icon_hid[4].icon.name = "左右滚轮";
-    ui_icon_hid[4].icon.left_info = "-1";
-    ui_icon_hid[4].icon.mid_info = "Middle";
-    ui_icon_hid[4].icon.right_info = "+1";
+    ui_icon_hid[id].param_list = hid_foc_knob_param_lst[id];
+
+    ui_icon_hid[id].icon.img_src = &ui_img_wheel_png;
+    ui_icon_hid[id].icon.name = "左右滚轮";
+    ui_icon_hid[id].icon.left_info = "-1";
+    ui_icon_hid[id].icon.mid_info = "Middle";
+    ui_icon_hid[id].icon.right_info = "+1";
     //键盘ctrl+c/ctrl+v，按下ctrl+s
-    ui_icon_hid[5].icon_id = 5;
-    ui_icon_hid[5].hid_id = HID_ITF_PROTOCOL_KEYBOARD;
-    ui_icon_hid[5].dial_sta[DIAL_STA_CLICK].hid_data[0] = KEYBOARD_MODIFIER_LEFTCTRL;
-    ui_icon_hid[5].dial_sta[DIAL_STA_CLICK].hid_data[1] = HID_KEY_Z;
-    ui_icon_hid[5].dial_sta[DIAL_STA_R].hid_data[0] = KEYBOARD_MODIFIER_LEFTCTRL;
-    ui_icon_hid[5].dial_sta[DIAL_STA_R].hid_data[1] = HID_KEY_V;
-    ui_icon_hid[5].dial_sta[DIAL_STA_L].hid_data[0] = KEYBOARD_MODIFIER_LEFTCTRL;
-    ui_icon_hid[5].dial_sta[DIAL_STA_L].hid_data[1] = HID_KEY_C;
+    id = 5;
+    ui_icon_hid[id].icon_id = id;
+    ui_icon_hid[id].hid_id = HID_ITF_PROTOCOL_KEYBOARD;
+    ui_icon_hid[id].dial_sta[DIAL_STA_CLICK].hid_data[0] = KEYBOARD_MODIFIER_LEFTCTRL;
+    ui_icon_hid[id].dial_sta[DIAL_STA_CLICK].hid_data[1] = HID_KEY_Z;
+    ui_icon_hid[id].dial_sta[DIAL_STA_R].hid_data[0] = KEYBOARD_MODIFIER_LEFTCTRL;
+    ui_icon_hid[id].dial_sta[DIAL_STA_R].hid_data[1] = HID_KEY_V;
+    ui_icon_hid[id].dial_sta[DIAL_STA_L].hid_data[0] = KEYBOARD_MODIFIER_LEFTCTRL;
+    ui_icon_hid[id].dial_sta[DIAL_STA_L].hid_data[1] = HID_KEY_C;
 
-    ui_icon_hid[5].icon.img_src = &ui_img_copy_png;
-    ui_icon_hid[5].icon.name = "快捷键";
-    ui_icon_hid[5].icon.left_info = "Ctrl+C";
-    ui_icon_hid[5].icon.mid_info = "Ctrl+Z";
-    ui_icon_hid[5].icon.right_info = "Ctrl+V";
+    ui_icon_hid[id].param_list = hid_foc_knob_param_lst[id];
+
+    ui_icon_hid[id].icon.img_src = &ui_img_copy_png;
+    ui_icon_hid[id].icon.name = "快捷键";
+    ui_icon_hid[id].icon.left_info = "Ctrl+C";
+    ui_icon_hid[id].icon.mid_info = "Ctrl+Z";
+    ui_icon_hid[id].icon.right_info = "Ctrl+V";
     //媒体音量大小，按下静音
-    ui_icon_hid[6].icon_id = 6;
-    ui_icon_hid[6].hid_id = HID_ITF_PROTOCOL_MEDIA;
-    ui_icon_hid[6].dial_sta[DIAL_STA_CLICK].hid_data[0] = HID_USAGE_CONSUMER_MUTE&0xff;
-    ui_icon_hid[6].dial_sta[DIAL_STA_CLICK].hid_data[1] = HID_USAGE_CONSUMER_MUTE>>8;
-    ui_icon_hid[6].dial_sta[DIAL_STA_R].hid_data[0] = HID_USAGE_CONSUMER_VOLUME_INCREMENT&0xff;
-    ui_icon_hid[6].dial_sta[DIAL_STA_R].hid_data[1] = HID_USAGE_CONSUMER_VOLUME_INCREMENT>>8;
-    ui_icon_hid[6].dial_sta[DIAL_STA_L].hid_data[0] = HID_USAGE_CONSUMER_VOLUME_DECREMENT&0xff;
-    ui_icon_hid[6].dial_sta[DIAL_STA_L].hid_data[1] = HID_USAGE_CONSUMER_VOLUME_DECREMENT>>8;
+    id = 6;
+    ui_icon_hid[id].icon_id = id;
+    ui_icon_hid[id].hid_id = HID_ITF_PROTOCOL_MEDIA;
+    ui_icon_hid[id].dial_sta[DIAL_STA_CLICK].hid_data[0] = HID_USAGE_CONSUMER_MUTE&0xff;
+    ui_icon_hid[id].dial_sta[DIAL_STA_CLICK].hid_data[1] = HID_USAGE_CONSUMER_MUTE>>8;
+    ui_icon_hid[id].dial_sta[DIAL_STA_R].hid_data[0] = HID_USAGE_CONSUMER_VOLUME_INCREMENT&0xff;
+    ui_icon_hid[id].dial_sta[DIAL_STA_R].hid_data[1] = HID_USAGE_CONSUMER_VOLUME_INCREMENT>>8;
+    ui_icon_hid[id].dial_sta[DIAL_STA_L].hid_data[0] = HID_USAGE_CONSUMER_VOLUME_DECREMENT&0xff;
+    ui_icon_hid[id].dial_sta[DIAL_STA_L].hid_data[1] = HID_USAGE_CONSUMER_VOLUME_DECREMENT>>8;
 
-    ui_icon_hid[6].icon.img_src = &ui_img_volume_png;
-    ui_icon_hid[6].icon.name = "音量";
-    ui_icon_hid[6].icon.left_info = "-";
-    ui_icon_hid[6].icon.mid_info = "Mute";
-    ui_icon_hid[6].icon.right_info = "+";
+    ui_icon_hid[id].param_list = hid_foc_knob_param_lst[id];
+
+    ui_icon_hid[id].icon.img_src = &ui_img_volume_png;
+    ui_icon_hid[id].icon.name = "音量";
+    ui_icon_hid[id].icon.left_info = "0";
+    ui_icon_hid[id].icon.mid_info = "Mute";
+    ui_icon_hid[id].icon.right_info = "100";
     //方向键左右，按下空格
-    ui_icon_hid[7].icon_id = 6;
-    ui_icon_hid[7].hid_id = HID_ITF_PROTOCOL_KEYBOARD;
-    ui_icon_hid[7].dial_sta[DIAL_STA_CLICK].hid_data[1] = HID_KEY_SPACE;
-    ui_icon_hid[7].dial_sta[DIAL_STA_R].hid_data[1] = HID_KEY_ARROW_RIGHT;
-    ui_icon_hid[7].dial_sta[DIAL_STA_L].hid_data[1] = HID_KEY_ARROW_LEFT;
+    id = 7;
+    ui_icon_hid[id].icon_id = id;
+    ui_icon_hid[id].hid_id = HID_ITF_PROTOCOL_KEYBOARD;
+    ui_icon_hid[id].dial_sta[DIAL_STA_CLICK].hid_data[1] = HID_KEY_SPACE;
+    ui_icon_hid[id].dial_sta[DIAL_STA_R].hid_data[1] = HID_KEY_ARROW_RIGHT;
+    ui_icon_hid[id].dial_sta[DIAL_STA_L].hid_data[1] = HID_KEY_ARROW_LEFT;
 
-    ui_icon_hid[7].icon.img_src = &ui_img_key_left_right_png;
-    ui_icon_hid[7].icon.name = "方向键";
-    ui_icon_hid[7].icon.left_info = "Left";
-    ui_icon_hid[7].icon.mid_info = "Space";
-    ui_icon_hid[7].icon.right_info = "Right";
+    ui_icon_hid[id].param_list = hid_foc_knob_param_lst[id];
+
+    ui_icon_hid[id].icon.img_src = &ui_img_key_left_right_png;
+    ui_icon_hid[id].icon.name = "方向键";
+    ui_icon_hid[id].icon.left_info = "Left";
+    ui_icon_hid[id].icon.mid_info = "Space";
+    ui_icon_hid[id].icon.right_info = "Right";
 }
 static void hid_send(uint8_t state)
 {
@@ -153,8 +190,10 @@ void ui_Screen2_hid_event(uint8_t state)
     switch (state)
     {
     case DIAL_STA_RELEASE:
+        foc_knob_set_param(ui_icon_hid[icon_index].param_list);
         break;
     case DIAL_STA_PRESS:
+        foc_knob_set_param(screen2_press_foc_knob_param);
         break;
     case DIAL_STA_R:
         break;
@@ -419,6 +458,7 @@ void scr_Screen2_loaded_cb(lv_event_t * e)
     usb_device_init();
     ui_state.index = UI_HID_INTERFACE;
     lv_indev_set_group(encoder_indev, group);
+    foc_knob_set_param(ui_icon_hid[icon_index].param_list);
 }
 void ui_Screen2_screen_init(void)
 {

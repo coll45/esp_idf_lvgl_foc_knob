@@ -1,9 +1,11 @@
 #pragma once
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define SWITCH_BUTTON 5
+#include "foc_knob.h"
+#include "foc_knob_default.h"
+#define SWITCH_BUTTON GPIO_NUM_5
 #define PHASE_U_GPIO 15
 #define PHASE_V_GPIO 16
 #define PHASE_W_GPIO 17
@@ -23,7 +25,7 @@ extern "C" {
 #endif
 
 float get_motor_shaft_angle(void);
-
+void foc_knob_set_param(foc_knob_param_t param);
 
 void foc_init(void);
 #ifdef __cplusplus

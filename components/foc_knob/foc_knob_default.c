@@ -10,11 +10,11 @@
 /* arrays of knob parameters for different knob modes */
 
 static const foc_knob_param_t unbound_no_detents[] = {
-    {0, 0, 1 * PI / 180, 1, 0, 1.1, "Unbounded\nNo detents"},
+    { 0, 0, 30 * PI / 180, 1, 1, 0.7, "On/Off strong detents"},
 };
 
 static const foc_knob_param_t unbound_fine_detents[] = {
-    {0, 0, 1 * PI / 180, 1, 0, 1.1, "Unbounded\nFine detents"},
+    {0, 0, 5 * PI / 180, 0.8, 0, 1.1, "Unbounded\nFine detents"},
 };
 
 static const foc_knob_param_t unbound_coarse_detents[] = {

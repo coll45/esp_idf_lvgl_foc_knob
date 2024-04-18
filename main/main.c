@@ -15,6 +15,8 @@
 #include "dial/dial.h"
 #include "usb_device/usb_device.h"
 #include "dial_power/dial_power.h"
+
+#include "esp_ota_ops.h"
 static const char *TAG = "MAIN";
 QueueHandle_t Dial_Queue = NULL;
 void dial_event_task()
@@ -54,13 +56,22 @@ void dial_event_queue_init()
 }
 void app_main(void)
 {
+    const esp_partition_t *configured = esp_ota_get_boot_partition();
+    const esp_partition_t *running = esp_ota_get_running_partition();
+    if (configured != running) {
+                ESP_LOGI(TAG, "Configured OTA boot partition at offset 0x%08"PRIx32", but running from offset 0x%08"PRIx32,
+                        configured->address, running->address);
+                ESP_LOGI(TAG, "(This can happen if either the OTA boot data or preferred boot image become corrupted somehow.)");
+            }
+            ESP_LOGI(TAG, "Running partition type %d subtype %d (offset 0x%08"PRIx32")",
+                    running->type, running->subtype, running->address);
+    esp_ota_set_boot_partition(running);
     power_gpio_init();
     display_init();
-    foc_init();
     /* Show LVGL objects */
     lvgl_display_init();
     set_screen_light(50);
-    
+    foc_init();
     /* 创建 Queue */ 
     dial_event_queue_init();
 

@@ -42,6 +42,7 @@ static const char *TAG = "FOC_Knob";
 
 /* Structure to store a list of knob parameters and the number of lists */
 typedef struct {
+    foc_knob_param_t         motor_param;
     foc_knob_param_t const   **param_lists;
     uint16_t                 param_list_num;
     float                    max_torque_out_limit;
@@ -79,7 +80,7 @@ foc_knob_handle_t foc_knob_create(const foc_knob_config_t *config)
         p_knob->param_lists = config->param_lists;
         p_knob->param_list_num = config->param_list_num;
     }
-
+    p_knob->motor_param = p_knob->param_lists[p_knob->current_mode][0];
     esp_err_t ret = ESP_OK;
     p_knob->position = (int32_t *)calloc(p_knob->param_list_num, sizeof(int32_t));
     ESP_GOTO_ON_FALSE(NULL != p_knob->position, ESP_ERR_NO_MEM, deinit, TAG, "calloc failed");
@@ -114,6 +115,7 @@ esp_err_t foc_knob_change_mode(foc_knob_handle_t handle, uint16_t mode)
     ESP_RETURN_ON_FALSE(NULL != p_knob->param_lists[mode], ESP_ERR_INVALID_ARG, TAG, "undefined mode");
     xSemaphoreTake(p_knob->mutex, portMAX_DELAY);
     p_knob->current_mode = mode;
+    p_knob->motor_param = p_knob->param_lists[p_knob->current_mode][0];
     p_knob->center_adjusted = false;
     xSemaphoreGive(p_knob->mutex);
     return ESP_OK;
@@ -123,7 +125,8 @@ float foc_knob_run(foc_knob_handle_t handle, float shaft_velocity, float shaft_a
 {
     ESP_RETURN_ON_FALSE(NULL != handle, 0.0, TAG, "invalid foc knob handle");
     foc_knob_t *p_knob = (foc_knob_t *)handle;
-    const foc_knob_param_t *motor_config = p_knob->param_lists[p_knob->current_mode];
+    // const foc_knob_param_t *motor_config = p_knob->param_lists[p_knob->current_mode];
+    const foc_knob_param_t *motor_config = &p_knob->motor_param;
     ESP_RETURN_ON_FALSE(NULL != motor_config, 0.0, TAG, "invalid motor config");
     float torque = 0.0;
     xSemaphoreTake(p_knob->mutex, portMAX_DELAY);
@@ -190,6 +193,7 @@ float foc_knob_run(foc_knob_handle_t handle, float shaft_velocity, float shaft_a
 
     float limit = out_of_bounds ? p_knob->max_torque_out_limit : p_knob->max_torque;
     float P = out_of_bounds ? motor_config->endstop_strength_unit * 4 : motor_config->detent_strength_unit * 4;
+    // printf("E: %f, D: %f\n", motor_config->endstop_strength_unit, motor_config->detent_strength_unit);
     // Update derivative factor of torque controller based on detent width.
     // If the D factor is large on coarse detents, the motor ends up making noise because the P&D factors amplify the noise from the sensor.
     // This is a piecewise linear function so that fine detents (small width) get a higher D factor and coarse detents get a small D factor.
@@ -266,10 +270,10 @@ esp_err_t foc_knob_get_state(foc_knob_handle_t handle, foc_knob_state_t *state)
     ESP_RETURN_ON_FALSE(NULL != handle, ESP_ERR_INVALID_ARG, TAG, "invalid foc knob handle");
     foc_knob_t *p_knob = (foc_knob_t *)handle;
     state->angle_to_detent_center = p_knob->angle_to_detent_center;
-    state->position_width_radians = p_knob->param_lists[p_knob->current_mode]->position_width_radians;
-    state->num_positions = p_knob->param_lists[p_knob->current_mode]->num_positions;
+    state->position_width_radians = p_knob->motor_param.position_width_radians;
+    state->num_positions = p_knob->motor_param.num_positions;
     state->position = p_knob->position[p_knob->current_mode];
-    state->descriptor = p_knob->param_lists[p_knob->current_mode]->descriptor;
+    state->descriptor = p_knob->motor_param.descriptor;
     return ESP_OK;
 }
 
@@ -324,5 +328,19 @@ esp_err_t foc_knob_get_position(foc_knob_handle_t handle, uint16_t mode, int32_t
     ESP_RETURN_ON_FALSE(mode < p_knob->param_list_num, ESP_ERR_INVALID_ARG, TAG, "mode out of range");
     ESP_RETURN_ON_FALSE(NULL != p_knob->param_lists[mode], ESP_ERR_INVALID_ARG, TAG, "undefined mode");
     *position = p_knob->position[mode];
+    return ESP_OK;
+}
+esp_err_t foc_knob_set_param_list(foc_knob_handle_t handle,foc_knob_param_t param_list )
+{
+    ESP_RETURN_ON_FALSE(NULL != handle, ESP_ERR_INVALID_ARG, TAG, "invalid foc knob handle");
+    foc_knob_t *p_knob = (foc_knob_t *)handle;
+    // ESP_RETURN_ON_FALSE(NULL != param_list, ESP_ERR_INVALID_ARG, TAG, "undefined param_list");
+    xSemaphoreTake(p_knob->mutex, portMAX_DELAY);
+    // p_knob->param_list_num = 1;
+    p_knob->current_mode = 0;
+    p_knob->motor_param = param_list;
+    p_knob->position[p_knob->current_mode] = p_knob->motor_param.position;
+    p_knob->center_adjusted = false;
+    xSemaphoreGive(p_knob->mutex);
     return ESP_OK;
 }

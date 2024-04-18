@@ -207,7 +207,16 @@ esp_err_t foc_knob_set_position(foc_knob_handle_t handle, uint16_t mode, int32_t
  *     - ESP_ERR_INVALID_ARG if the provided arguments are invalid.
  */
 esp_err_t foc_knob_get_position(foc_knob_handle_t handle, uint16_t mode, int32_t *position);
-
+/**
+ * @brief Set the param_list of the knob.
+ *
+ * @param handle The handle to the FOC knob.
+ * @param param_list The new param_list 
+ * @return
+ *     - ESP_OK if the successful.
+ *     - ESP_ERR_INVALID_ARG if the provided arguments are invalid.
+ */
+esp_err_t foc_knob_set_param_list(foc_knob_handle_t handle,foc_knob_param_t param_list );
 #ifdef __cplusplus
 }
 #endif

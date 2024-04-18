@@ -22,6 +22,7 @@ static struct
     lv_style_t data;
 	lv_style_t font;
 }style;
+static const foc_knob_param_t screen1_foc_knob_param = { 0, 0, 30 * PI / 180, 1, 1, 0.6, ""};
 void ui_event_screen1_change(int8_t index)
 {
 	switch (index)
@@ -261,11 +262,14 @@ void ui_Screen1_dial_event(uint8_t state)
             ESP_LOGI(TAG, "current:%d ,state: %d", index,state);
             switch (index)
             {
-            case 0:
-				ui_event_screen1_change(index);
-                break;
-            default:
-                break;
+                case 0:
+                    ui_event_screen1_change(index);
+                    break;
+                case 2:
+                    power_off();
+                    break;
+                default:
+                    break;
             }
             break;
         
@@ -286,6 +290,7 @@ void scr_Screen1_loaded_cb(lv_event_t * e)
 {
     ui_state.index = UI_MENU_INTERFACE; 
     lv_indev_set_group(encoder_indev, group);
+    foc_knob_set_param(screen1_foc_knob_param);
 }
 void task_bat_cb(lv_timer_t * tmr)
 {

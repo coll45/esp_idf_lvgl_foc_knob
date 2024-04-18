@@ -128,7 +128,7 @@ void power_gpio_init()
 {
     // power gpio init
     gpio_set_direction(POWER_GPIO, GPIO_MODE_OUTPUT);
-    // power_on();
+    power_on();
 
     xTaskCreate(adc_read_task, "adc_read_task", 4096, NULL, 10, NULL);
 }
@@ -139,6 +139,13 @@ void power_on()
 void power_off()
 {
     gpio_set_level(POWER_GPIO, 0);
+    const int ext_wakeup_pin_1 = 5;//使能25脚为唤醒外部中断1
+    const uint64_t ext_wakeup_pin_1_mask = 1ULL << ext_wakeup_pin_1;
+    //使能外部中断唤醒功能
+    esp_sleep_enable_ext1_wakeup(ext_wakeup_pin_1_mask, ESP_EXT1_WAKEUP_ANY_LOW);
+    // rtc_gpio_isolate(GPIO_NUM_12);//将12脚隔离
+    printf("Entering deep sleep\n");
+    esp_deep_sleep_start();//开始深度休眠
 }
 uint32_t bat_adc_get()
 {

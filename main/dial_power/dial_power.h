@@ -9,6 +9,7 @@
 #include "freertos/semphr.h"
 #include "driver/gpio.h"
 #include "esp_adc/adc_continuous.h"
+#include "esp_sleep.h"
 
 #define EXAMPLE_ADC_UNIT                    ADC_UNIT_1
 #define _EXAMPLE_ADC_UNIT_STR(unit)         #unit
