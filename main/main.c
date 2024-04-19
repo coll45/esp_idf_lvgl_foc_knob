@@ -36,6 +36,9 @@ void dial_event_task()
             case UI_HID_INTERFACE:
                 ui_Screen2_hid_event(state);
                 break;
+            case UI_HID_CUSTOM_INTERFACE:
+                ui_Screen3_Custom_hid_event(state);
+                break;
             default:
                 break;
             }

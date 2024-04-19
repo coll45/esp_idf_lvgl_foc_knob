@@ -112,7 +112,7 @@ void dial_hid_task()
             switch (cmd.hid_id)
             {
             case HID_ITF_PROTOCOL_DIAL:
-                if(cmd.hid_data[0] == DIAL_STA_P_R || cmd.hid_data[0] == DIAL_STA_P_L)
+                if(cmd.state == DIAL_STA_P_R || cmd.state == DIAL_STA_P_L)
                 {
                     //按下旋转为切换界面，以防界面卡住需要旋钮发送按下并且50ms后弹起
                     tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,DIAL_RELEASE);
@@ -128,19 +128,13 @@ void dial_hid_task()
                 break;
             case HID_ITF_PROTOCOL_MOUSE:
             //鼠标数据0为按键，1为X移动，2为Y移动，3为滚轮垂直移动，4为滚轮水平移动（在excel里面用到
-                if(cmd.hid_data[0])
-                {
-                    tud_hid_mouse_report(HID_ITF_PROTOCOL_MOUSE,cmd.hid_data[0],cmd.hid_data[1],cmd.hid_data[2],cmd.hid_data[3],cmd.hid_data[4]);
-                    vTaskDelay(2 / portTICK_PERIOD_MS);
-                    tud_hid_mouse_report(HID_ITF_PROTOCOL_MOUSE,0,0,0,0,0);
-                }
-                else
-                    tud_hid_mouse_report(HID_ITF_PROTOCOL_MOUSE,cmd.hid_data[0],cmd.hid_data[1],cmd.hid_data[2],cmd.hid_data[3],cmd.hid_data[4]);
+                tud_hid_mouse_report(HID_ITF_PROTOCOL_MOUSE,cmd.hid_data[0],cmd.hid_data[1],cmd.hid_data[2],cmd.hid_data[3],cmd.hid_data[4]);
                 break;
             case HID_ITF_PROTOCOL_MEDIA:
                 medial_report(HID_ITF_PROTOCOL_MEDIA,cmd.hid_data[0],cmd.hid_data[1]);
-                vTaskDelay(2 / portTICK_PERIOD_MS);
+
                 medial_report(HID_ITF_PROTOCOL_MEDIA,0,0);
+                vTaskDelay(2 / portTICK_PERIOD_MS);
                 break;
             case HID_ITF_PROTOCOL_KEYBOARD:
                 uint8_t keycode[6] = {cmd.hid_data[1]};

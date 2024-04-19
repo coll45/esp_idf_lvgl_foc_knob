@@ -25,6 +25,8 @@ enum {
     UI_NULL,
     UI_MENU_INTERFACE,            /*!< Main menu select different interface */
     UI_HID_INTERFACE,            /*!< USB menu Control PC or Phone */
+    UI_SETTING_INTERFACE,         /*!< Setting menu  */
+    UI_HID_CUSTOM_INTERFACE,    /*!< USB Custom Control PC or Phone */
 };
 enum
 {
@@ -66,15 +68,18 @@ typedef struct
 extern _ui_state ui_state;
 extern int16_t enc_num;
 extern int16_t enc_click;
-void ui_send_hid_command(uint8_t hid_id,uint8_t keycode[6]);
+void ui_send_hid_command(uint8_t hid_id,uint8_t keycode[6],uint8_t state);
 // SCREEN:
 void ui_Screen1_dial_event(uint8_t state);
 void ui_Screen1_screen_init(void);
-extern lv_obj_t * ui_Screen1;
-extern lv_obj_t * ui_Screen2;
+extern lv_obj_t * ui_Screen1; //main screen
+extern lv_obj_t * ui_Screen2; //system hid screen
+extern lv_obj_t * ui_Screen3; //
 void ui_Screen2_hid_event(uint8_t state);
 void ui_Screen2_screen_init(void);
 extern lv_indev_t* encoder_indev;
+void ui_Screen3_screen_init(void);
+void ui_Screen3_Custom_hid_event(uint8_t state);
 
 LV_IMG_DECLARE(ui_img_bg1_png);    // assets\bg1.png
 LV_IMG_DECLARE(ui_img_pc_png);    // assets\pc.png
@@ -88,6 +93,8 @@ LV_IMG_DECLARE(ui_img_wheel_png);    // assets\wheel.png
 LV_IMG_DECLARE(ui_img_key_left_right_png);    // assets\key_left_right.png
 LV_IMG_DECLARE(ui_img_volume_png);    // assets\volume.png
 LV_IMG_DECLARE(ui_img_pointer_png);    // assets\pointer.png
+LV_IMG_DECLARE(ui_img_bg_anime_png);    // assets\bg_anime.png
+LV_IMG_DECLARE(ui_img_customize_png);    // assets\customize.png
 
 LV_FONT_DECLARE(ui_font_SmileySansOblique16);
 LV_FONT_DECLARE(ui_font_SmileySansOblique20);

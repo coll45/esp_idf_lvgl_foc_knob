@@ -23,18 +23,6 @@ static struct
 	lv_style_t font;
 }style;
 static const foc_knob_param_t screen1_foc_knob_param = { 0, 0, 30 * PI / 180, 1, 1, 0.6, ""};
-void ui_event_screen1_change(int8_t index)
-{
-	switch (index)
-	{
-	case 0:
-		_ui_screen_change(&ui_Screen2, LV_SCR_LOAD_ANIM_FADE_ON, 300, 0, &ui_Screen2_screen_init);
-		break;
-	
-	default:
-		break;
-	}
-}
 static void onFocus(lv_group_t* g)
 {
     lv_obj_t* icon = lv_group_get_focused(g);
@@ -107,7 +95,7 @@ static void Style_Init()
     lv_style_set_width(&style.def, 70); 
 
     lv_style_init(&style.focus);
-    lv_style_set_width(&style.focus, 240);
+    lv_style_set_width(&style.focus, 220);
     lv_style_set_pad_column(&style.focus, ITEM_PAD);
 
     static const lv_style_prop_t style_prop[] =
@@ -199,7 +187,7 @@ static void Create(lv_obj_t* root)
     lv_obj_clear_flag(root, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     Item_Create(root,
-        "0",
+        "USB HID",
         &ui_img_pc_png,
 
         "Surface Dial\n"
@@ -208,16 +196,22 @@ static void Create(lv_obj_t* root)
 		"Media\n"
         );
     Item_Create(root,
-        "1",
+        "Setting",
         &ui_img_set_png,
 
         "Setting"
     );
     Item_Create(root,
-        "2",
+        "PowerOff",
         &ui_img_power_png,
 
         "PowerOff"
+    );
+    Item_Create(root,
+        "Custom",
+        &ui_img_customize_png,
+
+        "Custom HID"
     );
 
 	ui_ArcScreen1 = lv_arc_create(ui_Screen1);
@@ -263,11 +257,13 @@ void ui_Screen1_dial_event(uint8_t state)
             switch (index)
             {
                 case 0:
-                    ui_event_screen1_change(index);
+                    _ui_screen_change(&ui_Screen2, LV_SCR_LOAD_ANIM_FADE_ON, 300, 0, &ui_Screen2_screen_init);
                     break;
                 case 2:
                     power_off();
                     break;
+                case 3:
+                    _ui_screen_change(&ui_Screen3, LV_SCR_LOAD_ANIM_FADE_ON, 300, 0, &ui_Screen3_screen_init);
                 default:
                     break;
             }

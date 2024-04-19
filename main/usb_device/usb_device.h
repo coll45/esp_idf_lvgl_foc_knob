@@ -13,6 +13,7 @@ extern "C" {
 #endif
 typedef struct {
     uint8_t hid_id;
+    uint8_t state;
     char hid_data[6];
 }Command_HID;
 extern QueueHandle_t HID_Queue;

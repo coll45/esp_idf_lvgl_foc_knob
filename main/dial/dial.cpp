@@ -91,7 +91,7 @@ static void button_single_click_cb(void *arg, void *data)
 static void button_double_click_cb(void *arg, void *data)
 {
     //单击双击
-     if(press_rotation == 1)
+    //  if(press_rotation == 1)
         dial_publish(DIAL_STA_DOUBLE_CLICK);
     press_rotation = 0;
     // ESP_LOGI(TAG, "double clic");

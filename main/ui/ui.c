@@ -14,6 +14,7 @@ void ui_Screen1_screen_init(void);
 
 lv_obj_t * ui_Screen1;
 lv_obj_t * ui_Screen2;
+lv_obj_t * ui_Screen3;
 uint8_t ui_event_flag = 0;
 int16_t enc_num = 0;
 int16_t enc_click = 0;
@@ -34,10 +35,11 @@ int16_t enc_click = 0;
 lv_indev_t* encoder_indev;
 static lv_indev_drv_t indev_drv;
 _ui_state ui_state;
-void ui_send_hid_command(uint8_t hid_id,uint8_t keycode[6])
+void ui_send_hid_command(uint8_t hid_id,uint8_t keycode[6],uint8_t state)
 {
     Command_HID cmd = {
         .hid_id = hid_id,
+        .state = state,
         .hid_data[0] = keycode[0],
         .hid_data[1] = keycode[1],
         .hid_data[2] = keycode[2],
@@ -93,6 +95,6 @@ void ui_init(void)
                                                true, LV_FONT_DEFAULT);
     lv_disp_set_theme(dispp, theme);
     ui_Screen1_screen_init();
-    ui_Screen2_screen_init();
+    // ui_Screen2_screen_init();
     lv_disp_load_scr(ui_Screen1);
 }
