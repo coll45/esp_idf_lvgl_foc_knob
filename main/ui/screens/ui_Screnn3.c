@@ -66,7 +66,7 @@ static void hid_send(uint8_t state)
 }
 void ui_Screen3_Custom_hid_event(uint8_t state)
 {
-    static bool mouse_click_prees_flag = 0; //单击按下后长按鼠标左键，切换flag
+    static bool mouse_click_press_flag = 0; //单击按下后长按鼠标左键，切换flag
     switch (state)
     {
     case DIAL_STA_RELEASE:
@@ -87,9 +87,9 @@ void ui_Screen3_Custom_hid_event(uint8_t state)
         if(icon_index == 0)
         {   
             uint8_t id = icon_index;
-            if(mouse_click_prees_flag)
+            if(mouse_click_press_flag)
             {
-                mouse_click_prees_flag = 0;
+                mouse_click_press_flag = 0;
                 ui_icon_hid[id].dial_sta[DIAL_STA_R].hid_data[0] = 0;
                 ui_icon_hid[id].dial_sta[DIAL_STA_L].hid_data[0] = 0;
             }
@@ -97,7 +97,7 @@ void ui_Screen3_Custom_hid_event(uint8_t state)
             {
                 ui_icon_hid[id].dial_sta[DIAL_STA_R].hid_data[0] = ui_icon_hid[id].dial_sta[DIAL_STA_CLICK].hid_data[0];
                 ui_icon_hid[id].dial_sta[DIAL_STA_L].hid_data[0] = ui_icon_hid[id].dial_sta[DIAL_STA_CLICK].hid_data[0];
-                mouse_click_prees_flag = 1;
+                mouse_click_press_flag = 1;
             }
         }
         // hid_send(state);
@@ -106,12 +106,12 @@ void ui_Screen3_Custom_hid_event(uint8_t state)
         _ui_screen_change(&ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 300, 0, &ui_Screen1_screen_init);
         break;
     case DIAL_STA_P_R:
-        mouse_click_prees_flag = 0;
+        mouse_click_press_flag = 0;
         hid_send(state);
         enc_num++;
         break;
     case DIAL_STA_P_L:
-        mouse_click_prees_flag = 0;
+        mouse_click_press_flag = 0;
         hid_send(state);
         enc_num--;
         break;
