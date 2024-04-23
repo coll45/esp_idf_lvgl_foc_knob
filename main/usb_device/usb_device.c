@@ -18,7 +18,7 @@ const uint8_t hid_report_descriptor[] = {
     TUD_HID_REPORT_DESC_DIAL(HID_REPORT_ID(HID_ITF_PROTOCOL_DIAL)),
     TUD_HID_REPORT_DESC_CONSUMER(HID_REPORT_ID(HID_ITF_PROTOCOL_MEDIA))
 };
-const uint32_t desc_hid_report_len = sizeof(hid_report_descriptor);
+
 /**
  * @brief String descriptor
  */
@@ -221,6 +221,7 @@ void dial_hid_queue_init()
         xTaskCreate(dial_hid_task, "dial_hid_task", 1024 *4, NULL, 23, NULL);
     }
 }
+
 void usb_device_init(void)
 { 
     static uint8_t usb_init_flag = 0;
@@ -236,7 +237,9 @@ void usb_device_init(void)
         .configuration_descriptor = hid_configuration_descriptor,
     };
     ESP_ERROR_CHECK(tinyusb_driver_install(&tusb_cfg));
+    ble_hid_init();
     }
+    
      
 }
 void usb_device_uninstall(void)

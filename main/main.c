@@ -89,5 +89,4 @@ void app_main(void)
     /* 创建 Queue */ 
     dial_event_queue_init();
 
-    ble_hid_init();
 }   

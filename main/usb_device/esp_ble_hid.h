@@ -56,7 +56,6 @@ typedef struct
  *    - ESP_ERR_NO_MEM: No memory
  */
 esp_err_t ble_hid_init(void);
-
 void ble_hid_media_report(uint8_t report_id,uint8_t key0,uint8_t key1);
 void ble_hid_keyboard_report(uint8_t report_id, uint8_t modifier, uint8_t keycode[6]);
 void ble_hid_mouse_report(uint8_t report_id, uint8_t buttons, int8_t x, int8_t y, int8_t vertical, int8_t horizontal);

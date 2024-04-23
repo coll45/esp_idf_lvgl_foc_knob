@@ -256,13 +256,15 @@ void ui_Screen1_dial_event(uint8_t state)
             ESP_LOGI(TAG, "current:%d ,state: %d", index,state);
             switch (index)
             {
-                case 0:
+                case 0://usb hid
                     _ui_screen_change(&ui_Screen2, LV_SCR_LOAD_ANIM_FADE_ON, 300, 0, &ui_Screen2_screen_init);
                     break;
-                case 2:
+                case 1://setting
+                    break;
+                case 2://poweroff
                     power_off();
                     break;
-                case 3:
+                case 3://Customize HID Interface
                     _ui_screen_change(&ui_Screen3, LV_SCR_LOAD_ANIM_FADE_ON, 300, 0, &ui_Screen3_screen_init);
                 default:
                     break;

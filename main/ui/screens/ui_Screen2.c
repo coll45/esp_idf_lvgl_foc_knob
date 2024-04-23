@@ -97,7 +97,7 @@ static void ui_icon_hid_init()
     id = 3;
     ui_icon_hid[id].icon_id = id;
     ui_icon_hid[id].hid_id = HID_ITF_PROTOCOL_MOUSE;
-    ui_icon_hid[id].dial_sta[DIAL_STA_PRESS].hid_data[0] = MOUSE_BUTTON_MIDDLE;
+    ui_icon_hid[id].dial_sta[DIAL_STA_PRESS].hid_data[0] = 0;
     ui_icon_hid[id].dial_sta[DIAL_STA_R].hid_data[3] = -1;
     ui_icon_hid[id].dial_sta[DIAL_STA_L].hid_data[3] = 1;
 
@@ -113,7 +113,7 @@ static void ui_icon_hid_init()
     id = 4;
     ui_icon_hid[id].icon_id = id;
     ui_icon_hid[id].hid_id = HID_ITF_PROTOCOL_MOUSE;
-    ui_icon_hid[id].dial_sta[DIAL_STA_PRESS].hid_data[0] = MOUSE_BUTTON_MIDDLE;
+    ui_icon_hid[id].dial_sta[DIAL_STA_PRESS].hid_data[0] = 0;
     ui_icon_hid[id].dial_sta[DIAL_STA_R].hid_data[4] = 1;
     ui_icon_hid[id].dial_sta[DIAL_STA_L].hid_data[4] = -1;
     ui_icon_hid[id].img_angle = 900; //翻转90.0度

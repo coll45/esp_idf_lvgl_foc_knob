@@ -4,13 +4,25 @@ static const char *TAG = "BLE_HID";
 
 local_param_t s_ble_hid_param = {0};
 
-extern const uint8_t hid_report_descriptor[];
-extern const uint32_t desc_hid_report_len;
+const uint8_t hid_report_general_descriptor[] = {
+    TUD_HID_REPORT_DESC_KEYBOARD(HID_REPORT_ID(HID_ITF_PROTOCOL_KEYBOARD)),
+    TUD_HID_REPORT_DESC_MOUSE(HID_REPORT_ID(HID_ITF_PROTOCOL_MOUSE)),
+    TUD_HID_REPORT_DESC_CONSUMER(HID_REPORT_ID(HID_ITF_PROTOCOL_MEDIA))
+};
+const uint32_t desc_hid_report_general_len = sizeof(hid_report_general_descriptor);
+const uint8_t hid_report_descriptor_dila[] = {
+    TUD_HID_REPORT_DESC_DIAL(HID_REPORT_ID(HID_ITF_PROTOCOL_DIAL)),
+};
+const uint32_t desc_hid_report_dial_len = sizeof(hid_report_descriptor_dila);
 static esp_hid_raw_report_map_t ble_report_maps[] = {
     /* This block is compiled for bluedroid as well */
     {
-        .data = hid_report_descriptor,
-        .len = 0,
+        .data = hid_report_general_descriptor,
+        .len = desc_hid_report_general_len,
+    },
+    {
+        .data = hid_report_descriptor_dila,
+        .len = desc_hid_report_dial_len,
     }
 };
 static esp_hid_device_config_t ble_hid_config = {
@@ -21,7 +33,7 @@ static esp_hid_device_config_t ble_hid_config = {
     .manufacturer_name  = "Espressif",
     .serial_number      = "1234567890",
     .report_maps        = ble_report_maps,
-    .report_maps_len    = 1
+    .report_maps_len    = 2
 };
 void ble_hid_surfacedial_report(uint8_t report_id, uint8_t keycode)
 {   
@@ -44,7 +56,7 @@ void ble_hid_surfacedial_report(uint8_t report_id, uint8_t keycode)
       report[0] = dial_step&0xFF;
       report[1] = dial_step>>8;
     }
-    esp_hidd_dev_input_set(s_ble_hid_param.hid_dev, 0, report_id, report, sizeof(report));
+    esp_hidd_dev_input_set(s_ble_hid_param.hid_dev, 1, report_id, report, sizeof(report));
 }
 void ble_hid_mouse_report(uint8_t report_id,
                             uint8_t buttons, int8_t x, int8_t y, int8_t vertical, int8_t horizontal)
@@ -138,7 +150,7 @@ esp_err_t ble_hid_init(void)
     ret = esp_hid_gap_init(HIDD_BLE_MODE);
     ESP_ERROR_CHECK(ret);
 
-    ble_hid_config.report_maps[0].len = desc_hid_report_len;
+    // ble_hid_config.report_maps[0].len = desc_hid_report_len;
     ret = esp_hid_ble_gap_adv_init(ESP_HID_APPEARANCE_GENERIC, ble_hid_config.device_name);
     ESP_ERROR_CHECK(ret);
 
