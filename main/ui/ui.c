@@ -47,7 +47,7 @@ void ui_send_hid_command(uint8_t hid_id,uint8_t keycode[6],uint8_t state)
         .hid_data[4] = keycode[4],
         .hid_data[5] = keycode[5],
     };
-    xQueueSend(HID_Queue, &cmd, 0);
+    xQueueOverwrite(HID_Queue, &cmd);
 }
 static void encoder_init(void)
 {

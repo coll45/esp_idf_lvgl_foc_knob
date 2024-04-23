@@ -7,6 +7,7 @@
 #include "tinyusb.h"
 #include "class/hid/hid_device.h"
 #include "../ui/ui.h"
+#include "esp_ble_hid.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,9 +18,9 @@ typedef struct {
     char hid_data[6];
 }Command_HID;
 extern QueueHandle_t HID_Queue;
+extern const uint8_t hid_report_descriptor[];
 void usb_device_uninstall(void);
 void usb_device_init(void);
-void usb_device_report(uint8_t state);
 #ifdef __cplusplus
 
 }

@@ -306,7 +306,7 @@ static inline bool tud_hid_surfacedial_report(uint8_t report_id, uint8_t keycode
 // Consumer Control Report Descriptor Template
 #define TUD_HID_REPORT_DESC_CONSUMER(...) \
   HID_USAGE_PAGE ( HID_USAGE_PAGE_CONSUMER    )              ,\
-  HID_USAGE      ( HID_USAGE_CONSUMER_CONTROL )              ,\
+  HID_USAGE      ( 0x01 )              ,\
   HID_COLLECTION ( HID_COLLECTION_APPLICATION )              ,\
     /* Report ID if any */\
     __VA_ARGS__ \

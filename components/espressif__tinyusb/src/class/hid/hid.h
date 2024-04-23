@@ -793,7 +793,7 @@ enum {
 enum
 {
   // Generic Control
-  HID_USAGE_CONSUMER_CONTROL                           = 0x0001,
+  // HID_USAGE_CONSUMER_CONTROL                           = 0x0001,
 
   // Power Control
   HID_USAGE_CONSUMER_POWER                             = 0x0030,

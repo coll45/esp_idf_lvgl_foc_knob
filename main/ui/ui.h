@@ -64,7 +64,13 @@ typedef struct
     struct DIAL_STA_DATA dial_sta[DIAL_STA_NUM];
     struct UI_HID_ICON_INFO icon;
 }UI_HID_INFO;
-
+typedef struct 
+{
+    uint8_t icon_id; //图标的id
+    uint16_t img_angle;//图标的角度
+    foc_knob_param_t param_list;
+    struct UI_HID_ICON_INFO icon;
+}UI_ICON_INFO;
 extern _ui_state ui_state;
 extern int16_t enc_num;
 extern int16_t enc_click;
@@ -93,8 +99,13 @@ LV_IMG_DECLARE(ui_img_wheel_png);    // assets\wheel.png
 LV_IMG_DECLARE(ui_img_key_left_right_png);    // assets\key_left_right.png
 LV_IMG_DECLARE(ui_img_volume_png);    // assets\volume.png
 LV_IMG_DECLARE(ui_img_pointer_png);    // assets\pointer.png
-LV_IMG_DECLARE(ui_img_bg_anime_png);    // assets\bg_anime.png
+// LV_IMG_DECLARE(ui_img_bg_anime_png);    // assets\bg_anime.png
 LV_IMG_DECLARE(ui_img_customize_png);    // assets\customize.png
+LV_IMG_DECLARE(ui_img_screenrotation_png);    // assets\ScreenRotation.png
+LV_IMG_DECLARE(ui_img_wifilogo_png);    // assets\WifiLogo.png
+LV_IMG_DECLARE(ui_img_light_png);    // assets\light.png
+LV_IMG_DECLARE(ui_img_screenlocklandscape_png);    // assets\ScreenLockLandscape.png
+LV_IMG_DECLARE(ui_img_sleep_png);    // assets\sleep.png
 
 LV_FONT_DECLARE(ui_font_SmileySansOblique16);
 LV_FONT_DECLARE(ui_font_SmileySansOblique20);

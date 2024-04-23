@@ -18,7 +18,7 @@ const uint8_t hid_report_descriptor[] = {
     TUD_HID_REPORT_DESC_DIAL(HID_REPORT_ID(HID_ITF_PROTOCOL_DIAL)),
     TUD_HID_REPORT_DESC_CONSUMER(HID_REPORT_ID(HID_ITF_PROTOCOL_MEDIA))
 };
-
+const uint32_t desc_hid_report_len = sizeof(hid_report_descriptor);
 /**
  * @brief String descriptor
  */
@@ -75,6 +75,26 @@ void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_
     printf("Set report :%d\n", report_id);
     
 }
+static bool usb_hid_device_connected = 0;
+// Invoked when device is mounted
+void tud_mount_cb(void)
+{
+  usb_hid_device_connected = 1;
+}
+
+// Invoked when device is unmounted
+void tud_umount_cb(void)
+{
+  usb_hid_device_connected = 0;
+}
+// Invoked when usb bus is suspended
+// remote_wakeup_en : if host allow us  to perform remote wakeup
+// Within 7ms, device must draw an average of current less than 2.5 mA from bus
+void tud_suspend_cb(bool remote_wakeup_en)
+{
+  (void) remote_wakeup_en;
+  usb_hid_device_connected = 0;
+}
 void usb_mouse_report(uint8_t state)
 {
     if (tud_connected()) {
@@ -91,17 +111,14 @@ void usb_mouse_report(uint8_t state)
         }
     }
 }
-static void medial_report(uint8_t report_id,uint8_t key0,uint8_t key1)
+static void tud_hid_media_report(uint8_t report_id,uint8_t key0,uint8_t key1)
 {
     uint8_t _report[2];
     _report[0] = key0;
     _report[1] = key1;
     tud_hid_report(report_id, _report ,2);
-    vTaskDelay(pdMS_TO_TICKS(20));
-    _report[0] = 0;
-    _report[1] = 0;
-    tud_hid_report(report_id, _report ,2);
 }
+extern local_param_t s_ble_hid_param;
 void dial_hid_task()
 {
     Command_HID cmd;
@@ -109,49 +126,94 @@ void dial_hid_task()
     {   
         if (xQueueReceive(HID_Queue, &cmd, portMAX_DELAY) == pdTRUE) 
         {   
-            switch (cmd.hid_id)
+            if(usb_hid_device_connected)
             {
-            case HID_ITF_PROTOCOL_DIAL:
-                if(cmd.state == DIAL_STA_P_R || cmd.state == DIAL_STA_P_L)
+                switch (cmd.hid_id)
                 {
-                    //按下旋转为切换界面，以防界面卡住需要旋钮发送按下并且50ms后弹起
-                    tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,DIAL_RELEASE);
-                    vTaskDelay(50 / portTICK_PERIOD_MS);
-                    tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,DIAL_PRESS);
-                    vTaskDelay(50 / portTICK_PERIOD_MS);
-                    tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,DIAL_RELEASE);
-                }
-                else
-                {
-                    tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,cmd.hid_data[0]);
-                }
-                break;
-            case HID_ITF_PROTOCOL_MOUSE:
-            //鼠标数据0为按键，1为X移动，2为Y移动，3为滚轮垂直移动，4为滚轮水平移动（在excel里面用到
-                tud_hid_mouse_report(HID_ITF_PROTOCOL_MOUSE,cmd.hid_data[0],cmd.hid_data[1],cmd.hid_data[2],cmd.hid_data[3],cmd.hid_data[4]);
-                break;
-            case HID_ITF_PROTOCOL_MEDIA:
-                medial_report(HID_ITF_PROTOCOL_MEDIA,cmd.hid_data[0],cmd.hid_data[1]);
+                case HID_ITF_PROTOCOL_DIAL:
+                    if(cmd.state == DIAL_STA_P_R || cmd.state == DIAL_STA_P_L)
+                    {
+                        //按下旋转为切换界面，以防界面卡住需要旋钮发送按下并且50ms后弹起
+                        tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,DIAL_RELEASE);
+                        vTaskDelay(50 / portTICK_PERIOD_MS);
+                        tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,DIAL_PRESS);
+                        vTaskDelay(50 / portTICK_PERIOD_MS);
+                        tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,DIAL_RELEASE);
+                    }
+                    else
+                    {
+                        tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,cmd.hid_data[0]);
+                    }
+                    break;
+                case HID_ITF_PROTOCOL_MOUSE:
+                //鼠标数据0为按键，1为X移动，2为Y移动，3为滚轮垂直移动，4为滚轮水平移动（在excel里面用到
+                    tud_hid_mouse_report(HID_ITF_PROTOCOL_MOUSE,cmd.hid_data[0],cmd.hid_data[1],cmd.hid_data[2],cmd.hid_data[3],cmd.hid_data[4]);
+                    
+                    break;
+                case HID_ITF_PROTOCOL_MEDIA:
+                    tud_hid_media_report(HID_ITF_PROTOCOL_MEDIA,cmd.hid_data[0],cmd.hid_data[1]);
 
-                medial_report(HID_ITF_PROTOCOL_MEDIA,0,0);
-                vTaskDelay(2 / portTICK_PERIOD_MS);
-                break;
-            case HID_ITF_PROTOCOL_KEYBOARD:
-                uint8_t keycode[6] = {cmd.hid_data[1]};
-                tud_hid_keyboard_report(HID_ITF_PROTOCOL_KEYBOARD,cmd.hid_data[0],keycode);
-                vTaskDelay(2 / portTICK_PERIOD_MS);
-                tud_hid_keyboard_report(HID_ITF_PROTOCOL_KEYBOARD,0,NULL);
-                break;
-            default:
-                break;
+                    tud_hid_media_report(HID_ITF_PROTOCOL_MEDIA,0,0);
+                    vTaskDelay(2 / portTICK_PERIOD_MS);
+                    break;
+                case HID_ITF_PROTOCOL_KEYBOARD:
+                    uint8_t keycode[6] = {cmd.hid_data[1]};
+                    tud_hid_keyboard_report(HID_ITF_PROTOCOL_KEYBOARD,cmd.hid_data[0],keycode);
+                    vTaskDelay(2 / portTICK_PERIOD_MS);
+                    tud_hid_keyboard_report(HID_ITF_PROTOCOL_KEYBOARD,0,NULL);
+                    break;
+                default:
+                    break;
+                }
             }
+            else if(s_ble_hid_param.is_connected)
+            {
+                switch (cmd.hid_id)
+                {
+                case HID_ITF_PROTOCOL_DIAL:
+                    if(cmd.state == DIAL_STA_P_R || cmd.state == DIAL_STA_P_L)
+                    {
+                        //按下旋转为切换界面，以防界面卡住需要旋钮发送按下并且50ms后弹起
+                        ble_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,DIAL_RELEASE);
+                        vTaskDelay(50 / portTICK_PERIOD_MS);
+                        ble_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,DIAL_PRESS);
+                        vTaskDelay(50 / portTICK_PERIOD_MS);
+                        ble_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,DIAL_RELEASE);
+                    }
+                    else
+                    {
+                        ble_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,cmd.hid_data[0]);
+                    }
+                    break;
+                case HID_ITF_PROTOCOL_MOUSE:
+                //鼠标数据0为按键，1为X移动，2为Y移动，3为滚轮垂直移动，4为滚轮水平移动（在excel里面用到
+                    ble_hid_mouse_report(HID_ITF_PROTOCOL_MOUSE,cmd.hid_data[0],cmd.hid_data[1],cmd.hid_data[2],cmd.hid_data[3],cmd.hid_data[4]);
+                    vTaskDelay(2 / portTICK_PERIOD_MS);
+                    break;
+                case HID_ITF_PROTOCOL_MEDIA:
+                    ble_hid_media_report(HID_ITF_PROTOCOL_MEDIA,cmd.hid_data[0],cmd.hid_data[1]);
+
+                    ble_hid_media_report(HID_ITF_PROTOCOL_MEDIA,0,0);
+                    vTaskDelay(2 / portTICK_PERIOD_MS);
+                    break;
+                case HID_ITF_PROTOCOL_KEYBOARD:
+                    uint8_t keycode[6] = {cmd.hid_data[1]};
+                    ble_hid_keyboard_report(HID_ITF_PROTOCOL_KEYBOARD,cmd.hid_data[0],keycode);
+                    vTaskDelay(2 / portTICK_PERIOD_MS);
+                    ble_hid_keyboard_report(HID_ITF_PROTOCOL_KEYBOARD,0,NULL);
+                    break;
+                default:
+                    break;
+                }
+            }
+            
         }
     }
 
 }
 void dial_hid_queue_init()
 {
-    HID_Queue = xQueueCreate(5,/* 消息队列的长度 */ 
+    HID_Queue = xQueueCreate(1,/* 消息队列的长度 */ 
                         sizeof(Command_HID));/* 消息的大小 */ 
     if (HID_Queue != NULL)//判断队列是否创建成功
     {
@@ -173,15 +235,9 @@ void usb_device_init(void)
         .external_phy = false,
         .configuration_descriptor = hid_configuration_descriptor,
     };
-
     ESP_ERROR_CHECK(tinyusb_driver_install(&tusb_cfg));
     }
-}
-void usb_device_report(uint8_t state)
-{
-    if (tud_connected()) {
-        tud_hid_surfacedial_report(HID_ITF_PROTOCOL_DIAL,state);
-    }
+     
 }
 void usb_device_uninstall(void)
 {

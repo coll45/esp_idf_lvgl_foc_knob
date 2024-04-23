@@ -17,6 +17,7 @@
 #include "dial_power/dial_power.h"
 
 #include "esp_ota_ops.h"
+#include "nvs_flash.h"
 static const char *TAG = "MAIN";
 QueueHandle_t Dial_Queue = NULL;
 void dial_event_task()
@@ -59,6 +60,16 @@ void dial_event_queue_init()
 }
 void app_main(void)
 {
+    esp_err_t ret;
+
+    // Initialize NVS.
+    ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+        ESP_ERROR_CHECK(nvs_flash_erase());
+        ret = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK( ret );
+
     const esp_partition_t *configured = esp_ota_get_boot_partition();
     const esp_partition_t *running = esp_ota_get_running_partition();
     if (configured != running) {
@@ -78,4 +89,5 @@ void app_main(void)
     /* 创建 Queue */ 
     dial_event_queue_init();
 
-}
+    ble_hid_init();
+}   
