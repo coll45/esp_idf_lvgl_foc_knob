@@ -23,10 +23,10 @@ extern "C" {
 #define LEDC_CHAN_1 2
 #define LEDC_CHAN_2 3
 #endif
-
+float get_motor_shaft_velocity(void);
 float get_motor_shaft_angle(void);
 void foc_knob_set_param(foc_knob_param_t param);
-
+void set_motor_zero_electric_angle();
 void foc_init(void);
 #ifdef __cplusplus
 

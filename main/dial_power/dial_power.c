@@ -2,6 +2,10 @@
 
 static TaskHandle_t s_task_handle;
 static const char *TAG = "POWER";
+static uint16_t screen_lock_time[] = {30,60,180,300,600,900,0};
+static uint16_t system_sleep_time[] = {60,180,300,600,900,1800,0};
+static uint16_t lock_time = 0;
+static uint16_t sleep_time = 0;
 uint32_t adc_val;
 static bool IRAM_ATTR s_conv_done_cb(adc_continuous_handle_t handle, const adc_continuous_evt_data_t *edata, void *user_data)
 {
@@ -91,7 +95,15 @@ void adc_read_task()
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
         char unit[] = EXAMPLE_ADC_UNIT_STR(EXAMPLE_ADC_UNIT);
-
+        static float last_angle = 0;
+        static time_t last_time;
+        static bool lock_flag = 0;
+        time_t now_time;
+        set_new_lock_time(nvs_get_u8_data(SET_NVS_LOCK));
+        set_new_sleep_time(nvs_get_u8_data(SET_NVS_SLEEP));
+          
+        time(&now_time);
+        last_time = now_time;
         while (1) {
             ret = adc_continuous_read(handle, result, EXAMPLE_READ_LEN, &ret_num, 0);
             if (ret == ESP_OK) {
@@ -109,12 +121,43 @@ void adc_read_task()
                     //     ESP_LOGW(TAG, "Invalid data [%s_%"PRIu32"_%"PRIx32"]", unit, chan_num, adc_val);
                     // }
                 // }
-                /**
-                 * Because printing is slow, so every time you call `ulTaskNotifyTake`, it will immediately return.
-                 * To avoid a task watchdog timeout, add a delay here. When you replace the way you process the data,
-                 * usually you don't need this delay (as this task will block for a while).
-                 */
-                vTaskDelay(200);
+
+                //screen lock time and sleep time
+                float now_angle = get_motor_shaft_angle();
+                time(&now_time);
+                if(fabs(now_angle - last_angle) > 2 * PI / 180) //如果旋转超过2度
+                {
+                    last_time = now_time;
+                    last_angle = now_angle;
+                    if(lock_flag)
+                    {
+                        lock_flag = 0;
+                        set_screen_light(nvs_get_u8_data(SET_NVS_LIGHT));
+                    }
+                }
+                else
+                {
+                    if(lock_time)
+                    {
+                        if(difftime(now_time,last_time)>lock_time)
+                        {
+                            if(lock_flag == 0)
+                            {
+                                lock_flag = 1;
+                                set_screen_light(0);
+                            }
+                        }
+                    }
+                    if(sleep_time)
+                    {
+                        if(difftime(now_time,last_time)>sleep_time)
+                        {
+                            power_off();
+                        }
+                    }
+                }
+                // ESP_LOGI(TAG, "difftime %f,now_angle:%f,last_angle:%f",difftime(now_time,last_time),now_angle,last_angle);
+                vTaskDelay(200 / portTICK_PERIOD_MS);
             } else if (ret == ESP_ERR_TIMEOUT) {
                 //We try to read `EXAMPLE_READ_LEN` until API returns timeout, which means there's no available data
                 break;
@@ -174,4 +217,22 @@ uint8_t bat_val_get()
     int val = toPercentage(bat_val);
     // ESP_LOGI(TAG, "adc:%ld    percent: %d",bat_val,val);
     return val;
+}
+void set_new_lock_time(uint8_t val)
+{
+    if(val<7)
+    {
+        lock_time = screen_lock_time[val];
+    }
+    else
+        lock_time = 0;
+}
+void set_new_sleep_time(uint8_t val)
+{
+    if(val<7)
+    {
+        sleep_time = system_sleep_time[val];
+    }
+    else
+        sleep_time = 0;
 }

@@ -15,6 +15,7 @@ void ui_Screen1_screen_init(void);
 lv_obj_t * ui_Screen1;
 lv_obj_t * ui_Screen2;
 lv_obj_t * ui_Screen3;
+lv_obj_t * ui_Screen_Setting;
 uint8_t ui_event_flag = 0;
 int16_t enc_num = 0;
 int16_t enc_click = 0;

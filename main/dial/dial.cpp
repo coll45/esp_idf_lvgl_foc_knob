@@ -28,6 +28,13 @@ void dial_publish(uint8_t state) {
     // if(ui_state.index == UI_HID_INTERFACE)
     //     xQueueSend(HID_Queue,&send_state,0);
 }
+void set_motor_zero_electric_angle()
+{
+    if(nvs_get_float_data(NVS_FOC_ELECTRIC_ANGLE)>0)//如果有值那么设置成0
+        nvs_set_float_data(NVS_FOC_ELECTRIC_ANGLE,0);
+    else
+        nvs_set_float_data(NVS_FOC_ELECTRIC_ANGLE,motor.zero_electric_angle);
+}
 /*Motor initialization*/
 void motor_init(void)
 {
@@ -56,11 +63,16 @@ void motor_init(void)
 
     motor.useMonitoring(Serial);
     motor.init();                                        // initialize motor
-    // motor.sensor_direction = Direction::CCW;
-    // motor.zero_electric_angle =  0.762389;
+    float ee_angle = 0;
+    ee_angle = nvs_get_float_data(NVS_FOC_ELECTRIC_ANGLE);
+    if(ee_angle>0)
+    {
+        motor.sensor_direction = Direction::CCW;
+        motor.zero_electric_angle = ee_angle;
+    }
     motor.initFOC();                                     // align sensor and start FOC
     
-    ESP_LOGI(TAG, "Motor motor.zero_electric_angle %f",motor.zero_electric_angle);
+    printf("Motor motor.zero_electric_angle %f\n",motor.zero_electric_angle);
     ESP_LOGI(TAG, "Motor Initialize Successfully");
 }
 
@@ -195,6 +207,10 @@ static void motor_task(void *arg)
 float get_motor_shaft_angle(void)
 {
     return motor.shaft_angle;
+}
+float get_motor_shaft_velocity(void)
+{
+    return motor.shaft_velocity;
 }
 void foc_knob_set_param(foc_knob_param_t param)
 {

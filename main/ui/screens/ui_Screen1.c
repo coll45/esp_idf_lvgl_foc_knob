@@ -7,7 +7,7 @@
 #define ITEM_HEIGHT_MIN   90
 #define ITEM_PAD          10
 static const char *TAG = "SCREEN1";
-static lv_obj_t* ui_ArcScreen1;
+static lv_obj_t* arc_bat;
 static lv_group_t* group;
 static int icon_index = 0;
 static lv_timer_t * task1;
@@ -25,6 +25,8 @@ static struct
 static const foc_knob_param_t screen1_foc_knob_param = { 0, 0, 30 * PI / 180, 1, 1, 0.6, ""};
 static void onFocus(lv_group_t* g)
 {
+    lvgl_port_lock(0);
+
     lv_obj_t* icon = lv_group_get_focused(g);
     uint32_t current_btn_index = lv_obj_get_index(icon);
     lv_obj_t* container = lv_obj_get_parent(icon);
@@ -71,6 +73,8 @@ static void onFocus(lv_group_t* g)
             lv_obj_add_state(lv_obj_get_child(obt, 0), LV_STATE_FOCUSED);       /// States
         }
     }
+    
+    lvgl_port_unlock();
 }
 static void group_init(lv_obj_t* container, uint8_t id)
 {
@@ -193,19 +197,33 @@ static void Create(lv_obj_t* root)
         "Surface Dial\n"
 		"KeyBoard\n"
 		"Mouse\n"
-		"Media\n"
+		"Media"
         );
     Item_Create(root,
         "Setting",
         &ui_img_set_png,
 
-        "Setting"
+        "Light\n"
+		"Screen Lock Time\n"
+		"Power Off Time\n"
+		"Screen Direction\n"
+        "Wifi ON OFF"
     );
+    char system_info[100];
+    char mac_s[6];
+    uint8_t mac[6];
+    esp_base_mac_addr_get(mac);
+    for (uint8_t i = 0; i < 3; i++)
+    {
+       sprintf(mac_s+i*2,"%02x",mac[i]);
+    }
+    const esp_app_desc_t * app_desc = esp_app_get_description();
+    sprintf(system_info,"Name : Super Dial\nAuthor : 45coll\nChip Mac : %s\nUpdate : %s",mac_s,app_desc->date);
     Item_Create(root,
         "PowerOff",
         &ui_img_power_png,
 
-        "PowerOff"
+        system_info
     );
     Item_Create(root,
         "Custom",
@@ -214,26 +232,26 @@ static void Create(lv_obj_t* root)
         "Custom HID"
     );
 
-	ui_ArcScreen1 = lv_arc_create(ui_Screen1);
-    lv_obj_set_width(ui_ArcScreen1, 240);
-    lv_obj_set_height(ui_ArcScreen1, 240);
-    lv_obj_set_x(ui_ArcScreen1, 3);
-    lv_obj_set_y(ui_ArcScreen1, -3);
-    lv_obj_set_align(ui_ArcScreen1, LV_ALIGN_CENTER);
-    lv_arc_set_value(ui_ArcScreen1, 50);
-    lv_arc_set_bg_angles(ui_ArcScreen1, 108, 169);
-    lv_obj_set_style_arc_color(ui_ArcScreen1, lv_color_hex(0x303030), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_opa(ui_ArcScreen1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_width(ui_ArcScreen1, 6, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_rounded(ui_ArcScreen1, true, LV_PART_MAIN | LV_STATE_DEFAULT);
+	arc_bat = lv_arc_create(ui_Screen1);
+    lv_obj_set_width(arc_bat, 240);
+    lv_obj_set_height(arc_bat, 240);
+    lv_obj_set_x(arc_bat, 3);
+    lv_obj_set_y(arc_bat, -3);
+    lv_obj_set_align(arc_bat, LV_ALIGN_CENTER);
+    lv_arc_set_value(arc_bat, 50);
+    lv_arc_set_bg_angles(arc_bat, 108, 169);
+    lv_obj_set_style_arc_color(arc_bat, lv_color_hex(0x303030), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_opa(arc_bat, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_width(arc_bat, 6, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_rounded(arc_bat, true, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    lv_obj_set_style_arc_color(ui_ArcScreen1, lv_color_hex(0xB0E14A), LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_opa(ui_ArcScreen1, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_width(ui_ArcScreen1, 6, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_rounded(ui_ArcScreen1, true, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_color(arc_bat, lv_color_hex(0xB0E14A), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_opa(arc_bat, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_width(arc_bat, 6, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_rounded(arc_bat, true, LV_PART_INDICATOR | LV_STATE_DEFAULT);
 
-    lv_obj_set_style_bg_color(ui_ArcScreen1, lv_color_hex(0xFFFFFF), LV_PART_KNOB | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_ArcScreen1, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(arc_bat, lv_color_hex(0xFFFFFF), LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(arc_bat, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
 }
 void ui_Screen1_dial_event(uint8_t state)
 {
@@ -260,6 +278,7 @@ void ui_Screen1_dial_event(uint8_t state)
                     _ui_screen_change(&ui_Screen2, LV_SCR_LOAD_ANIM_FADE_ON, 300, 0, &ui_Screen2_screen_init);
                     break;
                 case 1://setting
+                    _ui_screen_change(&ui_Screen_Setting, LV_SCR_LOAD_ANIM_FADE_ON, 300, 0, &ui_Screen_Setting_screen_init);
                     break;
                 case 2://poweroff
                     power_off();
@@ -270,7 +289,13 @@ void ui_Screen1_dial_event(uint8_t state)
                     break;
             }
             break;
-        
+        case DIAL_STA_LONG_PRESS:
+            if(icon_index == 2)//在关机界面长按设置或清零，并且重启
+            {
+                set_motor_zero_electric_angle();
+                esp_restart();
+            }
+            break;
         default:
             break;
     }
@@ -293,7 +318,7 @@ void scr_Screen1_loaded_cb(lv_event_t * e)
 void task_bat_cb(lv_timer_t * tmr)
 {
 	uint8_t value = bat_val_get();
-	lv_arc_set_value(ui_ArcScreen1, value);
+	lv_arc_set_value(arc_bat, value);
 }
 void ui_Screen1_screen_init(void)
 {

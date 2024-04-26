@@ -10,7 +10,11 @@
 #include "driver/gpio.h"
 #include "esp_adc/adc_continuous.h"
 #include "esp_sleep.h"
-
+#include "../dial/dial.h"
+#include "../display/display.h"
+#include "../nvs_data/nvs_data.h"
+#include "time.h"
+#include "math.h"
 #define EXAMPLE_ADC_UNIT                    ADC_UNIT_1
 #define _EXAMPLE_ADC_UNIT_STR(unit)         #unit
 #define EXAMPLE_ADC_UNIT_STR(unit)          _EXAMPLE_ADC_UNIT_STR(unit)
@@ -40,6 +44,8 @@ static adc_channel_t adc_channel[1] = { ADC_CHANNEL_3};   //GPIO4
 #define R2_VOLTAGE 22000  //22K
 #define REFERENCE_VOL 3300 //3.3V
 #define POWER_GPIO GPIO_NUM_18
+#define SET_SCREEN_LOCK_TIME_SRC "30s\n1min\n3min\n5min\n10min\n15min\nnever"
+#define SET_SYSTEM_SLEEP_TIME_SRC "1min\n3min\n5min\n10min\n15min\n30min\nnever"
 
 void power_gpio_init(void);
 void power_on(void);
@@ -47,3 +53,5 @@ void power_off(void);
 void bat_power_get(void);
 uint8_t bat_val_get();
 uint32_t bat_adc_get();
+void set_new_lock_time(uint8_t val);
+void set_new_sleep_time(uint8_t val);

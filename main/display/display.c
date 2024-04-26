@@ -122,13 +122,32 @@ static esp_err_t app_lvgl_init(void)
         }
     };
     lvgl_disp = lvgl_port_add_disp(&disp_cfg);
-    lv_disp_set_rotation(lvgl_disp, LV_DISP_ROT_NONE);
+    uint8_t val = nvs_get_u8_data(SET_NVS_ROTATION);
+    if(val<4)
+        lv_disp_set_rotation(lvgl_disp, val);
+    else
+        lv_disp_set_rotation(lvgl_disp, LV_DISP_ROT_NONE);
 
     return ESP_OK;
 }
+void set_screen_rotation(uint8_t val)
+{
+    static uint8_t last_val=255;
+    if(last_val == val)
+        return;
+    else
+    {
+        if(val<4)
+            lv_disp_set_rotation(lvgl_disp, val);
+        else
+            lv_disp_set_rotation(lvgl_disp, LV_DISP_ROT_NONE);
+    }
+    last_val = val;
+}
 void set_screen_light(uint8_t duty)
 {
-    ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, 1024*duty*0.01));
+    uint32_t num = duty;
+    ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, 1024*0.01*duty));
     ESP_ERROR_CHECK(ledc_update_duty(LEDC_MODE, LEDC_CHANNEL));
 }
 void display_init(void)
@@ -138,7 +157,11 @@ void display_init(void)
 
     /* LVGL initialization */
     ESP_ERROR_CHECK(app_lvgl_init());
-    
+    uint8_t val = nvs_get_u8_data(SET_NVS_LIGHT);
+    if(val>0&&val<=10)
+        set_screen_light(val);
+    else
+        set_screen_light(50);
 }
 void lvgl_display_init(void)
 {

@@ -7,23 +7,49 @@ local_param_t s_ble_hid_param = {0};
 const uint8_t hid_report_general_descriptor[] = {
     TUD_HID_REPORT_DESC_KEYBOARD(HID_REPORT_ID(HID_ITF_PROTOCOL_KEYBOARD)),
     TUD_HID_REPORT_DESC_MOUSE(HID_REPORT_ID(HID_ITF_PROTOCOL_MOUSE)),
+    TUD_HID_REPORT_DESC_DIAL(HID_REPORT_ID(HID_ITF_PROTOCOL_DIAL)),
     TUD_HID_REPORT_DESC_CONSUMER(HID_REPORT_ID(HID_ITF_PROTOCOL_MEDIA))
 };
 const uint32_t desc_hid_report_general_len = sizeof(hid_report_general_descriptor);
+
+const uint8_t hid_report_descriptor_keyboard[] = {
+    TUD_HID_REPORT_DESC_KEYBOARD(HID_REPORT_ID(HID_ITF_PROTOCOL_KEYBOARD)),
+};
+const uint32_t desc_hid_report_keyboard_len = sizeof(hid_report_descriptor_keyboard);
+
+const uint8_t hid_report_descriptor_mouse[] = {
+    TUD_HID_REPORT_DESC_MOUSE(HID_REPORT_ID(HID_ITF_PROTOCOL_MOUSE)),
+};
+const uint32_t desc_hid_report_mouse_len = sizeof(hid_report_descriptor_mouse);
+
 const uint8_t hid_report_descriptor_dila[] = {
     TUD_HID_REPORT_DESC_DIAL(HID_REPORT_ID(HID_ITF_PROTOCOL_DIAL)),
 };
 const uint32_t desc_hid_report_dial_len = sizeof(hid_report_descriptor_dila);
+
+const uint8_t hid_report_descriptor_consumer[] = {
+    TUD_HID_REPORT_DESC_CONSUMER(HID_REPORT_ID(HID_ITF_PROTOCOL_MEDIA))
+};
+const uint32_t desc_hid_report_consumer_len = sizeof(hid_report_descriptor_consumer);
 static esp_hid_raw_report_map_t ble_report_maps[] = {
     /* This block is compiled for bluedroid as well */
     {
         .data = hid_report_general_descriptor,
         .len = desc_hid_report_general_len,
     },
-    {
-        .data = hid_report_descriptor_dila,
-        .len = desc_hid_report_dial_len,
-    }
+    // {
+    //     .data = hid_report_descriptor_mouse,
+    //     .len = desc_hid_report_mouse_len,
+    // },
+    // {
+    //     .data = hid_report_descriptor_consumer,
+    //     .len = desc_hid_report_consumer_len,
+    //     .len = desc_hid_report_consumer_len,
+    // },
+    // {
+    //     .data = hid_report_descriptor_dila,
+    //     .len = desc_hid_report_dial_len,
+    // }
 };
 static esp_hid_device_config_t ble_hid_config = {
     .vendor_id          = 0x16C0,
@@ -33,7 +59,7 @@ static esp_hid_device_config_t ble_hid_config = {
     .manufacturer_name  = "Espressif",
     .serial_number      = "1234567890",
     .report_maps        = ble_report_maps,
-    .report_maps_len    = 2
+    .report_maps_len    = 1
 };
 void ble_hid_surfacedial_report(uint8_t report_id, uint8_t keycode)
 {   

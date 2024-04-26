@@ -15,7 +15,7 @@
 #include "esp_lvgl_port.h"
 #include "../ui/ui.h"
 #include "../dial_power/dial_power.h"
-
+#include "../nvs_data/nvs_data.h"
 /* LCD size */
 #define EXAMPLE_LCD_H_RES   (240)
 #define EXAMPLE_LCD_V_RES   (240)
@@ -38,11 +38,11 @@
 #define EXAMPLE_LCD_GPIO_CS         (GPIO_NUM_10)
 #define EXAMPLE_LCD_GPIO_BL         (GPIO_NUM_13)
 
-#define LEDC_TIMER              LEDC_TIMER_0
+#define LEDC_TIMER              LEDC_TIMER_1
 #define LEDC_MODE               LEDC_LOW_SPEED_MODE
 #define LEDC_OUTPUT_IO          EXAMPLE_LCD_GPIO_BL // Define the output GPIO
 #define LEDC_CHANNEL            LEDC_CHANNEL_4
-#define LEDC_DUTY_RES           LEDC_TIMER_10_BIT // Set duty resolution to 13 bits
+#define LEDC_DUTY_RES           LEDC_TIMER_10_BIT // Set duty resolution to 10 bits
 #define LEDC_DUTY               (512) // Set duty to 50%. (2 ** 10) * 50% = 512
 #define LEDC_FREQUENCY          (4000) // Frequency in Hertz. Set frequency at 4 kHz
 
@@ -53,3 +53,8 @@ void display_init(void);
  *
  */
 void set_screen_light(uint8_t duty);
+/**
+ * @brief Value 0\1\2\3
+ *
+ */
+void set_screen_rotation(uint8_t val);

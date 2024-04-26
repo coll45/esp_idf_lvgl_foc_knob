@@ -11,7 +11,7 @@ static lv_obj_t* pointer;
 static int icon_index = 0;
 static lv_timer_t * pointer_task;
 static UI_HID_INFO *ui_icon_hid;
-
+static lv_obj_t* arc_bat;
 static void ui_icon_hid_init();
 static void setl_label_info(uint8_t index);
 static struct
@@ -33,8 +33,8 @@ static struct
 static const foc_knob_param_t hid_foc_knob_param_lst[] = {
     [0] = { 0, 0, 1 * PI / 180, 1, 1, 1.1, ""},    //第一个icon的力度          
 };
-static const foc_knob_param_t screen3_press_foc_knob_param = { 0, 0, 10 * PI / 180, 2, 1, 0.7, ""}; //按下旋转的力度
-static void ui_icon_hid_init()
+static const foc_knob_param_t press_foc_knob_param = { 0, 0, 10 * PI / 180, 2, 1, 0.7, ""}; //按下旋转的力度
+static void ui_icon_info_init()
 {
     uint8_t id;
     ui_icon_hid = heap_caps_malloc(ICON_CNT*sizeof(UI_HID_INFO),MALLOC_CAP_SPIRAM);
@@ -75,7 +75,7 @@ void ui_Screen3_Custom_hid_event(uint8_t state)
         break;
     case DIAL_STA_PRESS:
         hid_send(state);
-        foc_knob_set_param(screen3_press_foc_knob_param);
+        foc_knob_set_param(press_foc_knob_param);
         break;
     case DIAL_STA_R:
         hid_send(state);
@@ -220,6 +220,8 @@ static lv_obj_t* icon_create(lv_obj_t* container, const void* img_src ,uint16_t 
 }
 static void onFocus(lv_group_t* g)
 {
+    lvgl_port_lock(0);
+
     lv_obj_t* icon = lv_group_get_focused(g);
     uint32_t current_btn_index = lv_obj_get_index(icon);
     //printf("current_btn_index:%ld\n", current_btn_index);
@@ -286,6 +288,8 @@ static void onFocus(lv_group_t* g)
         lv_img_set_zoom(lv_obj_get_child(container, mid_btn_index + 2), 150);                       /// ZOOM
     }
     setl_label_info(icon_index);
+
+    lvgl_port_unlock();
 }
 static void group_init(lv_obj_t* container,int8_t id)
 {
@@ -344,13 +348,35 @@ static void Create(lv_obj_t* root)
     lv_obj_set_align(ui_label.right, LV_ALIGN_CENTER);
     lv_obj_add_style(ui_label.right, &style.font16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    pointer = lv_img_create(ui_Screen2);
+    pointer = lv_img_create(root);
     lv_img_set_src(pointer, &ui_img_pointer_png);
     lv_obj_set_align(pointer, LV_ALIGN_TOP_MID);
     lv_obj_set_y(pointer, 10);
     lv_img_set_pivot(pointer,24,110);
     lv_obj_add_flag(pointer, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(pointer, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    
+    arc_bat = lv_arc_create(root);
+    lv_obj_set_width(arc_bat, 240);
+    lv_obj_set_height(arc_bat, 240);
+    lv_obj_set_x(arc_bat, 3);
+    lv_obj_set_y(arc_bat, -3);
+    lv_obj_set_align(arc_bat, LV_ALIGN_CENTER);
+    lv_arc_set_value(arc_bat, 50);
+    lv_arc_set_bg_angles(arc_bat, 108, 169);
+    lv_obj_set_style_arc_color(arc_bat, lv_color_hex(0x303030), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_opa(arc_bat, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_width(arc_bat, 6, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_rounded(arc_bat, true, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_set_style_arc_color(arc_bat, lv_color_hex(0xB0E14A), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_opa(arc_bat, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_width(arc_bat, 6, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_rounded(arc_bat, true, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+
+    lv_obj_set_style_bg_color(arc_bat, lv_color_hex(0xFFFFFF), LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(arc_bat, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
 }
 static void task_pointer_cb()
 {
@@ -362,6 +388,8 @@ static void task_pointer_cb()
     }
     num = num*10;
     lv_img_set_angle(pointer, num);
+    uint8_t value = bat_val_get();
+	lv_arc_set_value(arc_bat, value);
 }
 static void scr_Screen3_unloaded_cb(lv_event_t * e)
 {
@@ -381,10 +409,10 @@ static void scr_Screen3_loaded_cb(lv_event_t * e)
 void ui_Screen3_screen_init(void)
 {
     ui_Screen3 = lv_obj_create(NULL);
-    ui_icon_hid_init();
+    ui_icon_info_init();
     lv_obj_add_event_cb(ui_Screen3, scr_Screen3_loaded_cb, LV_EVENT_SCREEN_LOADED, &ui_Screen3);
     // lv_obj_add_event_cb(ui_Screen3, scr_Screen2_unloaded_cb, LV_EVENT_SCREEN_UNLOADED, &ui_Screen3);
-    lv_obj_clear_flag(          ui_Screen3, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_clear_flag(ui_Screen3, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_img_src(ui_Screen3, &ui_img_bg1_png, LV_PART_MAIN | LV_STATE_DEFAULT);
     Style_Init();
     Create(ui_Screen3);

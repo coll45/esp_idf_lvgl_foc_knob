@@ -14,12 +14,16 @@ extern "C" {
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_system.h"
+#include "esp_mac.h"
+#include "esp_app_desc.h"
 #include "ui_helpers.h"
 #include "ui_events.h"
 #include "../usb_device/usb_device.h"
 #include "../dial_power/dial_power.h"
 #include "../dial/dial.h"
-
+#include "../nvs_data/nvs_data.h"
+#include "../display/display.h"
 #define DIAL_STA_NUM 10
 enum {
     UI_NULL,
@@ -64,28 +68,25 @@ typedef struct
     struct DIAL_STA_DATA dial_sta[DIAL_STA_NUM];
     struct UI_HID_ICON_INFO icon;
 }UI_HID_INFO;
-typedef struct 
-{
-    uint8_t icon_id; //图标的id
-    uint16_t img_angle;//图标的角度
-    foc_knob_param_t param_list;
-    struct UI_HID_ICON_INFO icon;
-}UI_ICON_INFO;
 extern _ui_state ui_state;
 extern int16_t enc_num;
 extern int16_t enc_click;
 void ui_send_hid_command(uint8_t hid_id,uint8_t keycode[6],uint8_t state);
 // SCREEN:
-void ui_Screen1_dial_event(uint8_t state);
-void ui_Screen1_screen_init(void);
 extern lv_obj_t * ui_Screen1; //main screen
 extern lv_obj_t * ui_Screen2; //system hid screen
-extern lv_obj_t * ui_Screen3; //
+extern lv_obj_t * ui_Screen3; //Customize HID
+extern lv_obj_t * ui_Screen_Setting;
+extern lv_indev_t* encoder_indev;
+// SCREEN: Init and event
+void ui_Screen1_dial_event(uint8_t state);
+void ui_Screen1_screen_init(void);
 void ui_Screen2_hid_event(uint8_t state);
 void ui_Screen2_screen_init(void);
-extern lv_indev_t* encoder_indev;
 void ui_Screen3_screen_init(void);
 void ui_Screen3_Custom_hid_event(uint8_t state);
+void ui_Screen_Setting_screen_init(void);
+void ui_Screen_Setting_event(uint8_t state);
 
 LV_IMG_DECLARE(ui_img_bg1_png);    // assets\bg1.png
 LV_IMG_DECLARE(ui_img_pc_png);    // assets\pc.png
@@ -99,7 +100,7 @@ LV_IMG_DECLARE(ui_img_wheel_png);    // assets\wheel.png
 LV_IMG_DECLARE(ui_img_key_left_right_png);    // assets\key_left_right.png
 LV_IMG_DECLARE(ui_img_volume_png);    // assets\volume.png
 LV_IMG_DECLARE(ui_img_pointer_png);    // assets\pointer.png
-// LV_IMG_DECLARE(ui_img_bg_anime_png);    // assets\bg_anime.png
+LV_IMG_DECLARE(ui_img_bg_anime_png);    // assets\bg_anime.png
 LV_IMG_DECLARE(ui_img_customize_png);    // assets\customize.png
 LV_IMG_DECLARE(ui_img_screenrotation_png);    // assets\ScreenRotation.png
 LV_IMG_DECLARE(ui_img_wifilogo_png);    // assets\WifiLogo.png

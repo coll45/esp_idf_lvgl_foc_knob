@@ -17,7 +17,7 @@
 #include "dial_power/dial_power.h"
 
 #include "esp_ota_ops.h"
-#include "nvs_flash.h"
+#include "nvs_data/nvs_data.h"
 static const char *TAG = "MAIN";
 QueueHandle_t Dial_Queue = NULL;
 void dial_event_task()
@@ -36,6 +36,9 @@ void dial_event_task()
                 break;
             case UI_HID_INTERFACE:
                 ui_Screen2_hid_event(state);
+                break;
+            case UI_SETTING_INTERFACE:
+                ui_Screen_Setting_event(state);
                 break;
             case UI_HID_CUSTOM_INTERFACE:
                 ui_Screen3_Custom_hid_event(state);
@@ -58,18 +61,13 @@ void dial_event_queue_init()
         xTaskCreate(dial_event_task, "dial_event_task", 1024 *5, NULL, 22, NULL);
     }
 }
+void esp_task_wdt_isr_user_handler()
+{
+    esp_restart();
+}
 void app_main(void)
 {
-    esp_err_t ret;
-
-    // Initialize NVS.
-    ret = nvs_flash_init();
-    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        ESP_ERROR_CHECK(nvs_flash_erase());
-        ret = nvs_flash_init();
-    }
-    ESP_ERROR_CHECK( ret );
-
+    nvs_data_init();
     const esp_partition_t *configured = esp_ota_get_boot_partition();
     const esp_partition_t *running = esp_ota_get_running_partition();
     if (configured != running) {
@@ -80,11 +78,12 @@ void app_main(void)
             ESP_LOGI(TAG, "Running partition type %d subtype %d (offset 0x%08"PRIx32")",
                     running->type, running->subtype, running->address);
     esp_ota_set_boot_partition(running);
+
     power_gpio_init();
     display_init();
     /* Show LVGL objects */
     lvgl_display_init();
-    set_screen_light(50);
+
     foc_init();
     /* 创建 Queue */ 
     dial_event_queue_init();

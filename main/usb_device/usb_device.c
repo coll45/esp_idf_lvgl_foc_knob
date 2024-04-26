@@ -188,7 +188,6 @@ void dial_hid_task()
                 case HID_ITF_PROTOCOL_MOUSE:
                 //鼠标数据0为按键，1为X移动，2为Y移动，3为滚轮垂直移动，4为滚轮水平移动（在excel里面用到
                     ble_hid_mouse_report(HID_ITF_PROTOCOL_MOUSE,cmd.hid_data[0],cmd.hid_data[1],cmd.hid_data[2],cmd.hid_data[3],cmd.hid_data[4]);
-                    vTaskDelay(2 / portTICK_PERIOD_MS);
                     break;
                 case HID_ITF_PROTOCOL_MEDIA:
                     ble_hid_media_report(HID_ITF_PROTOCOL_MEDIA,cmd.hid_data[0],cmd.hid_data[1]);
