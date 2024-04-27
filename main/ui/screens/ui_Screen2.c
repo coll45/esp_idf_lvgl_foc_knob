@@ -14,6 +14,7 @@ static UI_HID_INFO *ui_icon_hid;
 static lv_obj_t* arc_bat;
 static void ui_icon_hid_init();
 static void setl_label_info(uint8_t index);
+static uint8_t screen_init_flag = 0;
 static struct
 {
     lv_style_t unfocused_0;//在焦点旁边 半透明
@@ -186,6 +187,13 @@ static void hid_send(uint8_t state)
 }
 void ui_Screen2_hid_event(uint8_t state)
 {
+    if(screen_init_flag == 0)
+        return;
+    if(screen_init_flag == 1)
+    {
+        vTaskDelay(500 / portTICK_PERIOD_MS);
+        screen_init_flag = 2;
+    }
     static uint8_t hid_dial_press_flag = 0;//用于是否在dial界面按下按键，判断按下旋转时切换icon发送按下旋转事件
     switch (state)
     {
@@ -542,4 +550,6 @@ void ui_Screen2_screen_init(void)
     group_init(container,icon_index);
     pointer_task = lv_timer_create(task_pointer_cb, 10, 0);
 	lv_timer_set_repeat_count(pointer_task,-1);
+
+    screen_init_flag = 1;
 }

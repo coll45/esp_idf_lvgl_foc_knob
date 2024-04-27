@@ -5,52 +5,28 @@ static const char *TAG = "BLE_HID";
 local_param_t s_ble_hid_param = {0};
 
 const uint8_t hid_report_general_descriptor[] = {
-    TUD_HID_REPORT_DESC_KEYBOARD(HID_REPORT_ID(HID_ITF_PROTOCOL_KEYBOARD)),
+    TUD_HID_REPORT_DESC_CONSUMER(HID_REPORT_ID(HID_ITF_PROTOCOL_MEDIA)),
     TUD_HID_REPORT_DESC_MOUSE(HID_REPORT_ID(HID_ITF_PROTOCOL_MOUSE)),
-    TUD_HID_REPORT_DESC_DIAL(HID_REPORT_ID(HID_ITF_PROTOCOL_DIAL)),
-    TUD_HID_REPORT_DESC_CONSUMER(HID_REPORT_ID(HID_ITF_PROTOCOL_MEDIA))
-};
-const uint32_t desc_hid_report_general_len = sizeof(hid_report_general_descriptor);
-
-const uint8_t hid_report_descriptor_keyboard[] = {
     TUD_HID_REPORT_DESC_KEYBOARD(HID_REPORT_ID(HID_ITF_PROTOCOL_KEYBOARD)),
-};
-const uint32_t desc_hid_report_keyboard_len = sizeof(hid_report_descriptor_keyboard);
-
-const uint8_t hid_report_descriptor_mouse[] = {
-    TUD_HID_REPORT_DESC_MOUSE(HID_REPORT_ID(HID_ITF_PROTOCOL_MOUSE)),
-};
-const uint32_t desc_hid_report_mouse_len = sizeof(hid_report_descriptor_mouse);
-
-const uint8_t hid_report_descriptor_dila[] = {
     TUD_HID_REPORT_DESC_DIAL(HID_REPORT_ID(HID_ITF_PROTOCOL_DIAL)),
 };
-const uint32_t desc_hid_report_dial_len = sizeof(hid_report_descriptor_dila);
 
-const uint8_t hid_report_descriptor_consumer[] = {
-    TUD_HID_REPORT_DESC_CONSUMER(HID_REPORT_ID(HID_ITF_PROTOCOL_MEDIA))
-};
-const uint32_t desc_hid_report_consumer_len = sizeof(hid_report_descriptor_consumer);
+// const uint8_t hid_report_dial_descriptor[] = {
+//     TUD_HID_REPORT_DESC_DIAL(HID_REPORT_ID(HID_ITF_PROTOCOL_DIAL)),
+// };
+
 static esp_hid_raw_report_map_t ble_report_maps[] = {
     /* This block is compiled for bluedroid as well */
     {
         .data = hid_report_general_descriptor,
-        .len = desc_hid_report_general_len,
+        .len = sizeof(hid_report_general_descriptor),
     },
     // {
-    //     .data = hid_report_descriptor_mouse,
-    //     .len = desc_hid_report_mouse_len,
+    //     .data = hid_report_dial_descriptor,
+    //     .len = sizeof(hid_report_dial_descriptor),
     // },
-    // {
-    //     .data = hid_report_descriptor_consumer,
-    //     .len = desc_hid_report_consumer_len,
-    //     .len = desc_hid_report_consumer_len,
-    // },
-    // {
-    //     .data = hid_report_descriptor_dila,
-    //     .len = desc_hid_report_dial_len,
-    // }
 };
+
 static esp_hid_device_config_t ble_hid_config = {
     .vendor_id          = 0x16C0,
     .product_id         = 0x05DF,
@@ -82,7 +58,7 @@ void ble_hid_surfacedial_report(uint8_t report_id, uint8_t keycode)
       report[0] = dial_step&0xFF;
       report[1] = dial_step>>8;
     }
-    esp_hidd_dev_input_set(s_ble_hid_param.hid_dev, 1, report_id, report, sizeof(report));
+    esp_hidd_dev_input_set(s_ble_hid_param.hid_dev, 0, report_id, report, sizeof(report));
 }
 void ble_hid_mouse_report(uint8_t report_id,
                             uint8_t buttons, int8_t x, int8_t y, int8_t vertical, int8_t horizontal)
@@ -111,7 +87,6 @@ void ble_hid_keyboard_report(uint8_t report_id, uint8_t modifier, uint8_t keycod
   {
     tu_memclr(report.keycode, 6);
   }
-
   esp_hidd_dev_input_set(s_ble_hid_param.hid_dev, 0, report_id, &report, sizeof(report));
 }
 void ble_hid_media_report(uint8_t report_id,uint8_t key0,uint8_t key1)
@@ -142,17 +117,17 @@ static void ble_hidd_event_callback(void *handler_args, esp_event_base_t base, i
         break;
     }
     case ESP_HIDD_CONTROL_EVENT: {
-        // ESP_LOGI(TAG, "CONTROL[%u]: %sSUSPEND", param->control.map_index, param->control.control ? "EXIT_" : "");
+        ESP_LOGI(TAG, "CONTROL[%u]: %sSUSPEND", param->control.map_index, param->control.control ? "EXIT_" : "");
         break;
     }
     case ESP_HIDD_OUTPUT_EVENT: {
-        // ESP_LOGI(TAG, "OUTPUT[%u]: %8s ID: %2u, Len: %d, Data:", param->output.map_index, esp_hid_usage_str(param->output.usage), param->output.report_id, param->output.length);
-        // ESP_LOG_BUFFER_HEX(TAG, param->output.data, param->output.length);
+        ESP_LOGI(TAG, "OUTPUT[%u]: %8s ID: %2u, Len: %d, Data:", param->output.map_index, esp_hid_usage_str(param->output.usage), param->output.report_id, param->output.length);
+        ESP_LOG_BUFFER_HEX(TAG, param->output.data, param->output.length);
         break;
     }
     case ESP_HIDD_FEATURE_EVENT: {
-        // ESP_LOGI(TAG, "FEATURE[%u]: %8s ID: %2u, Len: %d, Data:", param->feature.map_index, esp_hid_usage_str(param->feature.usage), param->feature.report_id, param->feature.length);
-        // ESP_LOG_BUFFER_HEX(TAG, param->feature.data, param->feature.length);
+        ESP_LOGI(TAG, "FEATURE[%u]: %8s ID: %2u, Len: %d, Data:", param->feature.map_index, esp_hid_usage_str(param->feature.usage), param->feature.report_id, param->feature.length);
+        ESP_LOG_BUFFER_HEX(TAG, param->feature.data, param->feature.length);
         break;
     }
     case ESP_HIDD_DISCONNECT_EVENT: {
@@ -173,7 +148,7 @@ static void ble_hidd_event_callback(void *handler_args, esp_event_base_t base, i
 esp_err_t ble_hid_init(void)
 {
     esp_err_t ret;
-    ret = esp_hid_gap_init(HIDD_BLE_MODE);
+    ret = esp_hid_gap_init(HID_DEV_MODE);
     ESP_ERROR_CHECK(ret);
 
     // ble_hid_config.report_maps[0].len = desc_hid_report_len;

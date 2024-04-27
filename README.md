@@ -42,25 +42,28 @@ const lvgl_port_display_cfg_t disp_cfg = {
 - [x] 蓝牙 hid
 - - 问题描述：蓝牙一次性上报了四个HID设备：键盘、鼠标、Surface Dial、用户自定义媒体，出现第一次配对后，四个设备正常工作。esp32断电重启后，重新连接已配对的蓝牙设备，会出现四个蓝牙设备会有某一个或者几个无法正常工作
 - - 问题分析：蓝牙上报设备里面不上报Surface Dial，只有三个HID设备的时候非常的稳定，断电重连也不会有问题。加入Surface Dial就会出现问题。但是单独上报一个Surface Dial不会出现无法正常工作的情况。初步判断是Surface Dial的设备HID描述有关系，这个设备描述非常的小众，通常不会有人使用这个HID描述
-- - 解决问题：蓝牙HID描述surface dial使用到了USAGE_PAGE:HID_USAGE_PAGE_DESKTOP\USAGE:0x0e。但是在蓝牙common.c文件中没有相关的mask赋值
+- - 解决问题：consumer_control上报2单位需要给consumer_control补6空位。使其达到8个单位，参考鼠标上报3单位，补齐5个单位（补齐有解决但是给dial补齐到八单位没用）
 - - 往esp-idf\components\esp_hid\src\esp_hid_common.c文件里面添加else设置未知情况的mask
 ```c
-            if (report->usage_page == HID_USAGE_PAGE_GENERIC_DESKTOP) {
-            if (report->usage == HID_USAGE_JOYSTICK) {
-                //Joystick
-                map->usage_mask |= ESP_HID_USAGE_JOYSTICK;
-                cusage = ESP_HID_USAGE_JOYSTICK;
-            } else if (report->usage == HID_USAGE_GAMEPAD) {
-                //Gamepad
-                map->usage_mask |= ESP_HID_USAGE_GAMEPAD;
-                cusage = ESP_HID_USAGE_GAMEPAD;
+            else if (report->usage_page == HID_USAGE_PAGE_CONSUMER_DEVICE && report->usage == HID_USAGE_CONSUMER_CONTROL) {
+            //Consumer Control
+            map->usage_mask |= ESP_HID_USAGE_CCONTROL;
+            cusage = ESP_HID_USAGE_CCONTROL;
+
+            esp_hid_report_item_t item = {
+            .usage = cusage,
+            .report_id = report->report_id,
+            .report_type = ESP_HID_REPORT_TYPE_INPUT,
+            .protocol_mode = ESP_HID_PROTOCOL_MODE_REPORT,
+            .value_len = report->input_len / 8,
+            };
+            item.protocol_mode = ESP_HID_PROTOCOL_MODE_BOOT;
+            item.value_len = 6;
+            if (add_report(map, &item) != 0) {
+                return -1;
             }
-            else
-            {
-                //这边设置为厂商自定义描述
-                map->usage_mask |= ESP_HID_USAGE_VENDOR;
-                cusage = ESP_HID_USAGE_VENDOR;
-            }
+
+        }
 ```
 - [] wifiwebsever 
 - -  [] 配网：通过AP开启网页，输入wifi账号密码进行连接用户自己的wifi
