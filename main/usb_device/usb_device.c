@@ -233,11 +233,11 @@ void usb_device_init(void)
         .string_descriptor_count = sizeof(hid_string_descriptor) / sizeof(hid_string_descriptor[0]),
         .external_phy = false,
         .configuration_descriptor = hid_configuration_descriptor,
-    };
+        };
     
-    ble_hid_init();
-    vTaskDelay(500 / portTICK_PERIOD_MS);
-    ESP_ERROR_CHECK(tinyusb_driver_install(&tusb_cfg));
+        ESP_ERROR_CHECK(tinyusb_driver_install(&tusb_cfg));
+        ble_hid_init();
+        vTaskDelay(500 / portTICK_PERIOD_MS);
     }
     
      

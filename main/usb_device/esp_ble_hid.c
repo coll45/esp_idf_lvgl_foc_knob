@@ -5,10 +5,12 @@ static const char *TAG = "BLE_HID";
 local_param_t s_ble_hid_param = {0};
 
 const uint8_t hid_report_general_descriptor[] = {
+   
     TUD_HID_REPORT_DESC_CONSUMER(HID_REPORT_ID(HID_ITF_PROTOCOL_MEDIA)),
     TUD_HID_REPORT_DESC_MOUSE(HID_REPORT_ID(HID_ITF_PROTOCOL_MOUSE)),
     TUD_HID_REPORT_DESC_KEYBOARD(HID_REPORT_ID(HID_ITF_PROTOCOL_KEYBOARD)),
     TUD_HID_REPORT_DESC_DIAL(HID_REPORT_ID(HID_ITF_PROTOCOL_DIAL)),
+    
 };
 
 // const uint8_t hid_report_dial_descriptor[] = {
