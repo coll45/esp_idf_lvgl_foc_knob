@@ -12,6 +12,7 @@ static int icon_index = 0;
 static lv_timer_t * pointer_task;
 static UI_HID_INFO *ui_icon_hid;
 static lv_obj_t* arc_bat;
+static lv_obj_t* ble_img;
 static void ui_icon_hid_init();
 static void setl_label_info(uint8_t index);
 static struct
@@ -22,6 +23,7 @@ static struct
     lv_style_t focus;
     lv_style_t font16;
     lv_style_t font20;
+    lv_style_t ble_img;
 }style;
 static struct
 {
@@ -203,6 +205,10 @@ static void Style_Init()
     lv_style_set_text_font(&style.font20, &ui_font_SmileySansOblique20);
     lv_style_init(&style.font16);
     lv_style_set_text_font(&style.font16, &ui_font_SmileySansOblique16);
+
+    lv_style_init(&style.ble_img);
+    lv_style_set_img_recolor(&style.ble_img,lv_color_hex(0x0097FF));
+    lv_style_set_img_recolor_opa(&style.ble_img,255);
 }
 static lv_obj_t* icon_create(lv_obj_t* container, const void* img_src ,uint16_t img_angle)
 {
@@ -377,19 +383,35 @@ static void Create(lv_obj_t* root)
 
     lv_obj_set_style_bg_color(arc_bat, lv_color_hex(0xFFFFFF), LV_PART_KNOB | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(arc_bat, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
+
+    ble_img = lv_img_create(root);
+    lv_img_set_src(ble_img, &ui_img_ble_png);
+    lv_obj_set_width(ble_img, LV_SIZE_CONTENT);   /// 48
+    lv_obj_set_height(ble_img, LV_SIZE_CONTENT);    /// 48
+    lv_obj_set_x(ble_img, -85);
+    lv_obj_set_y(ble_img, 35);
+    lv_obj_set_align(ble_img, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ble_img, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ble_img, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_img_set_zoom(ble_img, 125);
+    lv_obj_set_style_img_recolor(ble_img, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_img_recolor_opa(ble_img, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_add_style(ble_img, &style.ble_img, LV_STATE_USER_1);
 }
 static void task_pointer_cb()
 {
-    uint16_t num = 0;
-    num = 360 - (uint16_t)(get_motor_shaft_angle() * 57.3) % 360;
-    if(num > 360)
-    {
-        num = 0;
-    }
-    num = num*10;
-    lv_img_set_angle(pointer, num);
+    lv_img_set_angle(pointer, get_fknob_shaft_angle());
     uint8_t value = bat_val_get();
 	lv_arc_set_value(arc_bat, value);
+
+    if(s_ble_hid_param.is_connected)
+    {
+        lv_obj_add_state(ble_img,LV_STATE_USER_1);
+    }
+    else
+    {
+        lv_obj_clear_state(ble_img,LV_STATE_USER_1);
+    }
 }
 static void scr_Screen3_unloaded_cb(lv_event_t * e)
 {

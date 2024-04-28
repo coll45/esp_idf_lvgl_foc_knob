@@ -118,7 +118,6 @@ static void tud_hid_media_report(uint8_t report_id,uint8_t key0,uint8_t key1)
     _report[1] = key1;
     tud_hid_report(report_id, _report ,2);
 }
-extern local_param_t s_ble_hid_param;
 void dial_hid_task()
 {
     Command_HID cmd;
@@ -235,8 +234,10 @@ void usb_device_init(void)
         .external_phy = false,
         .configuration_descriptor = hid_configuration_descriptor,
     };
-    ESP_ERROR_CHECK(tinyusb_driver_install(&tusb_cfg));
+    
     ble_hid_init();
+    vTaskDelay(500 / portTICK_PERIOD_MS);
+    ESP_ERROR_CHECK(tinyusb_driver_install(&tusb_cfg));
     }
     
      

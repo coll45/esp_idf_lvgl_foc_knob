@@ -107,6 +107,7 @@ LV_IMG_DECLARE(ui_img_wifilogo_png);    // assets\WifiLogo.png
 LV_IMG_DECLARE(ui_img_light_png);    // assets\light.png
 LV_IMG_DECLARE(ui_img_screenlocklandscape_png);    // assets\ScreenLockLandscape.png
 LV_IMG_DECLARE(ui_img_sleep_png);    // assets\sleep.png
+LV_IMG_DECLARE(ui_img_ble_png);    // assets\ble.png
 
 LV_FONT_DECLARE(ui_font_SmileySansOblique16);
 LV_FONT_DECLARE(ui_font_SmileySansOblique20);

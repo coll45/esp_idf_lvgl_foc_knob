@@ -18,7 +18,7 @@ typedef struct {
     char hid_data[6];
 }Command_HID;
 extern QueueHandle_t HID_Queue;
-extern const uint8_t hid_report_descriptor[];
+extern local_param_t s_ble_hid_param;
 void usb_device_uninstall(void);
 void usb_device_init(void);
 #ifdef __cplusplus

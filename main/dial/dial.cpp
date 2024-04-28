@@ -212,6 +212,22 @@ float get_motor_shaft_velocity(void)
 {
     return motor.shaft_velocity;
 }
+uint16_t get_fknob_shaft_angle(void)
+{
+    foc_knob_state_t state;
+    foc_knob_get_state(foc_knob_handle, &state);
+    float adjusted_sub_position, raw_angle, adjusted_angle; 
+    uint16_t img_angle;
+    
+    adjusted_sub_position = state.angle_to_detent_center * state.position_width_radians;
+    raw_angle = state.position * state.position_width_radians;
+    adjusted_angle = (raw_angle - adjusted_sub_position);
+    if (adjusted_angle > 0)
+        img_angle = (uint32_t)(adjusted_angle * 573) % 3600;
+    else
+        img_angle = 3600 - (uint32_t)(fabs(adjusted_angle) * 573) % 3600;
+    return img_angle;
+}
 void foc_knob_set_param(foc_knob_param_t param)
 {
     foc_knob_set_param_list(foc_knob_handle, param);
