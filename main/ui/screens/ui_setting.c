@@ -2,7 +2,7 @@
 // Project name: Setting Interface
 // 在这个界面设置系统设置参数有：亮度、屏幕休眠、系统关机、屏幕旋转、wifi
 #include "../ui.h"
-static const uint8_t ICON_CNT = 5;
+static const uint8_t ICON_CNT = 6;
 static const char *TAG = "SCREEN_SETTING";
 static lv_group_t* group;
 static int icon_index = 0;
@@ -43,8 +43,9 @@ static foc_knob_param_t setting_foc_knob_param_lst[] = {
     [0] = { 100, 0, 5 * PI / 180, 1, 1, 1.1, ""},    //亮度0-100        
     [1] = { 7, 0, 30 * PI / 180, 1, 1, 1.1, ""},    //息屏时间         
     [2] = { 7, 0, 30 * PI / 180, 1, 1, 1.1, ""},    //关机时间         
-    [3] = { 4, 0, 30 * PI / 180, 1, 1, 1.1, ""},    //滚轮上下         
-    [4] = { 2, 0, 45 * PI / 180, 1, 1, 1.1, ""},    //滚轮左右         
+    [3] = { 4, 0, 30 * PI / 180, 1, 1, 1.1, ""},    //屏幕方向      
+    [4] = { 2, 0, 45 * PI / 180, 1, 1, 1.1, ""},    //wifi开关         
+    [5] = { 3, 0, 30 * PI / 180, 1, 1, 1.1, ""},    //开机首选项         
 };
 static const foc_knob_param_t press_foc_knob_param = { 0, 0, 20 * PI / 180, 1, 1, 0.7, ""}; //按下旋转的力度
 static void ui_icon_info_init()
@@ -59,7 +60,7 @@ static void ui_icon_info_init()
 
     ui_icon[id].icon.img_src = &ui_img_light_png;
     ui_icon[id].icon.name = "亮度";
-    ui_icon[id].current_position = nvs_get_u8_data(SET_NVS_LIGHT);
+    ui_icon[id].current_position = sys_config.set_light;
     ui_icon[id].param_list.position = ui_icon[id].current_position;
 
     id = 1;
@@ -68,7 +69,7 @@ static void ui_icon_info_init()
 
     ui_icon[id].icon.img_src = &ui_img_screenlocklandscape_png;
     ui_icon[id].icon.name = "息屏时间";
-    ui_icon[id].current_position = nvs_get_u8_data(SET_NVS_LOCK);
+    ui_icon[id].current_position = sys_config.set_lock;
     ui_icon[id].param_list.position = ui_icon[id].current_position;
 
     id = 2;
@@ -77,7 +78,7 @@ static void ui_icon_info_init()
 
     ui_icon[id].icon.img_src = &ui_img_sleep_png;
     ui_icon[id].icon.name = "关机时间";
-    ui_icon[id].current_position = nvs_get_u8_data(SET_NVS_SLEEP);
+    ui_icon[id].current_position = sys_config.set_sleep;
     ui_icon[id].param_list.position = ui_icon[id].current_position;
 
     id = 3;
@@ -86,7 +87,7 @@ static void ui_icon_info_init()
 
     ui_icon[id].icon.img_src = &ui_img_screenrotation_png;
     ui_icon[id].icon.name = "屏幕方向";
-    ui_icon[id].current_position = nvs_get_u8_data(SET_NVS_ROTATION);
+    ui_icon[id].current_position = sys_config.set_rotation;
     ui_icon[id].param_list.position = ui_icon[id].current_position;
 
     id = 4;
@@ -95,7 +96,16 @@ static void ui_icon_info_init()
 
     ui_icon[id].icon.img_src = &ui_img_wifilogo_png;
     ui_icon[id].icon.name = "Wifi";
-    ui_icon[id].current_position = nvs_get_u8_data(SET_NVS_WIFI);
+    ui_icon[id].current_position = sys_config.set_wifi;
+    ui_icon[id].param_list.position = ui_icon[id].current_position;
+
+    id = 5;
+    ui_icon[id].icon_id = id;
+    ui_icon[id].param_list = setting_foc_knob_param_lst[id];
+
+    ui_icon[id].icon.img_src = &ui_img_home_page_png;
+    ui_icon[id].icon.name = "默认首页";
+    ui_icon[id].current_position = sys_config.set_frist_screen;
     ui_icon[id].param_list.position = ui_icon[id].current_position;
 }
 static void icon_light_event(uint8_t state)
@@ -216,6 +226,31 @@ static void icon_wifi_event(uint8_t state)
         break;
     }
 }
+static void icon_first_screen_event(uint8_t state)
+{
+    switch (state)
+    {
+    case DIAL_STA_R:
+        if(ui_icon[icon_index].current_position<3)
+            ui_icon[icon_index].current_position++;
+        break;
+    case DIAL_STA_L:
+        if(ui_icon[icon_index].current_position>0)
+            ui_icon[icon_index].current_position--;
+        break;
+    case DIAL_STA_DOUBLE_CLICK:
+        nvs_set_u8_data(SET_NVS_FIRST_SCREEN,ui_icon[icon_index].current_position);
+        break;
+    case DIAL_STA_P_R:
+        nvs_set_u8_data(SET_NVS_FIRST_SCREEN,ui_icon[icon_index].current_position);
+        break;
+    case DIAL_STA_P_L:
+        nvs_set_u8_data(SET_NVS_FIRST_SCREEN,ui_icon[icon_index].current_position);
+        break;
+    default:
+        break;
+    }
+}
 void ui_Screen_Setting_event(uint8_t state)
 {
     switch (icon_index)
@@ -234,6 +269,9 @@ void ui_Screen_Setting_event(uint8_t state)
         break;
     case 4:
         icon_wifi_event(state);
+        break;
+    case 5:
+        icon_first_screen_event(state);
         break;
     default:
         break;
@@ -343,6 +381,13 @@ static void setl_label_info(uint8_t index)
         lv_obj_add_flag(ui_label.mid,LV_OBJ_FLAG_HIDDEN);
         ui_icon[index].param_list.position = ui_icon[index].current_position;
         break;
+    case 5:
+        lv_obj_clear_flag(ui_label.roller,LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_label.arc,LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_label.mid,LV_OBJ_FLAG_HIDDEN);
+        lv_roller_set_options(ui_label.roller, "HOME\nUSB HID\nCUSTOM HID", LV_ROLLER_MODE_NORMAL);
+        lv_roller_set_selected(ui_label.roller, ui_icon[index].current_position, LV_ANIM_ON);
+        ui_icon[index].param_list.position = ui_icon[index].current_position;
     default:
         break;
     }
@@ -503,11 +548,11 @@ static void group_init(lv_obj_t* container,int8_t id)
     }
     lv_group_set_focus_cb(group, onFocus);
     uint32_t mid_btn_index = (lv_obj_get_child_cnt(container) - 1) / 2; 
-    lv_group_focus_obj(lv_obj_get_child(container, mid_btn_index));
     for (uint8_t i = 0; i < id; i++)
     {
-       lv_group_focus_obj(lv_obj_get_child(container, 1));
+       lv_group_focus_obj(lv_obj_get_child(container, -1));
     }
+    lv_group_focus_obj(lv_obj_get_child(container, mid_btn_index));
 }
 static void Create(lv_obj_t* root)
 {
@@ -597,6 +642,9 @@ static void task_timer_cb()
         break;
     case 4:
 
+        break;
+    case 5:
+        lv_roller_set_selected(ui_label.roller,ui_icon[icon_index].current_position,LV_ANIM_ON);
         break;
     default:
         break;

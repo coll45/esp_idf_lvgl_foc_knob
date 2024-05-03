@@ -152,6 +152,8 @@ void adc_read_task()
                     {
                         if(difftime(now_time,last_time)>sleep_time)
                         {
+                            set_screen2_index();
+                            set_screen3_index();
                             power_off();
                         }
                     }

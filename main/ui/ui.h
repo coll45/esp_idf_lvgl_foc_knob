@@ -87,6 +87,8 @@ void ui_Screen3_screen_init(void);
 void ui_Screen3_Custom_hid_event(uint8_t state);
 void ui_Screen_Setting_screen_init(void);
 void ui_Screen_Setting_event(uint8_t state);
+void set_screen2_index();
+void set_screen3_index();
 
 LV_IMG_DECLARE(ui_img_bg1_png);    // assets\bg1.png
 LV_IMG_DECLARE(ui_img_pc_png);    // assets\pc.png
@@ -108,6 +110,7 @@ LV_IMG_DECLARE(ui_img_light_png);    // assets\light.png
 LV_IMG_DECLARE(ui_img_screenlocklandscape_png);    // assets\ScreenLockLandscape.png
 LV_IMG_DECLARE(ui_img_sleep_png);    // assets\sleep.png
 LV_IMG_DECLARE(ui_img_ble_png);    // assets\ble.png
+LV_IMG_DECLARE(ui_img_home_page_png);    // assets\home_page.png
 
 LV_FONT_DECLARE(ui_font_SmileySansOblique16);
 LV_FONT_DECLARE(ui_font_SmileySansOblique20);

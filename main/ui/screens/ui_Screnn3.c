@@ -36,9 +36,14 @@ static const foc_knob_param_t hid_foc_knob_param_lst[] = {
     [0] = { 0, 0, 1 * PI / 180, 1, 1, 1.1, ""},    //第一个icon的力度          
 };
 static const foc_knob_param_t press_foc_knob_param = { 0, 0, 10 * PI / 180, 2, 1, 0.7, ""}; //按下旋转的力度
+void set_screen3_index()
+{
+    nvs_set_u8_data(NVS_CSM_HID_INDEX,icon_index);
+}
 static void ui_icon_info_init()
 {
     uint8_t id;
+    icon_index = sys_config.hid_csm_index;
     ui_icon_hid = heap_caps_malloc(ICON_CNT*sizeof(UI_HID_INFO),MALLOC_CAP_SPIRAM);
     memset(ui_icon_hid, 0x00, ICON_CNT*sizeof(UI_HID_INFO));//全部清零
 
@@ -105,6 +110,7 @@ void ui_Screen3_Custom_hid_event(uint8_t state)
         // hid_send(state);
         break;
     case DIAL_STA_DOUBLE_CLICK:
+        set_screen3_index();
         _ui_screen_change(&ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 300, 0, &ui_Screen1_screen_init);
         break;
     case DIAL_STA_P_R:
@@ -312,7 +318,7 @@ static void group_init(lv_obj_t* container,int8_t id)
     lv_group_focus_obj(lv_obj_get_child(container, mid_btn_index));
     for (uint8_t i = 0; i < id; i++)
     {
-       lv_group_focus_obj(lv_obj_get_child(container, 1));
+       lv_group_focus_obj(lv_obj_get_child(container, -1));
     }
 }
 static void setl_label_info(uint8_t index)
@@ -452,4 +458,5 @@ void ui_Screen3_screen_init(void)
     group_init(container,icon_index);
     pointer_task = lv_timer_create(task_pointer_cb, 10, 0);
 	lv_timer_set_repeat_count(pointer_task,-1);
+    foc_knob_set_param(ui_icon_hid[icon_index].param_list);
 }

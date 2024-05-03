@@ -9,6 +9,7 @@
 #include "iot_button.h"
 #include "../usb_device/usb_device.h"
 #include "../ui/ui.h"
+#include "../nvs_data/nvs_data.h"
 #include "dial.h"
 
 #define TAG "FOC_Knob_Example"
@@ -64,7 +65,7 @@ void motor_init(void)
     motor.useMonitoring(Serial);
     motor.init();                                        // initialize motor
     float ee_angle = 0;
-    ee_angle = nvs_get_float_data(NVS_FOC_ELECTRIC_ANGLE);
+    ee_angle = sys_config.foc_angle;
     if(ee_angle>0)
     {
         motor.sensor_direction = Direction::CCW;

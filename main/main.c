@@ -80,12 +80,14 @@ void app_main(void)
     esp_ota_set_boot_partition(running);
 
     power_gpio_init();
+    /* 创建 Queue */ 
+    dial_event_queue_init();
+    foc_init();
     display_init();
     /* Show LVGL objects */
     lvgl_display_init();
 
-    foc_init();
-    /* 创建 Queue */ 
-    dial_event_queue_init();
+
+    
 
 }   

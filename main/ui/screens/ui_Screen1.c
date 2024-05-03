@@ -210,15 +210,16 @@ static void Create(lv_obj_t* root)
         "Wifi ON OFF"
     );
     char system_info[100];
-    char mac_s[6];
-    uint8_t mac[6];
-    esp_base_mac_addr_get(mac);
-    for (uint8_t i = 0; i < 3; i++)
-    {
-       sprintf(mac_s+i*2,"%02x",mac[i]);
-    }
-    const esp_app_desc_t * app_desc = esp_app_get_description();
-    sprintf(system_info,"Name : Super Dial\nAuthor : 45coll\nChip Mac : %s\nUpdate : %s",mac_s,app_desc->date);
+    // char mac_s[6];
+    // uint8_t mac[6];
+    // esp_base_mac_addr_get(mac);
+    // for (uint8_t i = 0; i < 3; i++)
+    // {
+    //    sprintf(mac_s+i*2,"%02x",mac[i+3]);
+    // }
+    // const esp_app_desc_t * app_desc = esp_app_get_description();
+
+    sprintf(system_info,"Name : Super Dial\nAuthor : 45coll\nChip Mac : %s\nUpdate : %s",sys_config.mac,sys_config.app_desc->date);
     Item_Create(root,
         "PowerOff",
         &ui_img_power_png,
