@@ -531,7 +531,7 @@ static void task_pointer_cb()
     lv_img_set_angle(pointer, get_fknob_shaft_angle());
     uint8_t value = bat_val_get();
 	lv_arc_set_value(arc_bat, value);
-    if(s_ble_hid_param.is_connected)
+    if(sec_conn)
     {
         lv_obj_add_state(ble_img,LV_STATE_USER_1);
     }

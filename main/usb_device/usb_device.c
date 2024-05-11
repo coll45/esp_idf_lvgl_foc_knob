@@ -165,7 +165,7 @@ void dial_hid_task()
                     break;
                 }
             }
-            else if(s_ble_hid_param.is_connected)
+            else if(sec_conn)
             {
                 switch (cmd.hid_id)
                 {

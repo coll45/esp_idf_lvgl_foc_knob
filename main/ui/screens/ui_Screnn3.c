@@ -410,7 +410,7 @@ static void task_pointer_cb()
     uint8_t value = bat_val_get();
 	lv_arc_set_value(arc_bat, value);
 
-    if(s_ble_hid_param.is_connected)
+    if(sec_conn)
     {
         lv_obj_add_state(ble_img,LV_STATE_USER_1);
     }
