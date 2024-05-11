@@ -47,6 +47,7 @@ static adc_channel_t adc_channel[1] = { ADC_CHANNEL_3};   //GPIO4
 #define SET_SCREEN_LOCK_TIME_SRC "30s\n1min\n3min\n5min\n10min\n15min\nnever"
 #define SET_SYSTEM_SLEEP_TIME_SRC "1min\n3min\n5min\n10min\n15min\n30min\nnever"
 
+void adc_read_init();
 void power_gpio_init(void);
 void power_on(void);
 void power_off(void);

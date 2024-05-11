@@ -35,7 +35,7 @@ static struct
 static const foc_knob_param_t hid_foc_knob_param_lst[] = {
     [0] = { 0, 0, 1 * PI / 180, 1, 1, 1.1, ""},    //第一个icon的力度          
 };
-static const foc_knob_param_t press_foc_knob_param = { 0, 0, 10 * PI / 180, 2, 1, 0.7, ""}; //按下旋转的力度
+static const foc_knob_param_t press_foc_knob_param = { 0, 0, 10 * PI / 180, 2, 1, 1.1, ""}; //按下旋转的力度
 void set_screen3_index()
 {
     nvs_set_u8_data(NVS_CSM_HID_INDEX,icon_index);

@@ -43,7 +43,7 @@ static const foc_knob_param_t hid_foc_knob_param_lst[] = {
     [6] = { 50, 25, 5 * PI / 180, 1, 1, 1.1, ""},    //音量         
     [7] = { 0, 0, 2 * PI / 180, 1, 1, 1.1, ""},    //方向键左右
 };
-static const foc_knob_param_t press_foc_knob_param = { 0, 0, 10 * PI / 180, 2, 1, 0.7, ""}; //按下旋转的力度
+static const foc_knob_param_t press_foc_knob_param = { 0, 0, 10 * PI / 180, 2, 1, 1.1, ""}; //按下旋转的力度
 void set_screen2_index()
 {
     nvs_set_u8_data(NVS_SYS_HID_INDEX,icon_index);

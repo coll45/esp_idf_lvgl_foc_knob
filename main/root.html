@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>WIFI 配网页面</title>
+</head>
+<style>
+	body {
+		padding: 30px;
+		margin: 0;
+		background: #F2F1F6;
+		overflow: hidden;
+	}
+
+	.header {
+		width: 100%;
+		display: flex;
+		justify-content: space-between;
+		padding: 30px 0;
+		align-items: flex-end;
+	}
+
+	.header .title {
+		font-size: 42px;
+		font-family: Source Han Sans CN;
+		font-weight: 600;
+		color: #1A1A1A;
+	}
+
+	.header .dateup {
+		font-size: 32px;
+		font-family: Source Han Sans CN;
+		font-weight: 400;
+		color: #2960F7;
+	}
+
+	.wifi_list {
+		background-color: #fff;
+		padding: 30px 40px;
+		border-radius: 18px;
+	}
+
+	.wifi_list .wifi_item {
+		padding: 30px 0;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		border-bottom: 1px solid #EBEBED;
+	}
+
+	.wifi_item:last-child {
+		border: none;
+	}
+
+	.wifi_list .wifi_item .wifi_item_name {
+		font-size: 36px;
+		font-family: Source Han Sans CN;
+		font-weight: 400;
+		color: #1A1A1A;
+	}
+
+	.wifi_list .wifi_item .wifi_item_signal {
+		padding-right: 50px;
+		margin-bottom: -20px;
+	}
+
+	.mask {
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0, 0, 0, 0.5);
+		display: none;
+		position: absolute;
+		top: 0;
+		left: 0;
+		z-index: 1;
+	}
+
+	.wifi_link {
+		border-radius: 24px 24px 0px 0px;
+		background-color: #F2F1F6;
+		position: absolute;
+		display: none;
+		left: 0;
+		bottom: 0px;
+		padding: 40px 50px;
+		width: calc(100% - 100px);
+		z-index: 2;
+		padding-bottom: 60vh;
+	}
+
+	.wifi_link .link_title {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-end;
+	}
+
+	.link_wifi_name {
+		font-size: 42px;
+		font-family: Source Han Sans CN;
+		font-weight: 500;
+		color: #1A1A1A;
+	}
+
+	.link_title .link_clear {
+		font-size: 32px;
+		font-family: Source Han Sans CN;
+		font-weight: 400;
+		color: #2960F7;
+	}
+
+	.link_verify {
+		font-size: 32px;
+		font-family: Source Han Sans CN;
+		font-weight: 400;
+		color: #B0B4BF;
+	}
+
+	.link_config {
+		padding: 40px 0;
+		width: 100%;
+	}
+
+	.label {
+		font-size: 34px;
+		font-family: Source Han Sans CN;
+		font-weight: 500;
+		color: #1A1A1A;
+		padding: 20px 0;
+	}
+
+	.input {
+		display: flex;
+		position: relative;
+		background-color: #fff;
+		padding: 20px;
+		border-radius: 18px;
+	}
+
+	.input .input_label {
+		font-size: 32px;
+		font-family: Source Han Sans CN;
+		font-weight: 400;
+		color: #1A1A1A;
+		position: absolute;
+		left: 30px;
+	}
+
+	.input input {
+		outline-style: none;
+		border: 0;
+		font-size: 36px;
+		margin-left: 20px;
+		width: 100%;
+		padding-left: 100px;
+	}
+</style>
+<style>
+	/* 信号一格 */
+	.wifi_strength1 {
+		display: inline-block;
+		height: 15px;
+		width: 8px;
+		background-color: #000;
+		position: absolute;
+		border-radius: 3px;
+	}
+
+	.wifi_strength1::after {
+		content: '';
+		position: absolute;
+		height: 25px;
+		width: 8px;
+		background-color: #eee;
+		left: 20px;
+		bottom: 0;
+		border-radius: 3px;
+	}
+
+	.wifi_strength1::before {
+		content: '';
+		position: absolute;
+		height: 35px;
+		width: 8px;
+		background-color: #eee;
+		left: 40px;
+		bottom: 0;
+		border-radius: 3px;
+	}
+
+	/* 信号二格 */
+	.wifi_strength2 {
+		display: inline-block;
+		height: 15px;
+		width: 8px;
+		background-color: #000;
+		position: relative;
+		border-radius: 3px;
+	}
+
+	.wifi_strength2::after {
+		content: '';
+		position: absolute;
+		height: 25px;
+		width: 8px;
+		background-color: #000;
+		left: 20px;
+		bottom: 0;
+		border-radius: 3px;
+	}
+
+	.wifi_strength2::before {
+		content: '';
+		position: absolute;
+		height: 35px;
+		width: 8px;
+		background-color: #eee;
+		left: 40px;
+		bottom: 0;
+		border-radius: 3px;
+	}
+
+	/* 信号三格 */
+	.wifi_strength3 {
+		display: inline-block;
+		height: 15px;
+		width: 8px;
+		background-color: #000;
+		position: relative;
+		border-radius: 3px;
+	}
+
+	.wifi_strength3::after {
+		content: '';
+		position: absolute;
+		height: 25px;
+		width: 8px;
+		background-color: #000;
+		left: 20px;
+		bottom: 0;
+		border-radius: 3px;
+	}
+
+	.wifi_strength3::before {
+		content: '';
+		position: absolute;
+		height: 35px;
+		width: 8px;
+		background-color: #000;
+		left: 40px;
+		bottom: 0;
+		border-radius: 3px;
+	}
+</style>
+
+<body>
+	<div class="header">
+		<div class="title">
+			Wi-Fi列表
+		</div>
+		<div class="dateup" onclick="getWifiList()">
+			刷新
+		</div>
+	</div>
+	<div class="wifi_list">
+
+	</div>
+	<div class="mask" onclick="clearMask()"></div>
+	<div class="box">
+		<div class="wifi_link">
+			<div class="link_title">
+				<div class="link_clear" onclick="clearMask()">
+					取消
+				</div>
+				<div class="link_wifi_name">
+
+				</div>
+				<div class="link_verify" onclick="submit()">
+					确定
+				</div>
+			</div>
+			<div class="link_config">
+				<div class="label">
+					Wi-Fi密码
+				</div>
+				<div class="input">
+					<div class="input_label">
+						密码
+					</div>
+					<input type="password" id="pass" placeholder="请输入WiFi密码" data="passworedtype"
+						oninput="handleChange()">
+				</div>
+				<div class="label">
+					绑定密钥
+				</div>
+				<div class="input">
+					<div class="input_label">
+						密钥
+					</div>
+					<input type="password" id="code" placeholder="请输入四位数字" data="passworedtype" maxlength="4"
+						oninput="handleChange(true)">
+				</div>
+			</div>
+		</div>
+	</div>
+
+</body>
+<script>
+	var listDiv = document.querySelector('.wifi_list')
+	var wifiName = ''
+	var wifiPass = ''
+	var devCode = ''
+
+	function setDiv(item) {
+		let div =
+			`<div class="wifi_item" onclick="wifiOnClick('${item.ssid}')"><div class="wifi_item_name">${item.ssid}</div><div class="wifi_item_signal"><span class="wifi_strength${item.rssi}"></span></div></div>`
+		return div
+	}
+
+	function getWifiList() {
+		let list = ''
+		let html = ''
+		let request = new XMLHttpRequest()
+		request.open('GET', '/wifi_scan')
+		//返回格式，json是js对象的存储
+		//request.responseType = 'json'
+		request.send();
+		//请求成功后做啥
+		request.onreadystatechange = function () {
+			if (request.readyState === 4 && request.status === 200) { //固定写法
+				//数据获取成功，获取服务器响应的数据 
+				list = JSON.parse(request.responseText)['wifi_infos'];
+				for (let i = 0; i < list.length; i++) {
+					if (list[i].rssi >= -50) {
+						list[i].rssi = 3
+					} else if (list[i].rssi >= -79) {
+						list[i].rssi = 2
+					} else {
+						list[i].rssi = 1
+					}
+					html += setDiv(list[i]);
+				}
+				listDiv.innerHTML = html;
+			}
+		}
+	}
+	function clearMask() {
+		document.querySelector('.mask').style.display = "none"
+		document.querySelector('.wifi_link').style.display = "none"
+	}
+	function stopClick(e) {
+		if (window.event) {
+			window.event.cancelBubble = true;// ie 和 谷歌支持阻止冒泡
+		} else {
+			e.preventDefault();// 火狐和谷歌支持的阻止冒泡
+		}
+	}
+	function wifiOnClick(name) {
+		document.querySelector('.mask').style.display = "flex"
+		document.querySelector('.wifi_link').style.display = "block"
+		document.querySelector('.link_wifi_name').innerHTML = name
+		document.getElementById('code').value = ''
+		document.getElementById('pass').value = ''
+		document.getElementById('pass').focus()
+		wifiName = name
+	}
+	window.onload = getWifiList();
+	function handleChange(code) {
+		if (code) {
+			let value = document.getElementById('code').value
+			document.getElementById('code').value = value.replace(/[^\d]/g, '')
+		}
+		if (document.getElementById('pass').value.length >= 8 && document.getElementById('code').value.length == 4) {
+			document.querySelector('.link_verify').style.color = '#2960F7'
+		} else {
+			document.querySelector('.link_verify').style.color = '#B0B4BF'
+		}
+	}
+	function submit() {
+		if (document.getElementById('pass').value.length >= 8 && document.getElementById('code').value.length == 4) {
+			let input_ssid = wifiName;
+			let input_code = document.getElementById('pass').value;
+			let input_decive = document.getElementById('code').value;
+			let xhttp = new XMLHttpRequest();
+			xhttp.open("POST", "/wifi_data", true);
+			var data = {
+				"wifi_name": input_ssid,
+				"wifi_code": input_code,
+				"decive_code": input_decive
+			}
+			xhttp.send(JSON.stringify(data));
+			alert("提交成功");
+			clearMask()
+		} else {
+			alert('wifi密码或密钥错误')
+		}
+	}
+</script>
+
+</html>

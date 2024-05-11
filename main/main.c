@@ -15,7 +15,7 @@
 #include "dial/dial.h"
 #include "usb_device/usb_device.h"
 #include "dial_power/dial_power.h"
-
+#include "./wifi/wifi_config.h"
 #include "esp_ota_ops.h"
 #include "nvs_data/nvs_data.h"
 static const char *TAG = "MAIN";
@@ -67,6 +67,7 @@ void esp_task_wdt_isr_user_handler()
 }
 void app_main(void)
 {
+    power_gpio_init();
     nvs_data_init();
     const esp_partition_t *configured = esp_ota_get_boot_partition();
     const esp_partition_t *running = esp_ota_get_running_partition();
@@ -79,15 +80,15 @@ void app_main(void)
                     running->type, running->subtype, running->address);
     esp_ota_set_boot_partition(running);
 
-    power_gpio_init();
     /* 创建 Queue */ 
     dial_event_queue_init();
     foc_init();
     display_init();
+    
     /* Show LVGL objects */
     lvgl_display_init();
-
-
-    
-
+    adc_read_init();
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    knob_event_init();
+    // wifi_init(1);
 }   

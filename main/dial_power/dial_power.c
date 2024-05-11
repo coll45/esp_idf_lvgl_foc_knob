@@ -114,16 +114,23 @@ void adc_read_task()
                     uint32_t chan_num = EXAMPLE_ADC_GET_CHANNEL(p);
                     // adc_val = EXAMPLE_ADC_GET_DATA(p);
                     adc_val = AvgFilter(EXAMPLE_ADC_GET_DATA(p));
+                    // ESP_LOGI(TAG, " Channel: %"PRIu32", Value: %"PRIu32, chan_num, adc_val);
                     /* Check the channel number validation, the data is invalid if the channel num exceed the maximum channel */
                     // if (chan_num < SOC_ADC_CHANNEL_NUM(EXAMPLE_ADC_UNIT)) {
-                    //     ESP_LOGI(TAG, "Unit: %s, Channel: %"PRIu32", Value: %"PRIu32, unit, chan_num, adc_val);
+                        // ESP_LOGI(TAG, "Unit: %s, Channel: %"PRIu32", Value: %"PRIu32, unit, chan_num, adc_val);
                     // } else {
                     //     ESP_LOGW(TAG, "Invalid data [%s_%"PRIu32"_%"PRIx32"]", unit, chan_num, adc_val);
                     // }
                 // }
 
                 //screen lock time and sleep time
-                float now_angle = get_motor_shaft_angle();
+                
+            } else if (ret == ESP_ERR_TIMEOUT) {
+                // ESP_LOGI(TAG,"timeout");
+                //We try to read `EXAMPLE_READ_LEN` until API returns timeout, which means there's no available data
+                // break;
+            }
+            float now_angle = get_motor_shaft_angle();
                 time(&now_time);
                 if(fabs(now_angle - last_angle) > 2 * PI / 180) //如果旋转超过2度
                 {
@@ -160,10 +167,6 @@ void adc_read_task()
                 }
                 // ESP_LOGI(TAG, "difftime %f,now_angle:%f,last_angle:%f",difftime(now_time,last_time),now_angle,last_angle);
                 vTaskDelay(200 / portTICK_PERIOD_MS);
-            } else if (ret == ESP_ERR_TIMEOUT) {
-                //We try to read `EXAMPLE_READ_LEN` until API returns timeout, which means there's no available data
-                break;
-            }
         }
     }
     ESP_ERROR_CHECK(adc_continuous_stop(handle));
@@ -175,6 +178,10 @@ void power_gpio_init()
     gpio_set_direction(POWER_GPIO, GPIO_MODE_OUTPUT);
     power_on();
 
+    
+}
+void adc_read_init()
+{
     xTaskCreate(adc_read_task, "adc_read_task", 4096, NULL, 10, NULL);
 }
 void power_on()

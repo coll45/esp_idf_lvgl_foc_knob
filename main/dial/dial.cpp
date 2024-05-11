@@ -233,12 +233,12 @@ void foc_knob_set_param(foc_knob_param_t param)
 {
     foc_knob_set_param_list(foc_knob_handle, param);
 }
-void foc_init()
+void knob_event_init()
 {
     button_config_t btn_config = {
         .type = BUTTON_TYPE_GPIO,
         .long_press_time = 2000,
-        .short_press_time = 350,
+        .short_press_time = 450,
         .gpio_button_config = {
             .gpio_num = SWITCH_BUTTON,
             .active_level = 0,
@@ -252,7 +252,9 @@ void foc_init()
     iot_button_register_cb(btn, BUTTON_DOUBLE_CLICK, button_double_click_cb, NULL);
     iot_button_register_cb(btn, BUTTON_LONG_PRESS_START, button_long_press_start_cb, NULL);
     iot_button_register_cb(btn, BUTTON_LONG_PRESS_UP, button_long_press_up_cb, NULL);
-
+}
+void foc_init()
+{
     motor_init();
 
     foc_knob_config_t cfg = {
@@ -262,13 +264,12 @@ void foc_init()
         .max_torque = 5,
         .pid_cb = motor_pid_cb,
     };
-
     foc_knob_handle = foc_knob_create(&cfg);
     // foc_knob_change_mode(foc_knob_handle, 1);
     foc_knob_register_cb(foc_knob_handle, FOC_KNOB_INC, foc_knob_inc_cb, NULL);
     foc_knob_register_cb(foc_knob_handle, FOC_KNOB_DEC, foc_knob_dec_cb, NULL);
     foc_knob_register_cb(foc_knob_handle, FOC_KNOB_H_LIM, foc_knob_h_lim_cb, NULL);
     foc_knob_register_cb(foc_knob_handle, FOC_KNOB_L_LIM, foc_knob_l_lim_cb, NULL);
-
     xTaskCreate(motor_task, "motor_task", 4096, NULL, 24, NULL);
+    
 }

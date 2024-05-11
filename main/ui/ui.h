@@ -24,6 +24,7 @@ extern "C" {
 #include "../dial/dial.h"
 #include "../nvs_data/nvs_data.h"
 #include "../display/display.h"
+#include "../wifi/wifi_config.h"
 #define DIAL_STA_NUM 10
 enum {
     UI_NULL,

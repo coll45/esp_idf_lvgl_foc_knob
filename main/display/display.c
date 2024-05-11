@@ -157,8 +157,8 @@ void display_init(void)
 
     /* LVGL initialization */
     ESP_ERROR_CHECK(app_lvgl_init());
-    uint8_t val = nvs_get_u8_data(SET_NVS_LIGHT);
-    if(val>0&&val<=10)
+    uint8_t val = sys_config.set_light;
+    if(val>0&&val<=100)
         set_screen_light(val);
     else
         set_screen_light(50);
