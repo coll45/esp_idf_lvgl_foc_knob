@@ -44,7 +44,7 @@ void motor_init(void)
     mt6701.init();
     motor.linkSensor(&mt6701);
     driver.voltage_power_supply = 5;
-    driver.voltage_limit = 5;
+    driver.voltage_limit = 4;
 
 #if USING_MCPWM
     driver.init(0);
@@ -99,7 +99,7 @@ static void button_single_click_cb(void *arg, void *data)
     if(press_rotation == 1)
         dial_publish(DIAL_STA_CLICK);
     press_rotation = 0;
-    // ESP_LOGI(TAG, "single click:");
+    ESP_LOGI(TAG, "single click:");
 }
 static void button_double_click_cb(void *arg, void *data)
 {
@@ -107,7 +107,7 @@ static void button_double_click_cb(void *arg, void *data)
     //  if(press_rotation == 1)
         dial_publish(DIAL_STA_DOUBLE_CLICK);
     press_rotation = 0;
-    // ESP_LOGI(TAG, "double clic");
+    ESP_LOGI(TAG, "double clic");
 }
 static void button_long_press_start_cb(void *arg, void *data)
 {
@@ -238,7 +238,7 @@ void knob_event_init()
     button_config_t btn_config = {
         .type = BUTTON_TYPE_GPIO,
         .long_press_time = 2000,
-        .short_press_time = 450,
+        .short_press_time = 500,
         .gpio_button_config = {
             .gpio_num = SWITCH_BUTTON,
             .active_level = 0,
