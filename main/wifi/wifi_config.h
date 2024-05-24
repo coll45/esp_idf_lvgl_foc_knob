@@ -29,8 +29,6 @@
 // #include "wifi_data.h"
 
 httpd_handle_t start_webserver(void);
-esp_err_t from_nvs_set_value(char *key, char *value);
-esp_err_t from_nvs_get_value(char *key, char *value, size_t *size);
 void wifi_init_softap(void);
 void wifi_station_task(void *pvParameters);
 void wifi_init_sta();

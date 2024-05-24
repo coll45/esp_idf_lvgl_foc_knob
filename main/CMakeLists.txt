@@ -7,5 +7,4 @@ file(GLOB_RECURSE NVS_DATA ${CMAKE_SOURCE_DIR} "nvs_data/*.c")
 file(GLOB_RECURSE WIFI ${CMAKE_SOURCE_DIR} "wifi/*.c")
 idf_component_register(SRCS "main.c" ${SRC_UI} ${DIAL} ${DISPLAY} ${USB} ${POWER} ${NVS_DATA} ${WIFI}
                     INCLUDE_DIRS "." "ui" "dial" "display" "usb_device" "dial_power" "nvs_data" "wifi"
-                    EMBED_FILES root.html
                     )
